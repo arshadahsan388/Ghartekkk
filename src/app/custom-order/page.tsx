@@ -64,7 +64,9 @@ export default function CustomOrderPage() {
         <Card className="shadow-2xl">
           <CardHeader>
             <div className="flex items-center gap-4">
-              <ShoppingCart className="w-8 h-8 text-primary" />
+              <div className="bg-primary/20 p-3 rounded-full">
+                 <ShoppingCart className="w-8 h-8 text-primary" />
+              </div>
               <div>
                 <CardTitle className="font-headline text-2xl">
                   Place a Custom Order
@@ -113,7 +115,7 @@ export default function CustomOrderPage() {
                 </div>
               </div>
             </CardContent>
-            <CardFooter className="flex justify-between items-center">
+            <CardFooter className="flex justify-between items-center bg-muted/50 p-4 rounded-b-lg">
                 <div>
                     <span className="text-xs text-muted-foreground flex items-center gap-1"><WandSparkles className="w-3 h-3" /> Powered by AI</span>
                 </div>
@@ -142,34 +144,39 @@ export default function CustomOrderPage() {
         )}
 
         {result && (
-          <Card className="mt-8 border-primary/20 bg-primary/5">
-            <CardHeader>
+          <Card className="mt-8 border-primary/20 shadow-lg">
+            <CardHeader className="bg-primary/5 rounded-t-lg">
               <CardTitle>Order Analysis Complete</CardTitle>
+               <CardDescription>Here's what our AI thinks about your order.</CardDescription>
             </CardHeader>
-            <CardContent className="space-y-4">
+            <CardContent className="p-6 space-y-4">
               <div>
-                <Label className="text-sm font-semibold">Order Summary</Label>
-                <p className="text-sm">{result.summary}</p>
+                <Label className="text-sm font-semibold text-muted-foreground">Order Summary</Label>
+                <p className="text-base">{result.summary}</p>
               </div>
-              <div>
-                <Label className="text-sm font-semibold">
-                  Suggested Shop Type
-                </Label>
-                <p className="text-sm">
-                  <Badge>{result.suggestedShop}</Badge>
-                </p>
-              </div>
-              <div>
-                <Label className="text-sm font-semibold">
-                  Estimated Cost
-                </Label>
-                <p className="text-sm">Rs. {result.estimatedCost.toFixed(2)}</p>
-              </div>
-              <div>
+               <div className="grid grid-cols-2 gap-4 pt-4 border-t">
+                 <div>
+                    <Label className="text-sm font-semibold text-muted-foreground">
+                      Suggested Shop
+                    </Label>
+                    <p className="text-base">
+                      <Badge variant="secondary" className="text-base">{result.suggestedShop}</Badge>
+                    </p>
+                  </div>
+                   <div>
+                    <Label className="text-sm font-semibold text-muted-foreground">
+                      Estimated Cost
+                    </Label>
+                    <p className="text-base font-bold">Rs. {result.estimatedCost.toFixed(2)}</p>
+                  </div>
+               </div>
+              <div className={`p-4 rounded-md ${
+                    result.isFeasible ? 'bg-green-100 dark:bg-green-900/20 border-l-4 border-green-500' : 'bg-destructive/10 border-l-4 border-destructive'
+                  }`}>
                 <Label className="text-sm font-semibold">Feasibility</Label>
                 <p
-                  className={`text-sm font-bold ${
-                    result.isFeasible ? 'text-green-600' : 'text-destructive'
+                  className={`text-sm font-medium ${
+                    result.isFeasible ? 'text-green-700 dark:text-green-300' : 'text-destructive'
                   }`}
                 >
                   {result.isFeasible
@@ -179,8 +186,8 @@ export default function CustomOrderPage() {
               </div>
             </CardContent>
             <CardFooter>
-              <Button className="w-full">
-                Proceed to find a rider
+              <Button className="w-full" size="lg">
+                Proceed to Find a Rider
               </Button>
             </CardFooter>
           </Card>
