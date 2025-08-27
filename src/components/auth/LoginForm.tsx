@@ -15,9 +15,9 @@ import {
   FormMessage,
 } from '@/components/ui/form';
 import { Input } from '@/components/ui/input';
-import { Separator } from '@/components/ui/separator';
-import GoogleSignInButton from './GoogleSignInButton';
 import { useToast } from '@/hooks/use-toast';
+import { Separator } from '../ui/separator';
+import GoogleSignInButton from './GoogleSignInButton';
 
 const formSchema = z.object({
   email: z.string().email({ message: 'Please enter a valid email.' }),
@@ -37,15 +37,15 @@ export default function LoginForm() {
   function onSubmit(values: z.infer<typeof formSchema>) {
     console.log(values);
     toast({
-      title: "Login Successful",
-      description: "Welcome back! Redirecting you to the dashboard.",
-    })
+      title: 'Login Successful',
+      description: 'Welcome back! Redirecting you to the dashboard.',
+    });
   }
 
   return (
-    <div className="space-y-6">
+    <div className="grid gap-4">
       <Form {...form}>
-        <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
+        <form onSubmit={form.handleSubmit(onSubmit)} className="grid gap-4">
           <FormField
             control={form.control}
             name="email"
@@ -73,23 +73,25 @@ export default function LoginForm() {
             )}
           />
           <Button type="submit" className="w-full">
-            Sign In
+            Login
           </Button>
         </form>
       </Form>
       <div className="relative">
         <Separator />
         <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2">
-            <span className="bg-card px-2 text-sm text-muted-foreground">OR</span>
+          <span className="bg-card px-2 text-sm text-muted-foreground">
+            OR
+          </span>
         </div>
       </div>
       <GoogleSignInButton />
-       <p className="text-center text-sm text-muted-foreground">
+      <div className="mt-4 text-center text-sm">
         Don&apos;t have an account?{' '}
-        <Link href="/signup" className="font-semibold text-primary hover:underline">
+        <Link href="/signup" className="underline">
           Sign up
         </Link>
-      </p>
+      </div>
     </div>
   );
 }

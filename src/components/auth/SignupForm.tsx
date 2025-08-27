@@ -15,14 +15,18 @@ import {
   FormMessage,
 } from '@/components/ui/form';
 import { Input } from '@/components/ui/input';
-import { Separator } from '@/components/ui/separator';
-import GoogleSignInButton from './GoogleSignInButton';
 import { useToast } from '@/hooks/use-toast';
+import { Separator } from '../ui/separator';
+import GoogleSignInButton from './GoogleSignInButton';
 
 const formSchema = z.object({
-  fullName: z.string().min(2, { message: 'Full name must be at least 2 characters.' }),
+  fullName: z
+    .string()
+    .min(2, { message: 'Full name must be at least 2 characters.' }),
   email: z.string().email({ message: 'Please enter a valid email.' }),
-  password: z.string().min(8, { message: 'Password must be at least 8 characters.' }),
+  password: z
+    .string()
+    .min(8, { message: 'Password must be at least 8 characters.' }),
 });
 
 export default function SignupForm() {
@@ -38,16 +42,16 @@ export default function SignupForm() {
 
   function onSubmit(values: z.infer<typeof formSchema>) {
     console.log(values);
-     toast({
-      title: "Account Created",
-      description: "Welcome! Redirecting you to the dashboard.",
-    })
+    toast({
+      title: 'Account Created',
+      description: 'Welcome! Redirecting you to the dashboard.',
+    });
   }
 
   return (
-    <div className="space-y-6">
+    <div className="grid gap-4">
       <Form {...form}>
-        <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
+        <form onSubmit={form.handleSubmit(onSubmit)} className="grid gap-4">
           <FormField
             control={form.control}
             name="fullName"
@@ -88,23 +92,25 @@ export default function SignupForm() {
             )}
           />
           <Button type="submit" className="w-full">
-            Create Account
+            Create an account
           </Button>
         </form>
       </Form>
       <div className="relative">
         <Separator />
         <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2">
-            <span className="bg-card px-2 text-sm text-muted-foreground">OR</span>
+          <span className="bg-card px-2 text-sm text-muted-foreground">
+            OR
+          </span>
         </div>
       </div>
       <GoogleSignInButton />
-       <p className="text-center text-sm text-muted-foreground">
+      <div className="mt-4 text-center text-sm">
         Already have an account?{' '}
-        <Link href="/login" className="font-semibold text-primary hover:underline">
+        <Link href="/login" className="underline">
           Sign in
         </Link>
-      </p>
+      </div>
     </div>
   );
 }
