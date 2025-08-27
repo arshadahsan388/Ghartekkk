@@ -8,13 +8,13 @@ export default function Home() {
   return (
     <>
       <AnnouncementBar />
-      <div className="relative pt-16 pb-24 sm:pt-24 sm:pb-32">
+      <div className="relative pt-16 pb-16">
         <div className="absolute inset-0 bg-gradient-to-b from-primary/10 via-transparent to-transparent -z-10"></div>
         <div className="container mx-auto px-4 text-center">
-            <h1 className="text-4xl sm:text-5xl md:text-6xl font-extrabold tracking-tight font-headline bg-gradient-to-br from-primary to-accent bg-clip-text text-transparent drop-shadow-md">
+            <h1 className="text-4xl sm:text-5xl font-extrabold tracking-tight font-headline bg-gradient-to-br from-primary to-accent bg-clip-text text-transparent drop-shadow-md">
                 From Cravings to Comfort
             </h1>
-            <p className="mt-6 max-w-2xl mx-auto text-lg text-muted-foreground">
+            <p className="mt-4 max-w-2xl mx-auto text-lg text-muted-foreground">
               From your favorite restaurants to essential groceries and medicines, we deliver it all right to your doorstep in Vehari.
             </p>
             <div className="mt-8 flex flex-col sm:flex-row items-center justify-center gap-4">
