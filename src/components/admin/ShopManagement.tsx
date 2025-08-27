@@ -15,9 +15,10 @@ import { useState } from 'react';
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '../ui/dropdown-menu';
 
 const shops = [
-  { id: 'SHP001', name: 'KFC', cuisine: 'Fast Food', category: 'Fast Food', joined: '2023-01-15', address: '123 Food Street, Lahore' },
-  { id: 'SHP002', name: 'Butt Karahi', cuisine: 'Pakistani', category: 'Pakistani', joined: '2023-02-20', address: '456 GT Road, Lahore' },
-  { id: 'SHP003', name: 'Pizza Hut', cuisine: 'Pizza', category: 'Pizza', joined: '2023-03-10', address: '789 M M Alam Road, Lahore' },
+  { id: 'SHP001', name: 'Al-Madina Restaurant', cuisine: 'Pakistani', category: 'Pakistani', joined: '2023-01-15', address: 'Club Road, Vehari' },
+  { id: 'SHP002', name: 'Pizza N Pizza', cuisine: 'Pizza', category: 'Pizza', joined: '2023-02-20', address: 'Stadium Road, Vehari' },
+  { id: 'SHP003', name: 'Silver Spoon', cuisine: 'Fast Food', category: 'Fast Food', joined: '2023-03-10', address: 'Main Bazar, Vehari' },
+  { id: 'SHP004', name: 'Naveed BBQ', cuisine: 'BBQ', category: 'BBQ', joined: '2023-04-01', address: 'Sharqi Colony, Vehari' },
 ];
 
 export default function ShopManagement() {
