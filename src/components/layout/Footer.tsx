@@ -8,7 +8,7 @@ const navItems = [
   { href: '/', icon: Home, label: 'Home' },
   { href: '/orders', icon: Package, label: 'Orders' },
   { href: '/custom-order', icon: PlusSquare, label: 'Custom' },
-  { href: '/account', icon: User, label: 'Account' },
+  { href: '/account', icon: User, label: 'Profile' },
 ];
 
 export default function Footer() {
