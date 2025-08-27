@@ -42,32 +42,10 @@ export default function Header() {
 
   const handleLogin = () => {
     localStorage.setItem('isLoggedIn', 'true');
+    setIsLoggedIn(true);
     router.push('/');
   };
 
-  // Simplified logic for demo purposes
-  // In a real app, login/signup forms would call this on success.
-  // We are calling it here to complete the flow for the user.
-  useEffect(() => {
-    if (
-      (pathname.includes('/login') || pathname.includes('/signup')) &&
-      typeof window !== 'undefined'
-    ) {
-      // A trick to make login/signup work for the demo.
-      // A real app would have a proper auth flow.
-      const originalPush = router.push;
-      router.push = (...args: Parameters<typeof originalPush>) => {
-        if (args[0] === '/') {
-          handleLogin();
-        }
-        originalPush(...args);
-      };
-
-      return () => {
-        router.push = originalPush;
-      };
-    }
-  }, [pathname, router]);
 
   return (
     <header className="sticky top-0 z-50 w-full border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">

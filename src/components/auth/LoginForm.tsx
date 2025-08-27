@@ -4,7 +4,6 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import { useForm } from 'react-hook-form';
 import { z } from 'zod';
 import Link from 'next/link';
-import { useRouter } from 'next/navigation';
 
 import { Button } from '@/components/ui/button';
 import {
@@ -19,6 +18,7 @@ import { Input } from '@/components/ui/input';
 import { useToast } from '@/hooks/use-toast';
 import { Separator } from '../ui/separator';
 import GoogleSignInButton from './GoogleSignInButton';
+import { useRouter } from 'next/navigation';
 
 const formSchema = z.object({
   email: z.string().email({ message: 'Please enter a valid email.' }),
@@ -38,11 +38,14 @@ export default function LoginForm() {
 
   function onSubmit(values: z.infer<typeof formSchema>) {
     console.log(values);
+    // Simulate successful login
+    localStorage.setItem('isLoggedIn', 'true');
     toast({
       title: 'Login Successful',
       description: 'Welcome back! Redirecting you to the dashboard.',
     });
     router.push('/');
+    router.refresh(); // Forces a refresh to update header state
   }
 
   return (

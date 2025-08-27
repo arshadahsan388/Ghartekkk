@@ -44,11 +44,14 @@ export default function SignupForm() {
 
   function onSubmit(values: z.infer<typeof formSchema>) {
     console.log(values);
+    // Simulate successful signup
+    localStorage.setItem('isLoggedIn', 'true');
     toast({
       title: 'Account Created',
       description: 'Welcome! Redirecting you to the dashboard.',
     });
     router.push('/');
+    router.refresh(); // Forces a refresh to update header state
   }
 
   return (
