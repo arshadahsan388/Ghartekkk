@@ -7,23 +7,6 @@ import Image from 'next/image';
 export default function Home() {
   return (
     <>
-      <section className="relative w-full h-[400px] bg-primary/10 flex items-center justify-center">
-        <div className="absolute inset-0">
-           <Image
-            src="https://picsum.photos/1920/400"
-            alt="Hero Image"
-            fill
-            className="object-cover opacity-20"
-            data-ai-hint="pakistani food platter"
-            />
-        </div>
-        <div className="container mx-auto px-4 text-center relative z-10">
-          <p className="text-md md:text-lg text-muted-foreground max-w-2xl mx-auto">
-            From your favorite restaurants to essential groceries and medicines, we deliver it all right to your doorstep in Vehari.
-          </p>
-        </div>
-      </section>
-
       <div className="container mx-auto px-4 py-12">
         <div className="space-y-12">
           <div className="text-center p-8 border-2 border-dashed rounded-lg bg-card shadow-sm">
