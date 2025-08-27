@@ -26,7 +26,7 @@ const categories = ['Food', 'Grocery', 'Medical'];
 
 export default function ShopList() {
   return (
-    <section className="space-y-12">
+    <div className="space-y-12">
       {categories.map(category => (
         <div key={category}>
           <div className="mb-6">
@@ -49,6 +49,6 @@ export default function ShopList() {
           </div>
         </div>
       ))}
-    </section>
+    </div>
   );
 }
