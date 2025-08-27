@@ -1,47 +1,41 @@
+'use client';
 import Link from 'next/link';
-import Logo from '../icons/Logo';
+import { usePathname } from 'next/navigation';
+import { Home, Package, PlusSquare, User } from 'lucide-react';
+import { cn } from '@/lib/utils';
+
+const navItems = [
+  { href: '/', icon: Home, label: 'Home' },
+  { href: '/orders', icon: Package, label: 'Orders' },
+  { href: '/custom-order', icon: PlusSquare, label: 'Custom' },
+  { href: '/account', icon: User, label: 'Account' },
+];
 
 export default function Footer() {
+  const pathname = usePathname();
+
   return (
-    <footer className="bg-muted/50 border-t mt-12">
-      <div className="container mx-auto px-4 py-8">
-        <div className="grid md:grid-cols-3 gap-8">
-          <div className="flex flex-col gap-4">
-            <Link href="/" className="flex items-center space-x-2">
-              <Logo className="h-8 w-8" />
-              <span className="font-bold text-xl font-headline">Pak Delivers</span>
+    <footer className="fixed bottom-0 left-0 right-0 z-50 border-t bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 md:hidden">
+      <nav className="flex items-center justify-around h-16">
+        {navItems.map(({ href, icon: Icon, label }) => {
+          const isActive = pathname === href;
+          return (
+            <Link
+              key={href}
+              href={href}
+              className={cn(
+                'flex flex-col items-center justify-center gap-1 text-xs font-medium w-full h-full transition-colors',
+                isActive
+                  ? 'text-primary'
+                  : 'text-muted-foreground hover:text-primary'
+              )}
+            >
+              <Icon className="h-6 w-6" />
+              <span>{label}</span>
             </Link>
-            <p className="text-muted-foreground text-sm">
-              Your one-stop shop for deliveries in Vehari.
-            </p>
-             <p className="text-xs text-muted-foreground">&copy; {new Date().getFullYear()} Pak Delivers. All Rights Reserved.</p>
-          </div>
-          <div className="md:col-span-2 grid grid-cols-2 sm:grid-cols-3 gap-8">
-            <div>
-              <h4 className="font-semibold mb-3">Quick Links</h4>
-              <ul className="space-y-2 text-sm">
-                <li><Link href="/" className="text-muted-foreground hover:text-primary">Home</Link></li>
-                <li><Link href="/orders" className="text-muted-foreground hover:text-primary">My Orders</Link></li>
-                <li><Link href="/custom-order" className="text-muted-foreground hover:text-primary">Custom Order</Link></li>
-              </ul>
-            </div>
-             <div>
-              <h4 className="font-semibold mb-3">Legal</h4>
-              <ul className="space-y-2 text-sm">
-                <li><Link href="/privacy-policy" className="text-muted-foreground hover:text-primary">Privacy Policy</Link></li>
-                <li><Link href="/terms-and-conditions" className="text-muted-foreground hover:text-primary">Terms & Conditions</Link></li>
-              </ul>
-            </div>
-             <div>
-              <h4 className="font-semibold mb-3">Contact</h4>
-              <ul className="space-y-2 text-sm">
-                <li className="text-muted-foreground">contact@pakdelivers.com</li>
-                <li className="text-muted-foreground">+92 300 1234567</li>
-              </ul>
-            </div>
-          </div>
-        </div>
-      </div>
+          );
+        })}
+      </nav>
     </footer>
   );
 }
