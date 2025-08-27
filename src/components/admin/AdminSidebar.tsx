@@ -1,17 +1,7 @@
 'use client';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import { Bell, Home, Package, ShoppingCart, Users } from 'lucide-react';
-
-import { Button } from '@/components/ui/button';
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from '@/components/ui/card';
-import { Badge } from '@/components/ui/badge';
+import { Home, Package, ShoppingCart, Users } from 'lucide-react';
 import Logo from '../icons/Logo';
 
 const navItems = [
@@ -47,22 +37,6 @@ export default function AdminSidebar() {
               </Link>
             ))}
           </nav>
-        </div>
-        <div className="mt-auto p-4">
-          <Card>
-            <CardHeader className="p-4">
-              <CardTitle>Upgrade to Pro</CardTitle>
-              <CardDescription>
-                Unlock all features and get unlimited access to our support
-                team.
-              </CardDescription>
-            </CardHeader>
-            <CardContent className="p-4 pt-0">
-              <Button size="sm" className="w-full">
-                Upgrade
-              </Button>
-            </CardContent>
-          </Card>
         </div>
       </div>
     </div>
