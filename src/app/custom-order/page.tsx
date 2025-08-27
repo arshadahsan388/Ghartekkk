@@ -28,6 +28,7 @@ export default function CustomOrderPage() {
   const [description, setDescription] = useState('');
   const [budget, setBudget] = useState('');
   const [address, setAddress] = useState('');
+  const [email, setEmail] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const [result, setResult] = useState<CustomOrderOutput | null>(null);
 
@@ -38,10 +39,55 @@ export default function CustomOrderPage() {
     }
   }, []);
 
+  const handleOrderSuccess = (response: CustomOrderOutput) => {
+    // Save order
+    const orders = JSON.parse(localStorage.getItem('orders') || '[]');
+    const newOrder = {
+        id: `ORD${(orders.length + 1).toString().padStart(3, '0')}`,
+        customer: email.split('@')[0], // Simple name from email
+        shop: response.suggestedShop,
+        status: 'Pending',
+        total: response.estimatedCost,
+    };
+    const updatedOrders = [...orders, newOrder];
+    localStorage.setItem('orders', JSON.stringify(updatedOrders));
+
+    // Save user
+    const users = JSON.parse(localStorage.getItem('users') || '[]');
+    const existingUser = users.find((u: any) => u.email === email);
+    if (existingUser) {
+        existingUser.orders += 1;
+    } else {
+        const newUser = {
+            id: `USR${(users.length + 1).toString().padStart(3, '0')}`,
+            name: email.split('@')[0],
+            email: email,
+            orders: 1,
+            role: 'customer' as const,
+            isBanned: false,
+        };
+        users.push(newUser);
+    }
+    localStorage.setItem('users', JSON.stringify(users));
+
+    // Save address
+    localStorage.setItem('deliveryAddress', address);
+  }
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsLoading(true);
     setResult(null);
+
+    if (!email) {
+        toast({
+            variant: 'destructive',
+            title: 'Email Required',
+            description: 'Please enter your email to place an order.',
+        });
+        setIsLoading(false);
+        return;
+    }
 
     try {
       const response = await processCustomOrder({
@@ -50,10 +96,8 @@ export default function CustomOrderPage() {
         address,
       });
       setResult(response);
+      handleOrderSuccess(response);
       
-      // Save address on successful order
-      localStorage.setItem('deliveryAddress', address);
-
       toast({
         title: 'Order Processed',
         description: 'Your custom order has been analyzed by our AI.',
@@ -101,6 +145,17 @@ export default function CustomOrderPage() {
                   onChange={(e) => setDescription(e.target.value)}
                   required
                   rows={4}
+                />
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="email">Your Email</Label>
+                <Input
+                    id="email"
+                    type="email"
+                    placeholder="e.g., yourname@example.com"
+                    value={email}
+                    onChange={(e) => setEmail(e.target.value)}
+                    required
                 />
               </div>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">

@@ -1,3 +1,4 @@
+
 'use client';
 
 import {
@@ -19,9 +20,9 @@ import {
 import { CheckCircle, MoreHorizontal, Pencil, XCircle } from 'lucide-react';
 import { Card, CardHeader, CardTitle, CardContent, CardDescription } from '../ui/card';
 import RejectOrderDialog from './RejectOrderDialog';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 
-const orders = [
+const initialOrders = [
   {
     id: 'ORD001',
     customer: 'Ali Khan',
@@ -55,6 +56,16 @@ const orders = [
 export default function OrderManagement() {
   const [dialogOpen, setDialogOpen] = useState(false);
   const [selectedOrder, setSelectedOrder] = useState<any>(null);
+  const [orders, setOrders] = useState(initialOrders);
+
+   useEffect(() => {
+    const storedOrders = localStorage.getItem('orders');
+    if (storedOrders) {
+      setOrders(JSON.parse(storedOrders));
+    } else {
+      localStorage.setItem('orders', JSON.stringify(initialOrders));
+    }
+  }, []);
 
   const handleRejectClick = (order: any) => {
     setSelectedOrder(order);
@@ -131,4 +142,3 @@ export default function OrderManagement() {
     </Card>
   );
 }
-

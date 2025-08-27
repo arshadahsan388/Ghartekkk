@@ -1,3 +1,4 @@
+
 'use client';
 import {
   Table,
@@ -18,7 +19,7 @@ import {
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '../ui/card';
 import { Badge } from '../ui/badge';
 import { useToast } from '@/hooks/use-toast';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 
 const initialUsers = [
   { id: 'USR001', name: 'Ali Khan', email: 'ali.khan@email.com', orders: 5, role: 'customer' as const, isBanned: false },
@@ -31,6 +32,15 @@ const initialUsers = [
 export default function UserManagement() {
   const { toast } = useToast();
   const [users, setUsers] = useState(initialUsers);
+
+  useEffect(() => {
+    const storedUsers = localStorage.getItem('users');
+    if (storedUsers) {
+      setUsers(JSON.parse(storedUsers));
+    } else {
+        localStorage.setItem('users', JSON.stringify(initialUsers));
+    }
+  }, []);
 
   const handleMakeAdmin = (userId: string) => {
     setUsers(users.map(user => user.id === userId ? { ...user, role: 'admin' } : user));
