@@ -1,3 +1,4 @@
+
 'use client';
 
 import Link from 'next/link';
@@ -11,7 +12,7 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from '../ui/dropdown-menu';
-import { LogOut, Package, User, ShoppingBag, Shield, Home } from 'lucide-react';
+import { LogOut, Package, User, ShoppingBag, Shield } from 'lucide-react';
 import Logo from '../icons/Logo';
 import { usePathname, useRouter } from 'next/navigation';
 import { useEffect, useState } from 'react';
@@ -60,10 +61,6 @@ export default function Header() {
 
         {isNotAdminPage && (
           <nav className="flex items-center space-x-6 text-sm font-medium flex-1">
-             <Link href="/" className="flex items-center gap-1 text-muted-foreground hover:text-primary transition-colors">
-                <Home className="h-4 w-4"/>
-                Home
-            </Link>
              <Link href="/orders" className="flex items-center gap-1 text-muted-foreground hover:text-primary transition-colors">
                 <ShoppingBag className="h-4 w-4"/>
                 My Orders
@@ -123,12 +120,7 @@ export default function Header() {
             </DropdownMenu>
           ) : (
             <div className="space-x-2">
-              <Button asChild variant="ghost">
-                <Link href="/login">Log In</Link>
-              </Button>
-               <Button asChild className="bg-gradient-to-r from-primary to-amber-400 text-primary-foreground hover:shadow-lg transition-shadow">
-                <Link href="/signup">Sign Up</Link>
-              </Button>
+             {/* Login and signup buttons removed as requested */}
             </div>
           )}
         </div>
