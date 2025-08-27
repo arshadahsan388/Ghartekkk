@@ -16,7 +16,7 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
-import { CheckCircle, MoreHorizontal, XCircle } from 'lucide-react';
+import { CheckCircle, MoreHorizontal, Pencil, XCircle } from 'lucide-react';
 import { Card, CardHeader, CardTitle, CardContent, CardDescription } from '../ui/card';
 import RejectOrderDialog from './RejectOrderDialog';
 import { useState } from 'react';
@@ -87,14 +87,11 @@ export default function OrderManagement() {
                 <TableCell>{order.shop}</TableCell>
                 <TableCell>
                   <Badge
-                    variant={
-                      order.status === 'Pending'
-                        ? 'secondary'
-                        : order.status === 'Confirmed'
-                        ? 'default'
-                        : order.status === 'Delivered'
-                        ? 'outline'
-                        : 'destructive'
+                    className={
+                      order.status === 'Pending' ? 'bg-yellow-500 hover:bg-yellow-600'
+                      : order.status === 'Confirmed' ? 'bg-blue-500 hover:bg-blue-600'
+                      : order.status === 'Delivered' ? 'bg-green-500 hover:bg-green-600'
+                      : 'bg-red-500 hover:bg-red-600'
                     }
                   >
                     {order.status}
@@ -111,7 +108,7 @@ export default function OrderManagement() {
                     </DropdownMenuTrigger>
                     <DropdownMenuContent align="end">
                       <DropdownMenuItem>
-                        <CheckCircle className="mr-2 h-4 w-4" />
+                        <CheckCircle className="mr-2 h-4 w-4 text-green-500" />
                         Confirm Order
                       </DropdownMenuItem>
                       <DropdownMenuItem onClick={() => handleRejectClick(order)}>
@@ -119,6 +116,7 @@ export default function OrderManagement() {
                         Reject Order
                       </DropdownMenuItem>
                        <DropdownMenuItem>
+                        <Pencil className="mr-2 h-4 w-4 text-blue-500"/>
                         Edit Order
                       </DropdownMenuItem>
                     </DropdownMenuContent>
@@ -133,3 +131,4 @@ export default function OrderManagement() {
     </Card>
   );
 }
+

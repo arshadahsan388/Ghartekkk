@@ -1,11 +1,15 @@
 'use client';
 import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { Activity, CreditCard, DollarSign, Users } from 'lucide-react';
+
+import {
+  Card,
+  CardContent,
+  CardHeader,
+  CardTitle,
+} from '@/components/ui/card';
 import OrderManagement from '@/components/admin/OrderManagement';
-import UserManagement from '@/components/admin/UserManagement';
-import ShopManagement from '@/components/admin/ShopManagement';
-import { Package, ShoppingBag, Users } from 'lucide-react';
 
 export default function AdminPage() {
   const router = useRouter();
@@ -24,33 +28,61 @@ export default function AdminPage() {
   }
 
   return (
-    <div className="container mx-auto py-8">
-      <h1 className="font-headline text-3xl font-bold mb-8">Admin Dashboard</h1>
-      <Tabs defaultValue="orders">
-        <TabsList className="grid w-full grid-cols-3">
-          <TabsTrigger value="orders">
-            <ShoppingBag className="mr-2 h-4 w-4" />
-            Order Management
-          </TabsTrigger>
-          <TabsTrigger value="users">
-            <Users className="mr-2 h-4 w-4" />
-            User Management
-          </TabsTrigger>
-          <TabsTrigger value="shops">
-            <Package className="mr-2 h-4 w-4" />
-            Shop Management
-          </TabsTrigger>
-        </TabsList>
-        <TabsContent value="orders">
-          <OrderManagement />
-        </TabsContent>
-        <TabsContent value="users">
-          <UserManagement />
-        </TabsContent>
-        <TabsContent value="shops">
-          <ShopManagement />
-        </TabsContent>
-      </Tabs>
+    <div className="space-y-8">
+       <h1 className="font-headline text-3xl font-bold">Dashboard</h1>
+      <div className="grid gap-4 md:grid-cols-2 md:gap-8 lg:grid-cols-4">
+        <Card>
+          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+            <CardTitle className="text-sm font-medium">Total Revenue</CardTitle>
+            <DollarSign className="h-4 w-4 text-muted-foreground" />
+          </CardHeader>
+          <CardContent>
+            <div className="text-2xl font-bold">Rs. 45,231.89</div>
+            <p className="text-xs text-muted-foreground">
+              +20.1% from last month
+            </p>
+          </CardContent>
+        </Card>
+        <Card>
+          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+            <CardTitle className="text-sm font-medium">New Users</CardTitle>
+            <Users className="h-4 w-4 text-muted-foreground" />
+          </CardHeader>
+          <CardContent>
+            <div className="text-2xl font-bold">+235</div>
+            <p className="text-xs text-muted-foreground">
+              +18.1% from last month
+            </p>
+          </CardContent>
+        </Card>
+        <Card>
+          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+            <CardTitle className="text-sm font-medium">Total Orders</CardTitle>
+            <CreditCard className="h-4 w-4 text-muted-foreground" />
+          </CardHeader>
+          <CardContent>
+            <div className="text-2xl font-bold">+12,234</div>
+            <p className="text-xs text-muted-foreground">
+              +19% from last month
+            </p>
+          </CardContent>
+        </Card>
+        <Card>
+          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+            <CardTitle className="text-sm font-medium">Active Now</CardTitle>
+            <Activity className="h-4 w-4 text-muted-foreground" />
+          </CardHeader>
+          <CardContent>
+            <div className="text-2xl font-bold">+573</div>
+            <p className="text-xs text-muted-foreground">
+              +20 since last hour
+            </p>
+          </CardContent>
+        </Card>
+      </div>
+      <div>
+        <OrderManagement />
+      </div>
     </div>
   );
 }

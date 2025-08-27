@@ -8,15 +8,16 @@ import {
   TableRow,
 } from '@/components/ui/table';
 import { Button } from '@/components/ui/button';
-import { PlusCircle } from 'lucide-react';
+import { MoreHorizontal, Pencil, PlusCircle, Trash2 } from 'lucide-react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '../ui/card';
 import AddShopDialog from './AddShopDialog';
 import { useState } from 'react';
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '../ui/dropdown-menu';
 
 const shops = [
-  { id: 'SHP001', name: 'KFC', cuisine: 'Fast Food', category: 'Fast Food' },
-  { id: 'SHP002', name: 'Butt Karahi', cuisine: 'Pakistani', category: 'Pakistani' },
-  { id: 'SHP003', name: 'Pizza Hut', cuisine: 'Pizza', category: 'Pizza' },
+  { id: 'SHP001', name: 'KFC', cuisine: 'Fast Food', category: 'Fast Food', joined: '2023-01-15' },
+  { id: 'SHP002', name: 'Butt Karahi', cuisine: 'Pakistani', category: 'Pakistani', joined: '2023-02-20' },
+  { id: 'SHP003', name: 'Pizza Hut', cuisine: 'Pizza', category: 'Pizza', joined: '2023-03-10' },
 ];
 
 export default function ShopManagement() {
@@ -31,7 +32,7 @@ export default function ShopManagement() {
             </div>
             <Button onClick={() => setDialogOpen(true)}>
                 <PlusCircle className="mr-2 h-4 w-4" />
-                Add Shop
+                Add New Shop
             </Button>
         </CardHeader>
         <CardContent>
@@ -42,15 +43,38 @@ export default function ShopManagement() {
                     <TableHead>Name</TableHead>
                     <TableHead>Cuisine</TableHead>
                     <TableHead>Category</TableHead>
+                    <TableHead>Joined</TableHead>
+                    <TableHead className="text-right">Actions</TableHead>
                 </TableRow>
                 </TableHeader>
                 <TableBody>
                 {shops.map((shop) => (
                     <TableRow key={shop.id}>
-                    <TableCell className="font-medium">{shop.id}</TableCell>
-                    <TableCell>{shop.name}</TableCell>
-                    <TableCell>{shop.cuisine}</TableCell>
-                    <TableCell>{shop.category}</TableCell>
+                        <TableCell className="font-medium">{shop.id}</TableCell>
+                        <TableCell>{shop.name}</TableCell>
+                        <TableCell>{shop.cuisine}</TableCell>
+                        <TableCell>{shop.category}</TableCell>
+                        <TableCell>{shop.joined}</TableCell>
+                        <TableCell className="text-right">
+                             <DropdownMenu>
+                                <DropdownMenuTrigger asChild>
+                                <Button variant="ghost" className="h-8 w-8 p-0">
+                                    <span className="sr-only">Open menu</span>
+                                    <MoreHorizontal className="h-4 w-4" />
+                                </Button>
+                                </DropdownMenuTrigger>
+                                <DropdownMenuContent align="end">
+                                <DropdownMenuItem>
+                                    <Pencil className="mr-2 h-4 w-4" />
+                                    Edit Shop
+                                </DropdownMenuItem>
+                                <DropdownMenuItem className="text-destructive">
+                                    <Trash2 className="mr-2 h-4 w-4" />
+                                    Delete Shop
+                                </DropdownMenuItem>
+                                </DropdownMenuContent>
+                            </DropdownMenu>
+                        </TableCell>
                     </TableRow>
                 ))}
                 </TableBody>

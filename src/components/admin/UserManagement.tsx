@@ -8,7 +8,7 @@ import {
   TableRow,
 } from '@/components/ui/table';
 import { Button } from '@/components/ui/button';
-import { MoreHorizontal, Trash2, UserX } from 'lucide-react';
+import { MoreHorizontal, ShieldCheck, Trash2, UserX } from 'lucide-react';
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -16,12 +16,14 @@ import {
   DropdownMenuTrigger,
 } from '../ui/dropdown-menu';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '../ui/card';
+import { Badge } from '../ui/badge';
 
 const users = [
-  { id: 'USR001', name: 'Ali Khan', email: 'ali.khan@email.com', orders: 5 },
-  { id: 'USR002', name: 'Fatima Ahmed', email: 'fatima.ahmed@email.com', orders: 12 },
-  { id: 'USR003', name: 'Zainab Bibi', email: 'zainab.bibi@email.com', orders: 2 },
-  { id: 'USR004', name: 'Hassan Raza', email: 'hassan.raza@email.com', orders: 8 },
+  { id: 'USR001', name: 'Ali Khan', email: 'ali.khan@email.com', orders: 5, role: 'customer' },
+  { id: 'USR002', name: 'Fatima Ahmed', email: 'fatima.ahmed@email.com', orders: 12, role: 'customer' },
+  { id: 'USR003', name: 'Admin', email: 'admin@example.com', orders: 0, role: 'admin' },
+  { id: 'USR004', name: 'Zainab Bibi', email: 'zainab.bibi@email.com', orders: 2, role: 'customer' },
+  { id: 'USR005', name: 'Hassan Raza', email: 'hassan.raza@email.com', orders: 8, role: 'customer' },
 ];
 
 export default function UserManagement() {
@@ -39,6 +41,7 @@ export default function UserManagement() {
                     <TableHead>Name</TableHead>
                     <TableHead>Email</TableHead>
                     <TableHead>Total Orders</TableHead>
+                    <TableHead>Role</TableHead>
                     <TableHead className="text-right">Actions</TableHead>
                     </TableRow>
                 </TableHeader>
@@ -49,6 +52,11 @@ export default function UserManagement() {
                         <TableCell>{user.name}</TableCell>
                         <TableCell>{user.email}</TableCell>
                         <TableCell>{user.orders}</TableCell>
+                        <TableCell>
+                            <Badge variant={user.role === 'admin' ? 'default' : 'secondary'}>
+                                {user.role}
+                            </Badge>
+                        </TableCell>
                         <TableCell className="text-right">
                         <DropdownMenu>
                             <DropdownMenuTrigger asChild>
@@ -58,6 +66,10 @@ export default function UserManagement() {
                             </Button>
                             </DropdownMenuTrigger>
                             <DropdownMenuContent align="end">
+                            <DropdownMenuItem>
+                                <ShieldCheck className="mr-2 h-4 w-4" />
+                                Make Admin
+                            </DropdownMenuItem>
                             <DropdownMenuItem>
                                 <UserX className="mr-2 h-4 w-4" />
                                 Ban Account
