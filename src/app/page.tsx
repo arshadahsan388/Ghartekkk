@@ -18,10 +18,10 @@ export default function Home() {
             />
         </div>
         <div className="container mx-auto px-4 text-center relative z-10">
-          <h1 className="text-4xl md:text-5xl font-bold font-headline mb-4">
-            Anything you need, delivered.
+          <h1 className="text-3xl md:text-4xl font-bold font-headline mb-4">
+            Your Local Delivery Partner
           </h1>
-          <p className="text-lg md:text-xl text-muted-foreground mb-8 max-w-2xl mx-auto">
+          <p className="text-md md:text-lg text-muted-foreground mb-8 max-w-2xl mx-auto">
             From your favorite restaurants to essential groceries and medicines, we deliver it all right to your doorstep in Vehari.
           </p>
         </div>
