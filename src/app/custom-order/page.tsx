@@ -171,9 +171,9 @@ export default function CustomOrderPage() {
                     <Label className="text-sm font-semibold text-muted-foreground">
                       Suggested Shop
                     </Label>
-                    <p className="text-base">
+                    <div className="text-base">
                       <Badge variant="secondary" className="text-base">{result.suggestedShop}</Badge>
-                    </p>
+                    </div>
                   </div>
                    <div>
                     <Label className="text-sm font-semibold text-muted-foreground">
