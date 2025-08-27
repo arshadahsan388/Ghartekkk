@@ -1,5 +1,5 @@
 'use client';
-import { APIProvider, Map, AdvancedMarker, Polyline } from '@vis.gl/react-google-maps';
+import { APIProvider, Map, AdvancedMarker, useMap } from '@vis.gl/react-google-maps';
 import { useEffect, useState } from 'react';
 import { Bike } from 'lucide-react';
 
@@ -15,6 +15,31 @@ const routeCoordinates = [
   { lat: 31.5220, lng: 74.3580 },
   { lat: 31.5204, lng: 74.3587 },
 ];
+
+type PolylineProps = google.maps.PolylineOptions;
+
+const Polyline = (props: PolylineProps) => {
+  const map = useMap();
+  const [polyline, setPolyline] = useState<google.maps.Polyline | null>(null);
+
+  useEffect(() => {
+    if (!map) return;
+    if (polyline) {
+      polyline.setMap(null);
+    }
+    const newPolyline = new google.maps.Polyline(props);
+    newPolyline.setMap(map);
+    setPolyline(newPolyline);
+
+    return () => {
+      newPolyline.setMap(null);
+    };
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [map, props]);
+
+  return null;
+}
+
 
 type OrderTrackingMapProps = {
   apiKey: string;
