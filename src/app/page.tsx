@@ -1,28 +1,40 @@
 import { Button } from '@/components/ui/button';
 import ShopList from '@/components/shops/ShopList';
 import Link from 'next/link';
-import { ShoppingCart } from 'lucide-react';
+import { ArrowRight, Megaphone, ShoppingCart } from 'lucide-react';
 import Image from 'next/image';
+import AnnouncementBar from '@/components/layout/AnnouncementBar';
 
 export default function Home() {
   return (
     <>
-      <div className="container mx-auto px-4 py-12">
-        <div className="space-y-12">
-          <div className="text-center p-8 border-2 border-dashed rounded-lg bg-card shadow-sm">
-              <h2 className="text-2xl font-bold mb-2 font-headline">Can't Find It? We'll Get It!</h2>
-              <p className="text-muted-foreground mb-4">
-                  Need groceries, medicine, or something else? Just tell us what you need.
-              </p>
-              <Button asChild size="lg">
+      <AnnouncementBar />
+      <div className="relative pt-16 pb-24 sm:pt-24 sm:pb-32">
+        <div className="absolute inset-0 bg-gradient-to-b from-primary/10 via-transparent to-transparent -z-10"></div>
+        <div className="container mx-auto px-4 text-center">
+            <h1 className="text-4xl sm:text-5xl md:text-6xl font-extrabold tracking-tight font-headline bg-gradient-to-br from-primary to-accent bg-clip-text text-transparent drop-shadow-md">
+                From Cravings to Comfort
+            </h1>
+            <p className="mt-6 max-w-2xl mx-auto text-lg text-muted-foreground">
+              Anything you need, from your favorite restaurants to groceries and medicines, delivered right to your doorstep in Vehari.
+            </p>
+            <div className="mt-8 flex justify-center gap-4">
+                 <Button asChild size="lg" className="bg-gradient-to-r from-primary to-amber-400 text-primary-foreground hover:shadow-lg transition-shadow">
                   <Link href="/custom-order">
                       <ShoppingCart className="mr-2 h-5 w-5"/>
                       Place a Custom Order
                   </Link>
               </Button>
-          </div>
-          <ShopList />
+               <Button asChild size="lg" variant="outline">
+                  <Link href="#shops">
+                      Explore Shops <ArrowRight className="ml-2 h-5 w-5"/>
+                  </Link>
+              </Button>
+            </div>
         </div>
+      </div>
+      <div id="shops" className="container mx-auto px-4 py-12">
+        <ShopList />
       </div>
     </>
   );

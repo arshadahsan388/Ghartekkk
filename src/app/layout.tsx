@@ -3,6 +3,8 @@ import './globals.css';
 import { Toaster } from '@/components/ui/toaster';
 import Header from '@/components/layout/Header';
 import { PT_Sans } from 'next/font/google';
+import Footer from '@/components/layout/Footer';
+import { ThemeProvider } from '@/components/theme/ThemeProvider';
 
 const ptSans = PT_Sans({
   subsets: ['latin'],
@@ -27,9 +29,17 @@ export default function RootLayout({
         <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
       </head>
       <body className="antialiased min-h-screen bg-background flex flex-col">
-        <Header />
-        <main className="flex-grow">{children}</main>
-        <Toaster />
+        <ThemeProvider
+            attribute="class"
+            defaultTheme="system"
+            enableSystem
+            disableTransitionOnChange
+        >
+            <Header />
+            <main className="flex-grow">{children}</main>
+            <Footer />
+            <Toaster />
+        </ThemeProvider>
       </body>
     </html>
   );

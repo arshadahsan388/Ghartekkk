@@ -16,6 +16,7 @@ import Logo from '../icons/Logo';
 import { usePathname, useRouter } from 'next/navigation';
 import { useEffect, useState } from 'react';
 import { useToast } from '@/hooks/use-toast';
+import { ThemeSwitcher } from '../theme/ThemeSwitcher';
 
 export default function Header() {
   const [isLoggedIn, setIsLoggedIn] = useState(false);
@@ -25,10 +26,13 @@ export default function Header() {
   const { toast } = useToast();
 
   useEffect(() => {
-    const loggedIn = localStorage.getItem('isLoggedIn') === 'true';
-    const admin = localStorage.getItem('role') === 'admin';
-    setIsLoggedIn(loggedIn);
-    setIsAdmin(admin);
+    // This check is necessary to ensure localStorage is accessed only on the client side.
+    if (typeof window !== 'undefined') {
+      const loggedIn = localStorage.getItem('isLoggedIn') === 'true';
+      const admin = localStorage.getItem('role') === 'admin';
+      setIsLoggedIn(loggedIn);
+      setIsAdmin(admin);
+    }
   }, [pathname]);
 
   const handleLogout = () => {
@@ -60,19 +64,17 @@ export default function Header() {
                 <Home className="h-4 w-4"/>
                 Home
             </Link>
+             <Link href="/orders" className="flex items-center gap-1 text-muted-foreground hover:text-primary transition-colors">
+                <ShoppingBag className="h-4 w-4"/>
+                My Orders
+            </Link>
           </nav>
         )}
 
 
         <div className="flex items-center justify-end space-x-2 flex-1">
+           <ThemeSwitcher />
           {isLoggedIn ? (
-            <>
-             <Button variant="ghost" size="icon" asChild>
-                <Link href="/track-order/12345">
-                    <ShoppingBag className="h-5 w-5"/>
-                    <span className="sr-only">My Orders</span>
-                </Link>
-             </Button>
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
                 <Button variant="ghost" className="relative h-9 w-9 rounded-full">
@@ -99,7 +101,7 @@ export default function Header() {
                   </Link>
                 </DropdownMenuItem>
                  <DropdownMenuItem asChild>
-                  <Link href="/track-order/12345">
+                  <Link href="/orders">
                     <Package className="mr-2 h-4 w-4" />
                     <span>My Orders</span>
                   </Link>
@@ -119,13 +121,12 @@ export default function Header() {
                 </DropdownMenuItem>
               </DropdownMenuContent>
             </DropdownMenu>
-            </>
           ) : (
             <div className="space-x-2">
               <Button asChild variant="ghost">
                 <Link href="/login">Log In</Link>
               </Button>
-              <Button asChild>
+               <Button asChild className="bg-gradient-to-r from-primary to-amber-400 text-primary-foreground hover:shadow-lg transition-shadow">
                 <Link href="/signup">Sign Up</Link>
               </Button>
             </div>

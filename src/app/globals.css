@@ -69,4 +69,15 @@
   h1, h2, h3, h4, h5, h6 {
     @apply font-headline;
   }
+  .moving-text {
+    animation: moving-text 20s linear infinite;
+  }
+  @keyframes moving-text {
+    from {
+      transform: translateX(100%);
+    }
+    to {
+      transform: translateX(-100%);
+    }
+  }
 }
