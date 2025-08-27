@@ -1,8 +1,7 @@
 import { Button } from '@/components/ui/button';
 import ShopList from '@/components/shops/ShopList';
 import Link from 'next/link';
-import { ArrowRight, Megaphone, ShoppingCart } from 'lucide-react';
-import Image from 'next/image';
+import { ArrowRight, ShoppingCart } from 'lucide-react';
 import AnnouncementBar from '@/components/layout/AnnouncementBar';
 
 export default function Home() {
@@ -16,16 +15,16 @@ export default function Home() {
                 From Cravings to Comfort
             </h1>
             <p className="mt-6 max-w-2xl mx-auto text-lg text-muted-foreground">
-              Anything you need, from your favorite restaurants to groceries and medicines, delivered right to your doorstep in Vehari.
+              From your favorite restaurants to essential groceries and medicines, we deliver it all right to your doorstep in Vehari.
             </p>
-            <div className="mt-8 flex justify-center gap-4">
-                 <Button asChild size="lg" className="bg-gradient-to-r from-primary to-amber-400 text-primary-foreground hover:shadow-lg transition-shadow">
+            <div className="mt-8 flex flex-col sm:flex-row items-center justify-center gap-4">
+                 <Button asChild size="lg" className="w-full sm:w-auto bg-gradient-to-r from-primary to-amber-400 text-primary-foreground hover:shadow-lg transition-shadow">
                   <Link href="/custom-order">
                       <ShoppingCart className="mr-2 h-5 w-5"/>
                       Place a Custom Order
                   </Link>
               </Button>
-               <Button asChild size="lg" variant="outline">
+               <Button asChild size="lg" variant="outline" className="w-full sm:w-auto">
                   <Link href="#shops">
                       Explore Shops <ArrowRight className="ml-2 h-5 w-5"/>
                   </Link>
