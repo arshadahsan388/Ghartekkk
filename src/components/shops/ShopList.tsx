@@ -26,15 +26,15 @@ const categories = ['Food', 'Grocery', 'Medical'];
 
 export default function ShopList() {
   return (
-    <section className="space-y-8">
-      <div>
-        <h2 className="font-headline text-2xl font-bold">Explore Shops</h2>
-        <p className="text-muted-foreground">Find what you need from our curated list of shops.</p>
+    <section className="space-y-10">
+      <div className="text-center">
+        <h2 className="text-3xl font-bold font-headline">Explore Shops in Vehari</h2>
+        <p className="text-muted-foreground mt-2">Find what you need from our curated list of shops.</p>
       </div>
 
       {categories.map(category => (
         <div key={category}>
-          <h3 className="font-headline text-xl font-semibold mb-4">{category}</h3>
+          <h3 className="text-2xl font-bold font-headline mb-6">{category}</h3>
           <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
             {shops
               .filter(shop => shop.category === category)

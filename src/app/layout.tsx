@@ -2,13 +2,7 @@ import type { Metadata } from 'next';
 import './globals.css';
 import { Toaster } from '@/components/ui/toaster';
 import Header from '@/components/layout/Header';
-import { Manrope, PT_Sans } from 'next/font/google';
-
-const manrope = Manrope({
-  subsets: ['latin'],
-  display: 'swap',
-  variable: '--font-manrope',
-});
+import { PT_Sans } from 'next/font/google';
 
 const ptSans = PT_Sans({
   subsets: ['latin'],
@@ -28,11 +22,11 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en" suppressHydrationWarning className={`${manrope.variable} ${ptSans.variable}`}>
+    <html lang="en" suppressHydrationWarning className={`${ptSans.variable}`}>
       <head>
         <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
       </head>
-      <body className="font-body antialiased min-h-screen bg-background flex flex-col">
+      <body className="antialiased min-h-screen bg-background flex flex-col">
         <Header />
         <main className="flex-grow">{children}</main>
         <Toaster />

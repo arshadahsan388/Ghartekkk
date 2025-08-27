@@ -51,12 +51,12 @@ export default function Header() {
       <div className="container flex h-16 items-center">
         <Link href="/" className="mr-6 flex items-center space-x-2">
           <Logo className="h-8 w-8" />
-          <span className="font-headline font-bold text-xl">Pak Delivers</span>
+          <span className="font-bold text-xl font-headline">Pak Delivers</span>
         </Link>
 
         {isNotAdminPage && (
           <nav className="flex items-center space-x-6 text-sm font-medium flex-1">
-             <Link href="/" className="flex items-center gap-1 hover:text-primary transition-colors">
+             <Link href="/" className="flex items-center gap-1 text-muted-foreground hover:text-primary transition-colors">
                 <Home className="h-4 w-4"/>
                 Home
             </Link>
@@ -64,7 +64,7 @@ export default function Header() {
         )}
 
 
-        <div className="flex items-center justify-end space-x-4 flex-1">
+        <div className="flex items-center justify-end space-x-2 flex-1">
           {isLoggedIn ? (
             <>
              <Button variant="ghost" size="icon" asChild>
@@ -75,8 +75,8 @@ export default function Header() {
              </Button>
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
-                <Button variant="ghost" className="relative h-8 w-8 rounded-full">
-                  <Avatar className="h-8 w-8">
+                <Button variant="ghost" className="relative h-9 w-9 rounded-full">
+                  <Avatar className="h-9 w-9">
                     <AvatarImage src="https://picsum.photos/100" alt="User" />
                     <AvatarFallback>U</AvatarFallback>
                   </Avatar>
