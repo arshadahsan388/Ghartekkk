@@ -37,6 +37,10 @@ export default function AddShopDialog({ open, onOpenChange }: AddShopDialogProps
                 <Input id="cuisine" placeholder="e.g., BBQ, Pakistani" />
             </div>
             <div className="grid gap-2">
+                <Label htmlFor="address">Address</Label>
+                <Input id="address" placeholder="e.g., 123 Food Street, Lahore" />
+            </div>
+            <div className="grid gap-2">
                 <Label htmlFor="category">Category</Label>
                  <Select>
                     <SelectTrigger>

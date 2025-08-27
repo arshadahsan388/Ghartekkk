@@ -1,14 +1,14 @@
 import ShopCard from './ShopCard';
 
 const shops = [
-  { name: 'KFC', cuisine: 'Fast Food', rating: 4.2, deliveryTime: 30, category: 'Fast Food', 'data-ai-hint': 'fried chicken' },
-  { name: 'Butt Karahi', cuisine: 'Pakistani', rating: 4.8, deliveryTime: 45, category: 'Pakistani', 'data-ai-hint': 'karahi dish' },
-  { name: 'Pizza Hut', cuisine: 'Pizza', rating: 4.1, deliveryTime: 40, category: 'Pizza', 'data-ai-hint': 'pizza slice' },
-  { name: 'Haveli Restaurant', cuisine: 'Pakistani', rating: 4.6, deliveryTime: 55, category: 'Pakistani', 'data-ai-hint': 'traditional food' },
-  { name: 'McDonald\'s', cuisine: 'Fast Food', rating: 4.0, deliveryTime: 25, category: 'Fast Food', 'data-ai-hint': 'burger fries' },
-  { name: 'California Pizza', cuisine: 'Pizza', rating: 4.4, deliveryTime: 35, category: 'Pizza', 'data-ai-hint': 'gourmet pizza' },
-  { name: 'Gourmet Grill', cuisine: 'BBQ', rating: 4.5, deliveryTime: 50, category: 'BBQ', 'data-ai-hint': 'grilled meat' },
-  { name: 'Zakiras Kitchen', cuisine: 'Home-made', rating: 4.9, deliveryTime: 60, category: 'Home-made', 'data-ai-hint': 'home cooking' },
+  { name: 'KFC', cuisine: 'Fast Food', rating: 4.2, deliveryTime: 30, category: 'Fast Food', 'data-ai-hint': 'fried chicken', address: '123 Food Street, Lahore' },
+  { name: 'Butt Karahi', cuisine: 'Pakistani', rating: 4.8, deliveryTime: 45, category: 'Pakistani', 'data-ai-hint': 'karahi dish', address: '456 GT Road, Lahore' },
+  { name: 'Pizza Hut', cuisine: 'Pizza', rating: 4.1, deliveryTime: 40, category: 'Pizza', 'data-ai-hint': 'pizza slice', address: '789 M M Alam Road, Lahore' },
+  { name: 'Haveli Restaurant', cuisine: 'Pakistani', rating: 4.6, deliveryTime: 55, category: 'Pakistani', 'data-ai-hint': 'traditional food', address: 'Fort Road, Lahore' },
+  { name: 'McDonald\'s', cuisine: 'Fast Food', rating: 4.0, deliveryTime: 25, category: 'Fast Food', 'data-ai-hint': 'burger fries', address: 'Main Boulevard, Gulberg, Lahore' },
+  { name: 'California Pizza', cuisine: 'Pizza', rating: 4.4, deliveryTime: 35, category: 'Pizza', 'data-ai-hint': 'gourmet pizza', address: 'Y Block, DHA, Lahore' },
+  { name: 'Gourmet Grill', cuisine: 'BBQ', rating: 4.5, deliveryTime: 50, category: 'BBQ', 'data-ai-hint': 'grilled meat', address: 'H Block Market, DHA, Lahore' },
+  { name: 'Zakiras Kitchen', cuisine: 'Home-made', rating: 4.9, deliveryTime: 60, category: 'Home-made', 'data-ai-hint': 'home cooking', address: 'Model Town, Lahore' },
 ];
 
 const categories = [...new Set(shops.map(shop => shop.category))];
@@ -36,6 +36,7 @@ export default function ShopList() {
                   imageUrl={`https://picsum.photos/400/250?random=${category}${index}`}
                   deliveryTime={shop.deliveryTime}
                   data-ai-hint={shop['data-ai-hint']}
+                  address={shop.address}
                 />
               ))}
           </div>

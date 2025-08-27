@@ -15,9 +15,9 @@ import { useState } from 'react';
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '../ui/dropdown-menu';
 
 const shops = [
-  { id: 'SHP001', name: 'KFC', cuisine: 'Fast Food', category: 'Fast Food', joined: '2023-01-15' },
-  { id: 'SHP002', name: 'Butt Karahi', cuisine: 'Pakistani', category: 'Pakistani', joined: '2023-02-20' },
-  { id: 'SHP003', name: 'Pizza Hut', cuisine: 'Pizza', category: 'Pizza', joined: '2023-03-10' },
+  { id: 'SHP001', name: 'KFC', cuisine: 'Fast Food', category: 'Fast Food', joined: '2023-01-15', address: '123 Food Street, Lahore' },
+  { id: 'SHP002', name: 'Butt Karahi', cuisine: 'Pakistani', category: 'Pakistani', joined: '2023-02-20', address: '456 GT Road, Lahore' },
+  { id: 'SHP003', name: 'Pizza Hut', cuisine: 'Pizza', category: 'Pizza', joined: '2023-03-10', address: '789 M M Alam Road, Lahore' },
 ];
 
 export default function ShopManagement() {
@@ -42,7 +42,7 @@ export default function ShopManagement() {
                     <TableHead>Shop ID</TableHead>
                     <TableHead>Name</TableHead>
                     <TableHead>Cuisine</TableHead>
-                    <TableHead>Category</TableHead>
+                    <TableHead>Address</TableHead>
                     <TableHead>Joined</TableHead>
                     <TableHead className="text-right">Actions</TableHead>
                 </TableRow>
@@ -53,7 +53,7 @@ export default function ShopManagement() {
                         <TableCell className="font-medium">{shop.id}</TableCell>
                         <TableCell>{shop.name}</TableCell>
                         <TableCell>{shop.cuisine}</TableCell>
-                        <TableCell>{shop.category}</TableCell>
+                        <TableCell>{shop.address}</TableCell>
                         <TableCell>{shop.joined}</TableCell>
                         <TableCell className="text-right">
                              <DropdownMenu>
