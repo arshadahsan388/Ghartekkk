@@ -9,7 +9,9 @@ import { CreditCard, Home, PlusCircle, Trash2 } from 'lucide-react';
 export default function AccountPage() {
   return (
     <div className="container mx-auto px-4 py-8">
-      <h1 className="font-headline text-3xl font-bold mb-8">My Account</h1>
+      <div className="mb-12">
+        <h1 className="font-headline text-4xl sm:text-5xl font-bold">My Account</h1>
+      </div>
       <div className="grid md:grid-cols-2 gap-8">
         <Card>
           <CardHeader>

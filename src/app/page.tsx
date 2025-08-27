@@ -24,11 +24,6 @@ export default function Home() {
                       Place a Custom Order
                   </Link>
               </Button>
-               <Button asChild size="lg" variant="outline" className="w-full sm:w-auto">
-                  <Link href="#shops">
-                      Explore Shops <ArrowRight className="ml-2 h-5 w-5"/>
-                  </Link>
-              </Button>
             </div>
         </div>
       </div>

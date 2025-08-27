@@ -67,14 +67,12 @@ export default function OrdersPage() {
   return (
     <div className="container mx-auto px-4 py-8">
       <div className="max-w-4xl mx-auto">
-        <Card className="shadow-xl border-t-4 border-primary">
-          <CardHeader>
-            <CardTitle className="font-headline text-3xl">My Orders</CardTitle>
-            <CardDescription>
-              View your order history and track current deliveries.
-            </CardDescription>
-          </CardHeader>
-          <CardContent>
+        <div className="mb-12">
+             <h1 className="font-headline text-4xl sm:text-5xl font-bold">My Orders</h1>
+             <p className="text-muted-foreground mt-2">View your order history and track current deliveries.</p>
+        </div>
+        <Card className="shadow-xl">
+          <CardContent className="p-0">
             <Table>
               <TableHeader>
                 <TableRow>
