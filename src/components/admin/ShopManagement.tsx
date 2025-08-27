@@ -15,6 +15,7 @@ import { useState } from 'react';
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '../ui/dropdown-menu';
 
 const shops = [
+  // Food Shops
   { id: 'SHP001', name: 'Al-Madina Restaurant', cuisine: 'Pakistani', category: 'Pakistani', joined: '2023-01-15', address: 'Club Road, Vehari' },
   { id: 'SHP002', name: 'Pizza N Pizza', cuisine: 'Pizza', category: 'Pizza', joined: '2023-02-20', address: 'Stadium Road, Vehari' },
   { id: 'SHP003', name: 'Silver Spoon', cuisine: 'Fast Food', category: 'Fast Food', joined: '2023-03-10', address: 'Main Bazar, Vehari' },
@@ -25,17 +26,20 @@ const shops = [
   { id: 'SHP008', name: 'KFC Vehari', cuisine: 'Fast Food', category: 'Fast Food', joined: '2023-08-15', address: 'Multan Road, Vehari' },
   { id: 'SHP009', name: 'Lahori Chatkhara', cuisine: 'Pakistani', category: 'Pakistani', joined: '2023-09-02', address: 'Jinnah Road, Vehari' },
   { id: 'SHP010', name: 'Royal Taste Pizza', cuisine: 'Pizza', category: 'Pizza', joined: '2023-10-18', address: 'Canal Road, Vehari' },
-  { id: 'SHP011', name: 'Hot n Spicy', cuisine: 'BBQ', category: 'BBQ', joined: '2023-11-21', address: 'Model Town, Vehari' },
-  { id: 'SHP012', name: 'Cheema\'s Kitchen', cuisine: 'Home-made', category: 'Home-made', joined: '2023-12-05', address: 'Block 10, Vehari' },
-  { id: 'SHP013', name: 'The Food Inn', cuisine: 'Chinese', category: 'Chinese', joined: '2024-01-10', address: 'Iqbal Town, Vehari' },
-  { id: 'SHP014', name: 'Dera Restaurant', cuisine: 'Pakistani', category: 'Pakistani', joined: '2024-02-14', address: 'Hasilpur Road, Vehari' },
-  { id: 'SHP015', 'name': 'Crispy Crust', 'cuisine': 'Pizza', 'category': 'Pizza', 'joined': '2024-03-01', 'address': 'Burewala Road, Vehari' },
-  { id: 'SHP016', 'name': 'Grill Master', 'cuisine': 'BBQ', 'category': 'BBQ', 'joined': '2024-03-20', 'address': 'Luddan Road, Vehari' },
-  { id: 'SHP017', 'name': 'Chai O\'Clock', 'cuisine': 'Cafe', 'category': 'Cafe', 'joined': '2024-04-05', 'address': 'Karkhana Bazar, Vehari' },
-  { id: 'SHP018', 'name': 'Super Broast', 'cuisine': 'Fast Food', 'category': 'Fast Food', 'joined': '2024-04-22', 'address': 'Grain Market, Vehari' },
-  { id: 'SHP019', 'name': 'Wok Star', 'cuisine': 'Chinese', 'category': 'Chinese', 'joined': '2024-05-10', 'address': 'Officers Colony, Vehari' },
-  { id: 'SHP020', 'name': 'Daily Bites', 'cuisine': 'Home-made', 'category': 'Home-made', 'joined': '2024-06-01', 'address': 'W-Block, Vehari' },
+  // Grocery Shops
+  { id: 'SHP011', name: 'Vehari General Store', cuisine: 'Groceries', category: 'Grocery', joined: '2023-11-01', address: 'Karkhana Bazar, Vehari' },
+  { id: 'SHP012', name: 'Madina Cash & Carry', cuisine: 'Groceries', category: 'Grocery', joined: '2023-11-15', address: 'Block 12, Vehari' },
+  { id: 'SHP013', name: 'Punjab Mart', cuisine: 'Groceries', category: 'Grocery', joined: '2023-12-05', address: 'Model Town, Vehari' },
+  { id: 'SHP014', name: 'CSD Vehari', cuisine: 'Groceries', category: 'Grocery', joined: '2024-01-01', address: 'Cantt Area, Vehari' },
+  { id: 'SHP015', name: 'Imtiaz Super Market', cuisine: 'Groceries', category: 'Grocery', joined: '2024-02-10', address: 'D-Block, Vehari' },
+  // Medical Shops
+  { id: 'SHP016', name: 'Servaid Pharmacy', cuisine: 'Pharmacy', category: 'Medical', joined: '2023-11-05', address: 'Hospital Road, Vehari' },
+  { id: 'SHP017', name: 'Fazal Din Pharma Plus', cuisine: 'Pharmacy', category: 'Medical', joined: '2023-11-20', address: 'Main Bazar, Vehari' },
+  { id: 'SHP018', name: 'Shaheen Chemist', cuisine: 'Pharmacy', category: 'Medical', joined: '2023-12-15', address: 'Iqbal Town, Vehari' },
+  { id: 'SHP019', name: 'Al-Shifa Medical Store', cuisine: 'Pharmacy', category: 'Medical', joined: '2024-01-20', address: 'Sharqi Colony, Vehari' },
+  { id: 'SHP020', name: 'Clinix Pharmacy', cuisine: 'Pharmacy', category: 'Medical', joined: '2024-02-15', address: 'College Road, Vehari' },
 ];
+
 
 export default function ShopManagement() {
     const [dialogOpen, setDialogOpen] = useState(false);
@@ -58,7 +62,8 @@ export default function ShopManagement() {
                 <TableRow>
                     <TableHead>Shop ID</TableHead>
                     <TableHead>Name</TableHead>
-                    <TableHead>Cuisine</TableHead>
+                    <TableHead>Type</TableHead>
+                    <TableHead>Category</TableHead>
                     <TableHead>Address</TableHead>
                     <TableHead>Joined</TableHead>
                     <TableHead className="text-right">Actions</TableHead>
@@ -70,6 +75,7 @@ export default function ShopManagement() {
                         <TableCell className="font-medium">{shop.id}</TableCell>
                         <TableCell>{shop.name}</TableCell>
                         <TableCell>{shop.cuisine}</TableCell>
+                        <TableCell>{shop.category}</TableCell>
                         <TableCell>{shop.address}</TableCell>
                         <TableCell>{shop.joined}</TableCell>
                         <TableCell className="text-right">

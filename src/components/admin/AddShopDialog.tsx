@@ -33,8 +33,8 @@ export default function AddShopDialog({ open, onOpenChange }: AddShopDialogProps
                 <Input id="name" placeholder="e.g., Gourmet Grill" />
             </div>
              <div className="grid gap-2">
-                <Label htmlFor="cuisine">Cuisine</Label>
-                <Input id="cuisine" placeholder="e.g., BBQ, Pakistani" />
+                <Label htmlFor="cuisine">Cuisine / Type</Label>
+                <Input id="cuisine" placeholder="e.g., BBQ, Pakistani, Groceries" />
             </div>
             <div className="grid gap-2">
                 <Label htmlFor="address">Address</Label>
@@ -53,6 +53,8 @@ export default function AddShopDialog({ open, onOpenChange }: AddShopDialogProps
                         <SelectItem value="bbq">BBQ</SelectItem>
                         <SelectItem value="home-made">Home-made</SelectItem>
                         <SelectItem value="chinese">Chinese</SelectItem>
+                        <SelectItem value="grocery">Grocery</SelectItem>
+                        <SelectItem value="medical">Medical</SelectItem>
                     </SelectContent>
                 </Select>
             </div>
