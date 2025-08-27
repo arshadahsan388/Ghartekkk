@@ -1,22 +1,31 @@
 
+
 'use client';
 import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
-import { Activity, CreditCard, DollarSign, Users } from 'lucide-react';
+import { Activity, CreditCard, DollarSign, Users, Megaphone } from 'lucide-react';
 
 import {
   Card,
   CardContent,
   CardHeader,
   CardTitle,
+  CardDescription,
+  CardFooter
 } from '@/components/ui/card';
 import OrderManagement from '@/components/admin/OrderManagement';
 import UserManagement from '@/components/admin/UserManagement';
 import ShopManagement from '@/components/admin/ShopManagement';
+import { Textarea } from '@/components/ui/textarea';
+import { Button } from '@/components/ui/button';
+import { useToast } from '@/hooks/use-toast';
+import { Label } from '@/components/ui/label';
 
 export default function AdminPage() {
   const router = useRouter();
+  const { toast } = useToast();
   const [isMounted, setIsMounted] = useState(false);
+  const [announcement, setAnnouncement] = useState('');
 
   useEffect(() => {
     setIsMounted(true);
@@ -24,7 +33,17 @@ export default function AdminPage() {
     if (role !== 'admin') {
       router.push('/login');
     }
+    const savedAnnouncement = localStorage.getItem('announcement') || 'Free delivery on all orders above Rs. 1000! Limited time offer.';
+    setAnnouncement(savedAnnouncement);
   }, [router]);
+
+  const handleSaveAnnouncement = () => {
+    localStorage.setItem('announcement', announcement);
+    toast({
+        title: 'Announcement Saved',
+        description: 'The new announcement will be visible to all users.',
+    })
+  }
 
   if (!isMounted) {
     return null; 
@@ -84,6 +103,26 @@ export default function AdminPage() {
         </Card>
       </div>
       <div className="space-y-8">
+        <Card>
+            <CardHeader>
+                <CardTitle className="flex items-center gap-2"><Megaphone className="w-5 h-5" /> Announcement Settings</CardTitle>
+                <CardDescription>Update the announcement text shown at the top of the app.</CardDescription>
+            </CardHeader>
+            <CardContent>
+                <div className="grid gap-2">
+                    <Label htmlFor="announcement-text">Announcement Text</Label>
+                    <Textarea 
+                        id="announcement-text"
+                        value={announcement}
+                        onChange={(e) => setAnnouncement(e.target.value)}
+                        placeholder="Enter your announcement..."
+                    />
+                </div>
+            </CardContent>
+            <CardFooter>
+                <Button onClick={handleSaveAnnouncement}>Save Announcement</Button>
+            </CardFooter>
+        </Card>
         <OrderManagement />
         <UserManagement />
         <ShopManagement />
