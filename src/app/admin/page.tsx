@@ -1,3 +1,4 @@
+
 'use client';
 import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
@@ -10,6 +11,8 @@ import {
   CardTitle,
 } from '@/components/ui/card';
 import OrderManagement from '@/components/admin/OrderManagement';
+import UserManagement from '@/components/admin/UserManagement';
+import ShopManagement from '@/components/admin/ShopManagement';
 
 export default function AdminPage() {
   const router = useRouter();
@@ -80,8 +83,10 @@ export default function AdminPage() {
           </CardContent>
         </Card>
       </div>
-      <div>
+      <div className="space-y-8">
         <OrderManagement />
+        <UserManagement />
+        <ShopManagement />
       </div>
     </div>
   );

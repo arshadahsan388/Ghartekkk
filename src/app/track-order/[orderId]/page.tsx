@@ -1,6 +1,7 @@
+
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Separator } from '@/components/ui/separator';
-import { Bike, CookingPot, Home } from 'lucide-react';
+import { Phone, Bike, PackageCheck, Hourglass } from 'lucide-react';
 
 export default function TrackOrderPage({ params }: { params: { orderId: string } }) {
 
@@ -19,32 +20,32 @@ export default function TrackOrderPage({ params }: { params: { orderId: string }
                     <div className="absolute left-6 top-2 bottom-2 w-0.5 bg-border -z-10"></div>
 
                     <div className="flex items-start gap-6">
-                        <div className="flex items-center justify-center bg-primary/20 text-primary-foreground p-3 rounded-full ring-4 ring-primary/10 z-10">
-                            <CookingPot className="w-6 h-6"/>
+                        <div className="flex items-center justify-center bg-primary text-primary-foreground p-3 rounded-full ring-4 ring-primary/20 z-10">
+                            <Phone className="w-6 h-6"/>
                         </div>
                         <div>
                             <p className="font-semibold text-lg">Order Confirmed</p>
-                            <p className="text-sm text-muted-foreground">Your order has been received by the restaurant.</p>
+                            <p className="text-sm text-muted-foreground">Pak Delivers will call you shortly to confirm your order details.</p>
                             <p className="text-sm text-muted-foreground">10:30 PM</p>
                         </div>
                     </div>
                     <div className="flex items-start gap-6">
-                        <div className="flex items-center justify-center bg-primary/20 text-primary-foreground p-3 rounded-full ring-4 ring-primary/10 z-10">
-                            <Bike className="w-6 h-6"/>
+                        <div className="flex items-center justify-center bg-primary text-primary-foreground p-3 rounded-full ring-4 ring-primary/20 z-10">
+                            <Hourglass className="w-6 h-6"/>
                         </div>
                         <div>
-                            <p className="font-semibold text-lg">Out for Delivery</p>
-                            <p className="text-sm text-muted-foreground">Your rider is on the way.</p>
+                            <p className="font-semibold text-lg">Waiting for Rider</p>
+                            <p className="text-sm text-muted-foreground">Your order is confirmed and we are assigning a rider.</p>
                              <p className="text-sm text-muted-foreground">10:45 PM</p>
                         </div>
                     </div>
                     <div className="flex items-start gap-6">
                         <div className="flex items-center justify-center bg-secondary p-3 rounded-full z-10">
-                            <Home className="w-6 h-6 text-muted-foreground"/>
+                            <PackageCheck className="w-6 h-6 text-muted-foreground"/>
                         </div>
                         <div>
                             <p className="font-semibold text-lg text-muted-foreground">Delivered</p>
-                            <p className="text-sm text-muted-foreground">Estimated arrival: 11:00 PM.</p>
+                            <p className="text-sm text-muted-foreground">Your rider will confirm once the order is delivered.</p>
                         </div>
                     </div>
                 </div>
@@ -55,7 +56,7 @@ export default function TrackOrderPage({ params }: { params: { orderId: string }
 
         <Card className="shadow-lg">
             <CardHeader>
-                <CardTitle>Rider Details</CardTitle>
+                <CardTitle className='flex items-center gap-2'><Bike className="w-5 h-5" /> Rider Details</CardTitle>
             </CardHeader>
             <CardContent>
                 <p className="font-medium text-lg">Ali Khan</p>

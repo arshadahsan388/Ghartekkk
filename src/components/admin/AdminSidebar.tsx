@@ -1,3 +1,4 @@
+
 'use client';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
@@ -6,9 +7,6 @@ import Logo from '../icons/Logo';
 
 const navItems = [
     { href: '/admin', icon: Home, label: 'Dashboard' },
-    { href: '/admin/orders', icon: ShoppingCart, label: 'Orders' },
-    { href: '/admin/users', icon: Users, label: 'Users' },
-    { href: '/admin/shops', icon: Package, label: 'Shops' },
 ];
 
 

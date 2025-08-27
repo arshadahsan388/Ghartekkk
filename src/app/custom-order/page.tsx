@@ -1,6 +1,7 @@
 
+
 'use client';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { Button } from '@/components/ui/button';
 import {
   Card,
@@ -30,6 +31,13 @@ export default function CustomOrderPage() {
   const [isLoading, setIsLoading] = useState(false);
   const [result, setResult] = useState<CustomOrderOutput | null>(null);
 
+  useEffect(() => {
+    const savedAddress = localStorage.getItem('deliveryAddress');
+    if (savedAddress) {
+      setAddress(savedAddress);
+    }
+  }, []);
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsLoading(true);
@@ -42,6 +50,10 @@ export default function CustomOrderPage() {
         address,
       });
       setResult(response);
+      
+      // Save address on successful order
+      localStorage.setItem('deliveryAddress', address);
+
       toast({
         title: 'Order Processed',
         description: 'Your custom order has been analyzed by our AI.',

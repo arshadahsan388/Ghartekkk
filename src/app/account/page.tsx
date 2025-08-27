@@ -1,3 +1,4 @@
+
 'use client';
 
 import { Button } from '@/components/ui/button';
@@ -5,8 +6,21 @@ import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle }
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { CreditCard, Home, PlusCircle, Trash2 } from 'lucide-react';
+import { useEffect, useState } from 'react';
 
 export default function AccountPage() {
+  const [address, setAddress] = useState('');
+
+  useEffect(() => {
+    const savedAddress = localStorage.getItem('deliveryAddress') || 'House 123, Street 4, Vehari';
+    setAddress(savedAddress);
+  }, []);
+
+  const handleSave = () => {
+    localStorage.setItem('deliveryAddress', address);
+    alert('Address saved!');
+  }
+
   return (
     <div className="container mx-auto px-4 py-8">
       <div className="mb-12">
@@ -24,27 +38,18 @@ export default function AccountPage() {
           <CardContent>
             <form className="space-y-4">
               <div className="space-y-2">
-                <Label htmlFor="address-line-1">Address Line 1</Label>
-                <Input id="address-line-1" placeholder="e.g., House 123, Street 4" defaultValue="House 123, Street 4" />
-              </div>
-              <div className="space-y-2">
-                <Label htmlFor="address-line-2">Address Line 2 (Optional)</Label>
-                <Input id="address-line-2" placeholder="e.g., Block C, Gulberg 3" defaultValue="Block C, Gulberg 3" />
-              </div>
-              <div className="grid grid-cols-2 gap-4">
-                <div className="space-y-2">
-                  <Label htmlFor="city">City</Label>
-                  <Input id="city" placeholder="e.g., Lahore" defaultValue="Lahore" />
-                </div>
-                <div className="space-y-2">
-                  <Label htmlFor="postal-code">Postal Code</Label>
-                  <Input id="postal-code" placeholder="e.g., 54000" defaultValue="54000" />
-                </div>
+                <Label htmlFor="address">Full Address</Label>
+                <Input 
+                  id="address" 
+                  placeholder="e.g., House 123, Street 4, Vehari" 
+                  value={address}
+                  onChange={(e) => setAddress(e.target.value)}
+                />
               </div>
             </form>
           </CardContent>
           <CardFooter>
-            <Button>Save Address</Button>
+            <Button onClick={handleSave}>Save Address</Button>
           </CardFooter>
         </Card>
 
@@ -60,7 +65,7 @@ export default function AccountPage() {
             <div className="flex items-center justify-between p-4 border rounded-lg bg-secondary/50">
               <div className="flex items-center gap-4">
                 <div className="bg-primary/20 p-2 rounded-md">
-                   <CreditCard className="w-6 h-6 text-primary-foreground" />
+                   <CreditCard className="w-6 h-6 text-primary" />
                 </div>
                 <div>
                   <p className="font-medium">Visa ending in 1234</p>
