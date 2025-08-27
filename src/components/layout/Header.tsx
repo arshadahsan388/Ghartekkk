@@ -11,7 +11,7 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from '../ui/dropdown-menu';
-import { LogOut, Package, User, ShoppingBag } from 'lucide-react';
+import { LogOut, Package, User, ShoppingBag, Shield } from 'lucide-react';
 import Logo from '../icons/Logo';
 import { usePathname, useRouter } from 'next/navigation';
 import { useEffect, useState } from 'react';
@@ -19,33 +19,29 @@ import { useToast } from '@/hooks/use-toast';
 
 export default function Header() {
   const [isLoggedIn, setIsLoggedIn] = useState(false);
+  const [isAdmin, setIsAdmin] = useState(false);
   const router = useRouter();
   const pathname = usePathname();
   const { toast } = useToast();
 
   useEffect(() => {
-    // In a real app, you'd check a token or session.
-    // For now, we'll simulate based on a value in localStorage.
     const loggedIn = localStorage.getItem('isLoggedIn') === 'true';
+    const admin = localStorage.getItem('role') === 'admin';
     setIsLoggedIn(loggedIn);
-  }, [pathname]); // Re-check on route change
+    setIsAdmin(admin);
+  }, [pathname]);
 
   const handleLogout = () => {
     localStorage.removeItem('isLoggedIn');
+    localStorage.removeItem('role');
     setIsLoggedIn(false);
+    setIsAdmin(false);
     toast({
       title: 'Logged Out',
       description: 'You have been successfully logged out.',
     });
     router.push('/login');
   };
-
-  const handleLogin = () => {
-    localStorage.setItem('isLoggedIn', 'true');
-    setIsLoggedIn(true);
-    router.push('/');
-  };
-
 
   return (
     <header className="sticky top-0 z-50 w-full border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
@@ -56,7 +52,12 @@ export default function Header() {
         </Link>
 
         <nav className="flex items-center space-x-6 text-sm font-medium flex-1">
-          {/* Add more nav links here if needed */}
+          {isAdmin && (
+            <Link href="/admin" className="flex items-center gap-1 hover:text-primary transition-colors">
+                <Shield className="h-4 w-4"/>
+                Admin
+            </Link>
+          )}
         </nav>
 
         <div className="flex items-center justify-end space-x-4">
@@ -99,6 +100,14 @@ export default function Header() {
                     <span>My Orders</span>
                   </Link>
                 </DropdownMenuItem>
+                 {isAdmin && (
+                  <DropdownMenuItem asChild>
+                    <Link href="/admin">
+                      <Shield className="mr-2 h-4 w-4" />
+                      <span>Admin Dashboard</span>
+                    </Link>
+                  </DropdownMenuItem>
+                )}
                 <DropdownMenuSeparator />
                 <DropdownMenuItem onClick={handleLogout} className="cursor-pointer">
                   <LogOut className="mr-2 h-4 w-4" />

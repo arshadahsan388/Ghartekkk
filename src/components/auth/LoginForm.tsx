@@ -37,14 +37,23 @@ export default function LoginForm() {
   });
 
   function onSubmit(values: z.infer<typeof formSchema>) {
-    console.log(values);
     // Simulate successful login
     localStorage.setItem('isLoggedIn', 'true');
-    toast({
-      title: 'Login Successful',
-      description: 'Welcome back! Redirecting you to the dashboard.',
-    });
-    router.push('/');
+    if (values.email === 'admin@example.com') {
+      localStorage.setItem('role', 'admin');
+       toast({
+        title: 'Admin Login Successful',
+        description: 'Welcome back, Admin! Redirecting you to the dashboard.',
+      });
+      router.push('/admin');
+    } else {
+      localStorage.removeItem('role');
+      toast({
+        title: 'Login Successful',
+        description: 'Welcome back! Redirecting you to the dashboard.',
+      });
+      router.push('/');
+    }
     router.refresh(); // Forces a refresh to update header state
   }
 
