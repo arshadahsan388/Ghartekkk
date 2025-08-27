@@ -1,3 +1,5 @@
+'use client';
+
 import Link from 'next/link';
 import { Avatar, AvatarFallback, AvatarImage } from '../ui/avatar';
 import { Button } from '../ui/button';
@@ -9,11 +11,63 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from '../ui/dropdown-menu';
-import { LogOut, Package, Settings, ShoppingBag, User } from 'lucide-react';
+import { LogOut, Package, User, ShoppingBag } from 'lucide-react';
 import Logo from '../icons/Logo';
+import { usePathname, useRouter } from 'next/navigation';
+import { useEffect, useState } from 'react';
+import { useToast } from '@/hooks/use-toast';
 
 export default function Header() {
-  const isLoggedIn = true; // Mock user login state
+  const [isLoggedIn, setIsLoggedIn] = useState(false);
+  const router = useRouter();
+  const pathname = usePathname();
+  const { toast } = useToast();
+
+  useEffect(() => {
+    // In a real app, you'd check a token or session.
+    // For now, we'll simulate based on a value in localStorage.
+    const loggedIn = localStorage.getItem('isLoggedIn') === 'true';
+    setIsLoggedIn(loggedIn);
+  }, [pathname]); // Re-check on route change
+
+  const handleLogout = () => {
+    localStorage.removeItem('isLoggedIn');
+    setIsLoggedIn(false);
+    toast({
+      title: 'Logged Out',
+      description: 'You have been successfully logged out.',
+    });
+    router.push('/login');
+  };
+
+  const handleLogin = () => {
+    localStorage.setItem('isLoggedIn', 'true');
+    router.push('/');
+  };
+
+  // Simplified logic for demo purposes
+  // In a real app, login/signup forms would call this on success.
+  // We are calling it here to complete the flow for the user.
+  useEffect(() => {
+    if (
+      (pathname.includes('/login') || pathname.includes('/signup')) &&
+      typeof window !== 'undefined'
+    ) {
+      // A trick to make login/signup work for the demo.
+      // A real app would have a proper auth flow.
+      const originalPush = router.push;
+      router.push = (...args: Parameters<typeof originalPush>) => {
+        if (args[0] === '/') {
+          handleLogin();
+        }
+        originalPush(...args);
+      };
+
+      return () => {
+        router.push = originalPush;
+      };
+    }
+  }, [pathname, router]);
 
   return (
     <header className="sticky top-0 z-50 w-full border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
@@ -68,7 +122,7 @@ export default function Header() {
                   </Link>
                 </DropdownMenuItem>
                 <DropdownMenuSeparator />
-                <DropdownMenuItem>
+                <DropdownMenuItem onClick={handleLogout} className="cursor-pointer">
                   <LogOut className="mr-2 h-4 w-4" />
                   <span>Log out</span>
                 </DropdownMenuItem>
