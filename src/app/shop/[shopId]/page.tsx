@@ -260,42 +260,40 @@ export default function ShopPage({ params }: { params: { shopId: string } }) {
                                 onChange={(e) => setOrderNote(e.target.value)}
                             />
                         </div>
-                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                            <div className="space-y-2">
-                                <Label htmlFor="order-price">Price / Budget (PKR)</Label>
-                                <Input 
-                                    id="order-price"
-                                    type="number"
-                                    placeholder="e.g., 500"
-                                    value={orderPrice}
-                                    onChange={(e) => setOrderPrice(e.target.value)}
-                                    required
-                                />
-                            </div>
-                            <div className="space-y-2">
-                                <Label>Delivery Speed</Label>
-                                <RadioGroup
-                                    defaultValue="normal"
-                                    className="flex flex-col space-y-2 pt-1"
-                                    value={deliverySpeed}
-                                    onValueChange={setDeliverySpeed}
-                                >
-                                    <div className="flex items-center space-x-2">
-                                        <RadioGroupItem value="normal" id="normal" />
-                                        <Label htmlFor="normal" className="flex flex-col gap-0.5 w-full cursor-pointer">
-                                            <span>Normal</span>
-                                            <span className="text-xs text-muted-foreground">Rs. {NORMAL_DELIVERY_FEE} &bull; ~30 mins</span>
-                                        </Label>
-                                    </div>
-                                    <div className="flex items-center space-x-2">
-                                        <RadioGroupItem value="fast" id="fast" />
-                                        <Label htmlFor="fast" className="flex flex-col gap-0.5 w-full cursor-pointer">
-                                            <span>Fast</span>
-                                            <span className="text-xs text-muted-foreground">Rs. {FAST_DELIVERY_FEE} &bull; ~20 mins</span>
-                                        </Label>
-                                    </div>
-                                </RadioGroup>
-                            </div>
+                        <div className="space-y-2">
+                            <Label htmlFor="order-price">Price / Budget (PKR)</Label>
+                            <Input 
+                                id="order-price"
+                                type="number"
+                                placeholder="e.g., 500"
+                                value={orderPrice}
+                                onChange={(e) => setOrderPrice(e.target.value)}
+                                required
+                            />
+                        </div>
+                        <div className="space-y-2">
+                            <Label>Delivery Speed</Label>
+                            <RadioGroup
+                                defaultValue="normal"
+                                className="flex flex-col space-y-2 pt-1"
+                                value={deliverySpeed}
+                                onValueChange={setDeliverySpeed}
+                            >
+                                <div className="flex items-center space-x-2">
+                                    <RadioGroupItem value="normal" id="normal" />
+                                    <Label htmlFor="normal" className="flex flex-col gap-0.5 w-full cursor-pointer">
+                                        <span>Normal</span>
+                                        <span className="text-xs text-muted-foreground">Rs. {NORMAL_DELIVERY_FEE} &bull; ~30 mins</span>
+                                    </Label>
+                                </div>
+                                <div className="flex items-center space-x-2">
+                                    <RadioGroupItem value="fast" id="fast" />
+                                    <Label htmlFor="fast" className="flex flex-col gap-0.5 w-full cursor-pointer">
+                                        <span>Fast</span>
+                                        <span className="text-xs text-muted-foreground">Rs. {FAST_DELIVERY_FEE} &bull; ~20 mins</span>
+                                    </Label>
+                                </div>
+                            </RadioGroup>
                         </div>
                     </CardContent>
                     <CardFooter>
