@@ -30,6 +30,7 @@ export default function CustomOrderPage() {
   const [description, setDescription] = useState('');
   const [budget, setBudget] = useState('');
   const [address, setAddress] = useState('');
+  const [additionalNote, setAdditionalNote] = useState('');
   const [email, setEmail] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const [result, setResult] = useState<CustomOrderOutput | null>(null);
@@ -110,6 +111,7 @@ export default function CustomOrderPage() {
         description,
         budget: Number(budget),
         address,
+        additionalNote,
       });
       setResult(response);
       handleOrderSuccess(response);
@@ -161,6 +163,16 @@ export default function CustomOrderPage() {
                   onChange={(e) => setDescription(e.target.value)}
                   required
                   rows={4}
+                />
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="additionalNote">Additional Note (Optional)</Label>
+                <Textarea
+                  id="additionalNote"
+                  placeholder="e.g., 'Please call upon arrival' or 'No spicy food'"
+                  value={additionalNote}
+                  onChange={(e) => setAdditionalNote(e.target.value)}
+                  rows={2}
                 />
               </div>
               <div className="space-y-2">

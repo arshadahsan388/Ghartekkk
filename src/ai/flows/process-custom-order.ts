@@ -1,3 +1,4 @@
+
 'use server';
 /**
  * @fileOverview Flow for processing custom orders.
@@ -16,6 +17,7 @@ const CustomOrderInputSchema = z.object({
     .describe('A detailed description of the items the user wants to order.'),
   budget: z.number().describe('The maximum amount the user is willing to pay.'),
   address: z.string().describe('The delivery address for the order.'),
+  additionalNote: z.string().optional().describe('Any additional notes or special instructions from the user.')
 });
 export type CustomOrderInput = z.infer<typeof CustomOrderInputSchema>;
 
@@ -52,6 +54,7 @@ const processCustomOrderPrompt = ai.definePrompt({
   - Description: {{{description}}}
   - Budget: Rs. {{{budget}}}
   - Delivery Address: {{{address}}}
+  {{#if additionalNote}}- Additional Note: {{{additionalNote}}}{{/if}}
 
   Your tasks:
   1.  **Summarize the order**: Create a concise summary of what the user is asking for.
