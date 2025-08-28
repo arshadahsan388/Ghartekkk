@@ -121,9 +121,7 @@ export default function Home() {
   };
 
   const handleFocus = () => {
-    if (user) {
-      setShowExtraFields(true);
-    }
+    setShowExtraFields(true);
     if(suggestions.length > 0) {
         setShowSuggestions(true);
     }
@@ -177,7 +175,7 @@ export default function Home() {
               )}
             </div>
             
-            {showExtraFields && user && (
+            {showExtraFields && (
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-4 text-left animate-in fade-in-0 duration-500">
                     <div className="space-y-2">
                         <Label htmlFor="budget" className="flex items-center gap-2"><Wallet className="w-4 h-4" /> Budget (Optional)</Label>
@@ -207,13 +205,6 @@ export default function Home() {
                         </Button>
                     </div>
                 </div>
-            )}
-
-            {!user && showExtraFields && (
-                <Button type="submit" size="lg" className="w-full">
-                    Place an Order
-                    <Send className="ml-2 h-4 w-4" />
-                </Button>
             )}
 
           </form>
