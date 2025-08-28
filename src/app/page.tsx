@@ -143,7 +143,7 @@ export default function Home() {
   return (
     <>
       <AnnouncementBar />
-      <div className="relative py-16 md:py-24">
+      <div className="relative py-12 md:py-24">
         <div className="absolute inset-0 bg-gradient-to-b from-primary/10 via-transparent to-transparent -z-10"></div>
         <div className="container mx-auto px-4 text-center">
           <h1 className="text-3xl sm:text-4xl font-extrabold tracking-tight font-headline">
@@ -204,8 +204,7 @@ export default function Home() {
                             required
                         />
                     </div>
-                    <div className="space-y-2">
-                        <Label>&nbsp;</Label>
+                    <div className="space-y-2 self-end">
                         <Button type="submit" size="lg" className="w-full h-10">
                             Submit
                             <Send className="ml-2 h-4 w-4" />

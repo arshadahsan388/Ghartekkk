@@ -1,4 +1,5 @@
 
+
 'use client';
 import {
   Card,
@@ -190,6 +191,7 @@ export default function ShopsPage() {
            {isLoading ? (
                 <Loader2 className="animate-spin mx-auto" />
            ) : (
+                <div className="overflow-x-auto">
                 <Table>
                     <TableHeader>
                     <TableRow>
@@ -226,6 +228,7 @@ export default function ShopsPage() {
                     ))}
                     </TableBody>
                 </Table>
+                </div>
            )}
         </CardContent>
       </Card>

@@ -1,4 +1,5 @@
 
+
 'use client';
 import {
   Card,
@@ -91,6 +92,7 @@ export default function DeliveredOrdersPage() {
                 <CardDescription>A list of all completed orders.</CardDescription>
             </CardHeader>
             <CardContent>
+                <div className="overflow-x-auto">
                  <Table>
                     <TableHeader>
                         <TableRow>
@@ -149,6 +151,7 @@ export default function DeliveredOrdersPage() {
                         )}
                     </TableBody>
                  </Table>
+                </div>
             </CardContent>
         </Card>
         

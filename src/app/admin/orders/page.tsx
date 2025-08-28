@@ -164,6 +164,7 @@ export default function OrdersPage() {
                 <CardDescription>A list of all current orders. Click a row to see details.</CardDescription>
             </CardHeader>
             <CardContent>
+                <div className="overflow-x-auto">
                  <Table>
                     <TableHeader>
                         <TableRow>
@@ -235,6 +236,7 @@ export default function OrdersPage() {
                         )}
                     </TableBody>
                  </Table>
+                 </div>
             </CardContent>
         </Card>
         

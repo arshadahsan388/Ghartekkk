@@ -1,4 +1,5 @@
 
+
 'use client';
 import {
   Card,
@@ -132,6 +133,7 @@ export default function UsersPage() {
                 <CardDescription>A list of all users in your database.</CardDescription>
             </CardHeader>
             <CardContent>
+                <div className="overflow-x-auto">
                  <Table>
                     <TableHeader>
                         <TableRow>
@@ -183,6 +185,7 @@ export default function UsersPage() {
                         ))}
                     </TableBody>
                  </Table>
+                </div>
             </CardContent>
         </Card>
 
