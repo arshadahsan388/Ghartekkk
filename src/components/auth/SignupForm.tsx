@@ -77,7 +77,8 @@ export default function SignupForm() {
         email: values.email,
         orders: 0,
         isBanned: false,
-        role: 'customer' // Default role for new signups
+        role: 'customer', // Default role for new signups
+        hasUsedFreeDelivery: false,
       });
 
       toast({

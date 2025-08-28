@@ -64,7 +64,8 @@ export default function GoogleSignInButton() {
             email: user.email,
             orders: 0,
             isBanned: false,
-            role: 'customer' // Default role
+            role: 'customer', // Default role
+            hasUsedFreeDelivery: false,
         };
         await set(ref(db, 'users/' + user.uid), userData);
       }
