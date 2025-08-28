@@ -1,4 +1,5 @@
 
+
 'use client';
 import { useState } from 'react';
 import { Button } from '@/components/ui/button';
@@ -69,6 +70,7 @@ export default function ReviewPrompt({
         orderId: orderId,
         rating: rating,
         date: new Date().toISOString(),
+        isRead: false,
       };
 
       if (complaintType && complaintDetails) {

@@ -96,6 +96,7 @@ export default function CustomOrderPage() {
         budget: budget,
         additionalNote: additionalNote,
         userId: user.uid,
+        isRead: false,
     };
     await set(newOrderRef, newOrder);
 

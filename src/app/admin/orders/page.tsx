@@ -1,4 +1,5 @@
 
+
 'use client';
 import {
   Card,
@@ -22,7 +23,7 @@ import { DropdownMenu, DropdownMenuTrigger, DropdownMenuContent, DropdownMenuIte
 import { MoreHorizontal, Loader2, FileText, User, MapPin, DollarSign, StickyNote, Rabbit, Turtle } from 'lucide-react';
 import { useEffect, useState, useRef } from 'react';
 import { db } from '@/lib/firebase';
-import { ref, onValue, update } from 'firebase/database';
+import { ref, onValue, update, query, orderByChild, equalTo } from 'firebase/database';
 import { useToast } from '@/hooks/use-toast';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from '@/components/ui/dialog';
 
@@ -39,6 +40,7 @@ type Order = {
     note?: string;
     additionalNote?: string;
     deliverySpeed?: string;
+    isRead: boolean;
 };
 
 export default function OrdersPage() {
@@ -49,6 +51,31 @@ export default function OrdersPage() {
     const [isDetailsOpen, setIsDetailsOpen] = useState(false);
     const audioRef = useRef<HTMLAudioElement | null>(null);
     const isInitialLoad = useRef(true);
+
+    useEffect(() => {
+        // Mark all active orders as read when the component mounts
+        const markOrdersAsRead = async () => {
+            const ordersRef = ref(db, 'orders');
+            const unreadQuery = query(ordersRef, orderByChild('isRead'), equalTo(false));
+
+            onValue(unreadQuery, (snapshot) => {
+                if (snapshot.exists()) {
+                    const updates: { [key: string]: boolean } = {};
+                    snapshot.forEach((childSnapshot) => {
+                        // We only want to mark active orders as read on this page
+                        if(childSnapshot.val().status !== 'Delivered') {
+                           updates[`${childSnapshot.key}/isRead`] = true;
+                        }
+                    });
+                    if (Object.keys(updates).length > 0) {
+                        update(ref(db, 'orders'), updates);
+                    }
+                }
+            }, { onlyOnce: true });
+        };
+
+        markOrdersAsRead();
+    }, []);
 
     useEffect(() => {
         if (typeof Audio !== 'undefined') {

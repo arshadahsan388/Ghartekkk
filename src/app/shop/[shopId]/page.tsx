@@ -1,4 +1,5 @@
 
+
 'use client';
 
 import { useSearchParams, useRouter } from 'next/navigation';
@@ -132,7 +133,8 @@ export default function ShopPage({ params }: { params: { shopId: string } }) {
             address: localStorage.getItem('deliveryAddress') || 'Vehari, Pakistan',
             userId: user.uid,
             date: new Date().toISOString(),
-            reviewed: false
+            reviewed: false,
+            isRead: false,
         };
         await set(newOrderRef, newOrder);
 

@@ -1,4 +1,5 @@
 
+
 'use client';
 import {
   Card,
@@ -22,7 +23,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, Di
 import { Loader2, Star, MessageSquare, AlertTriangle, Eye, ArrowDown, ArrowRight, ArrowUp } from 'lucide-react';
 import { useEffect, useState } from 'react';
 import { db } from '@/lib/firebase';
-import { ref, onValue, update } from 'firebase/database';
+import { ref, onValue, update, query, equalTo, orderByChild } from 'firebase/database';
 
 type Review = {
     id: string;
@@ -36,6 +37,7 @@ type Review = {
     aiUrgency?: string;
     date: string;
     userId: string;
+    isRead: boolean;
 };
 
 export default function ReviewsPage() {
@@ -43,6 +45,28 @@ export default function ReviewsPage() {
     const [isLoading, setIsLoading] = useState(true);
     const [selectedReview, setSelectedReview] = useState<Review | null>(null);
     const [isDetailsOpen, setIsDetailsOpen] = useState(false);
+    
+     useEffect(() => {
+        // Mark all reviews as read when the component mounts
+        const markReviewsAsRead = () => {
+            const reviewsRef = ref(db, 'reviews');
+            const unreadQuery = query(reviewsRef, orderByChild('isRead'), equalTo(false));
+
+            onValue(unreadQuery, (snapshot) => {
+                if (snapshot.exists()) {
+                    const updates: { [key: string]: boolean } = {};
+                    snapshot.forEach((childSnapshot) => {
+                        updates[`${childSnapshot.key}/isRead`] = true;
+                    });
+                     if (Object.keys(updates).length > 0) {
+                        update(ref(db, 'reviews'), updates);
+                    }
+                }
+            }, { onlyOnce: true });
+        };
+        
+        markReviewsAsRead();
+    }, []);
 
     useEffect(() => {
         const reviewsRef = ref(db, 'reviews');

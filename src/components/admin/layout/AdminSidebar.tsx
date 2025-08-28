@@ -1,4 +1,5 @@
 
+
 'use client';
 
 import Link from 'next/link';
@@ -33,28 +34,14 @@ import { useRouter } from 'next/navigation';
 import { signOut, onAuthStateChanged, type User } from 'firebase/auth';
 import { auth, db } from '@/lib/firebase';
 import { useEffect, useState } from 'react';
-import { ref, onValue } from 'firebase/database';
+import { ref, onValue, query, orderByChild, equalTo } from 'firebase/database';
 import AdminNav from './AdminNav';
 import Logo from '@/components/icons/Logo';
 import { ThemeSwitcher } from '@/components/theme/ThemeSwitcher';
 import { TooltipProvider } from '@/components/ui/tooltip';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import { ScrollArea } from '@/components/ui/scroll-area';
-
-const mainNavItems = [
-    { href: "/admin", label: "Dashboard", icon: Home },
-    { href: "/admin/orders", label: "Active Orders", icon: Package },
-    { href: "/admin/delivered-orders", label: "Delivered Orders", icon: PackageCheck },
-    { href: "/admin/users", label: "Users", icon: Users2 },
-    { href: "/admin/shops", label: "Shops", icon: Store },
-    { href: "/admin/shop-categories", label: "Categories", icon: LayoutGrid },
-    { href: "/admin/reviews", label: "Reviews", icon: Star },
-    { href: "/admin/support", label: "Support Chat", icon: MessageSquare },
-    { href: "/admin/announcements", label: "Announcements", icon: Megaphone },
-    { href: "/admin/alerts", label: "Alerts", icon: Siren },
-];
-
-const settingsNavItem = { href: "/admin/settings", label: "Settings", icon: Settings };
+import { Badge } from '@/components/ui/badge';
 
 type OnlineUser = {
     id: string;
@@ -67,6 +54,11 @@ export function AdminSidebar() {
   const router = useRouter();
   const { toast } = useToast();
   const [onlineUsers, setOnlineUsers] = useState<OnlineUser[]>([]);
+  const [notificationCounts, setNotificationCounts] = useState({
+      orders: 0,
+      reviews: 0,
+      support: 0,
+  });
 
   useEffect(() => {
     const unsubscribeAuth = onAuthStateChanged(auth, (currentUser) => {
@@ -86,9 +78,40 @@ export function AdminSidebar() {
         }
     });
 
+    // Listen for unread orders
+    const ordersRef = ref(db, 'orders');
+    const unreadOrdersQuery = query(ordersRef, orderByChild('isRead'), equalTo(false));
+    const unsubscribeOrders = onValue(unreadOrdersQuery, (snapshot) => {
+        let count = 0;
+        snapshot.forEach(childSnapshot => {
+            if (childSnapshot.val().status !== 'Delivered') {
+                count++;
+            }
+        });
+        setNotificationCounts(prev => ({ ...prev, orders: count }));
+    });
+
+    // Listen for unread reviews
+    const reviewsRef = ref(db, 'reviews');
+    const unreadReviewsQuery = query(reviewsRef, orderByChild('isRead'), equalTo(false));
+    const unsubscribeReviews = onValue(unreadReviewsQuery, (snapshot) => {
+        setNotificationCounts(prev => ({ ...prev, reviews: snapshot.size }));
+    });
+    
+    // Listen for unread chats
+    const chatsRef = ref(db, 'chats');
+    const unreadChatsQuery = query(chatsRef, orderByChild('metadata/unreadByAdmin'), equalTo(true));
+    const unsubscribeChats = onValue(unreadChatsQuery, (snapshot) => {
+        setNotificationCounts(prev => ({ ...prev, support: snapshot.size }));
+    });
+
+
     return () => {
         unsubscribeAuth();
         unsubscribePresence();
+        unsubscribeOrders();
+        unsubscribeReviews();
+        unsubscribeChats();
     };
   }, []);
 
@@ -108,6 +131,21 @@ export function AdminSidebar() {
       });
     }
   };
+
+  const mainNavItems = [
+    { href: "/admin", label: "Dashboard", icon: Home },
+    { href: "/admin/orders", label: "Active Orders", icon: Package, notificationCount: notificationCounts.orders },
+    { href: "/admin/delivered-orders", label: "Delivered Orders", icon: PackageCheck },
+    { href: "/admin/users", label: "Users", icon: Users2 },
+    { href: "/admin/shops", label: "Shops", icon: Store },
+    { href: "/admin/shop-categories", label: "Categories", icon: LayoutGrid },
+    { href: "/admin/reviews", label: "Reviews", icon: Star, notificationCount: notificationCounts.reviews },
+    { href: "/admin/support", label: "Support Chat", icon: MessageSquare, notificationCount: notificationCounts.support },
+    { href: "/admin/announcements", label: "Announcements", icon: Megaphone },
+    { href: "/admin/alerts", label: "Alerts", icon: Siren },
+];
+
+const settingsNavItem = { href: "/admin/settings", label: "Settings", icon: Settings };
 
 
   return (
@@ -148,7 +186,7 @@ export function AdminSidebar() {
                 <Logo className="h-5 w-5 transition-all group-hover:scale-110" />
                 <span className="sr-only">Pak Delivers</span>
               </Link>
-              {mainNavItems.map(({ href, label, icon: Icon }) => (
+              {mainNavItems.map(({ href, label, icon: Icon, notificationCount }) => (
                 <Link
                   key={href}
                   href={href}
@@ -156,6 +194,7 @@ export function AdminSidebar() {
                 >
                   <Icon className="h-5 w-5" />
                   {label}
+                  {notificationCount && notificationCount > 0 && <Badge>{notificationCount}</Badge>}
                 </Link>
               ))}
                <Link

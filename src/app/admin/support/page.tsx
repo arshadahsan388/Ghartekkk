@@ -1,4 +1,5 @@
 
+
 'use client';
 
 import { useEffect, useState, useRef } from 'react';
@@ -109,6 +110,13 @@ export default function AdminSupportPage() {
     setNewMessage('');
   };
 
+  const handleSelectChat = (chat: ChatMetadata) => {
+    setSelectedChat(chat);
+    // Optimistically mark as read in the UI
+    const metadataRef = ref(db, `chats/${chat.id}/metadata`);
+    update(metadataRef, { unreadByAdmin: false });
+  };
+
   return (
     <main className="grid flex-1 items-start gap-4 p-4 sm:px-6 sm:py-0 md:gap-8">
         <AdminHeader title="Support Chat" description="Respond to live customer queries." />
@@ -122,7 +130,7 @@ export default function AdminSupportPage() {
                         {chats.map(chat => (
                             <button
                                 key={chat.id}
-                                onClick={() => setSelectedChat(chat)}
+                                onClick={() => handleSelectChat(chat)}
                                 className={cn(
                                     "w-full text-left p-3 rounded-lg hover:bg-muted transition-colors",
                                     selectedChat?.id === chat.id && "bg-muted"
