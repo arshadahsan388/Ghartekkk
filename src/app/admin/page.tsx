@@ -31,6 +31,7 @@ export default function AdminPage() {
   const [isMounted, setIsMounted] = useState(false);
   const [announcement, setAnnouncement] = useState('');
   const [user, setUser] = useState<any>(null);
+  const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
     setIsMounted(true);
@@ -41,15 +42,21 @@ export default function AdminPage() {
         }
 
         const userRef = ref(db);
-        const snapshot = await get(child(userRef, `users/${currentUser.uid}`));
-        if (!snapshot.exists() || snapshot.val().role !== 'admin') {
-            router.push('/login');
-            return;
+        try {
+            const snapshot = await get(child(userRef, `users/${currentUser.uid}`));
+            if (snapshot.exists() && snapshot.val().role === 'admin') {
+                setUser(currentUser);
+                const savedAnnouncement = localStorage.getItem('announcement') || 'Free delivery on all orders above Rs. 1000! Limited time offer.';
+                setAnnouncement(savedAnnouncement);
+            } else {
+                router.push('/');
+            }
+        } catch (error) {
+            console.error("Failed to fetch user role:", error);
+            router.push('/');
+        } finally {
+            setIsLoading(false);
         }
-        
-        setUser(currentUser);
-        const savedAnnouncement = localStorage.getItem('announcement') || 'Free delivery on all orders above Rs. 1000! Limited time offer.';
-        setAnnouncement(savedAnnouncement);
     });
 
      return () => unsubscribe();
@@ -63,7 +70,7 @@ export default function AdminPage() {
     })
   }
 
-  if (!isMounted || !user) {
+  if (!isMounted || isLoading) {
     return (
         <div className="space-y-8 p-8">
             <Skeleton className="h-10 w-1/4" />
