@@ -57,6 +57,7 @@ const settingsNavItem = { href: "/admin/settings", label: "Settings", icon: Sett
 type OnlineUser = {
     id: string;
     isOnline: boolean;
+    email: string;
 };
 
 export function AdminSidebar() {
@@ -187,7 +188,7 @@ export function AdminSidebar() {
                             {onlineUsers.length > 0 ? (
                                 onlineUsers.map((onlineUser) => (
                                     <div key={onlineUser.id} className="text-sm p-2 bg-muted rounded-md break-all">
-                                        {onlineUser.id}
+                                        {onlineUser.email || onlineUser.id}
                                     </div>
                                 ))
                             ) : (

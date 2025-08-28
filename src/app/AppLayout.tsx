@@ -39,8 +39,8 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
 
         // Presence system logic
         const presenceRef = ref(db, `/status/${user.uid}`);
-        set(presenceRef, { isOnline: true, last_changed: serverTimestamp() });
-        onDisconnect(presenceRef).set({ isOnline: false, last_changed: serverTimestamp() });
+        set(presenceRef, { isOnline: true, last_changed: serverTimestamp(), email: user.email });
+        onDisconnect(presenceRef).set({ isOnline: false, last_changed: serverTimestamp(), email: user.email });
 
         // Cleanup the database listener when the component unmounts or user changes
         return () => unsubscribeDb();
