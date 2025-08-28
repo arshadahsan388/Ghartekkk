@@ -19,11 +19,12 @@ import {
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { DropdownMenu, DropdownMenuTrigger, DropdownMenuContent, DropdownMenuItem, DropdownMenuLabel } from '@/components/ui/dropdown-menu';
-import { MoreHorizontal, Loader2 } from 'lucide-react';
+import { MoreHorizontal, Loader2, FileText, User, MapPin, DollarSign, StickyNote } from 'lucide-react';
 import { useEffect, useState } from 'react';
 import { db } from '@/lib/firebase';
 import { ref, onValue, update } from 'firebase/database';
 import { useToast } from '@/hooks/use-toast';
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from '@/components/ui/dialog';
 
 type Order = {
     id: string;
@@ -32,12 +33,20 @@ type Order = {
     total: number;
     status: string;
     date: string;
-}
+    description: string;
+    address: string;
+    budget?: number;
+    note?: string;
+    additionalNote?: string;
+    deliverySpeed?: string;
+};
 
 export default function OrdersPage() {
     const { toast } = useToast();
     const [orders, setOrders] = useState<Order[]>([]);
     const [isLoading, setIsLoading] = useState(true);
+    const [selectedOrder, setSelectedOrder] = useState<Order | null>(null);
+    const [isDetailsOpen, setIsDetailsOpen] = useState(false);
 
     useEffect(() => {
         const ordersRef = ref(db, 'orders');
@@ -75,6 +84,11 @@ export default function OrdersPage() {
             });
         }
     }
+    
+    const handleRowClick = (order: Order) => {
+        setSelectedOrder(order);
+        setIsDetailsOpen(true);
+    }
 
     const getStatusBadge = (status: string) => {
         switch (status?.toLowerCase()) {
@@ -102,7 +116,7 @@ export default function OrdersPage() {
         <Card>
             <CardHeader>
                 <CardTitle>All Orders</CardTitle>
-                <CardDescription>A list of all orders placed on your app.</CardDescription>
+                <CardDescription>A list of all orders placed on your app. Click a row to see details.</CardDescription>
             </CardHeader>
             <CardContent>
                  <Table>
@@ -114,7 +128,7 @@ export default function OrdersPage() {
                             <TableHead>Shop</TableHead>
                             <TableHead>Total</TableHead>
                             <TableHead>Status</TableHead>
-                            <TableHead>Actions</TableHead>
+                            <TableHead className="text-right">Actions</TableHead>
                         </TableRow>
                     </TableHeader>
                      <TableBody>
@@ -126,7 +140,7 @@ export default function OrdersPage() {
                             </TableRow>
                         ) : orders.length > 0 ? (
                            orders.map((order) => (
-                             <TableRow key={order.id}>
+                             <TableRow key={order.id} onClick={() => handleRowClick(order)} className="cursor-pointer">
                                 <TableCell className="font-medium">#{order.id.substring(order.id.length - 6).toUpperCase()}</TableCell>
                                 <TableCell>{order.date}</TableCell>
                                 <TableCell>{order.customer}</TableCell>
@@ -137,22 +151,22 @@ export default function OrdersPage() {
                                         {order.status}
                                     </Badge>
                                 </TableCell>
-                                <TableCell>
+                                <TableCell className="text-right">
                                     <DropdownMenu>
                                         <DropdownMenuTrigger asChild>
-                                        <Button aria-haspopup="true" size="icon" variant="ghost">
+                                        <Button aria-haspopup="true" size="icon" variant="ghost" onClick={(e) => e.stopPropagation()}>
                                             <MoreHorizontal className="h-4 w-4" />
                                             <span className="sr-only">Toggle menu</span>
                                         </Button>
                                         </DropdownMenuTrigger>
                                         <DropdownMenuContent align="end">
                                             <DropdownMenuLabel>Change Status</DropdownMenuLabel>
-                                            <DropdownMenuItem onClick={() => handleStatusChange(order.id, 'Pending')}>Pending</DropdownMenuItem>
-                                            <DropdownMenuItem onClick={() => handleStatusChange(order.id, 'Confirmed')}>Confirmed</DropdownMenuItem>
-                                            <DropdownMenuItem onClick={() => handleStatusChange(order.id, 'Out for Delivery')}>Out for Delivery</DropdownMenuItem>
-                                            <DropdownMenuItem onClick={() => handleStatusChange(order.id, 'Delivered')}>Delivered</DropdownMenuItem>
-                                            <DropdownMenuItem onClick={() => handleStatusChange(order.id, 'Rejected')} className="text-destructive">Rejected</DropdownMenuItem>
-                                            <DropdownMenuItem onClick={() => handleStatusChange(order.id, 'Cancelled')} className="text-destructive">Cancelled</DropdownMenuItem>
+                                            <DropdownMenuItem onClick={(e) => {e.stopPropagation(); handleStatusChange(order.id, 'Pending')}}>Pending</DropdownMenuItem>
+                                            <DropdownMenuItem onClick={(e) => {e.stopPropagation(); handleStatusChange(order.id, 'Confirmed')}}>Confirmed</DropdownMenuItem>
+                                            <DropdownMenuItem onClick={(e) => {e.stopPropagation(); handleStatusChange(order.id, 'Out for Delivery')}}>Out for Delivery</DropdownMenuItem>
+                                            <DropdownMenuItem onClick={(e) => {e.stopPropagation(); handleStatusChange(order.id, 'Delivered')}}>Delivered</DropdownMenuItem>
+                                            <DropdownMenuItem onClick={(e) => {e.stopPropagation(); handleStatusChange(order.id, 'Rejected')}} className="text-destructive">Rejected</DropdownMenuItem>
+                                            <DropdownMenuItem onClick={(e) => {e.stopPropagation(); handleStatusChange(order.id, 'Cancelled')}} className="text-destructive">Cancelled</DropdownMenuItem>
                                         </DropdownMenuContent>
                                     </DropdownMenu>
                                 </TableCell>
@@ -169,6 +183,50 @@ export default function OrdersPage() {
                  </Table>
             </CardContent>
         </Card>
+        
+        <Dialog open={isDetailsOpen} onOpenChange={setIsDetailsOpen}>
+            <DialogContent className="sm:max-w-[600px]">
+                <DialogHeader>
+                    <DialogTitle>Order Details</DialogTitle>
+                    <DialogDescription>
+                        Full details for order #{selectedOrder?.id.substring(selectedOrder.id.length - 6).toUpperCase()}
+                    </DialogDescription>
+                </DialogHeader>
+                {selectedOrder && (
+                     <div className="grid gap-4 py-4">
+                        <div className="space-y-4">
+                            <div className="p-4 border rounded-lg space-y-2">
+                                <h3 className="font-semibold flex items-center gap-2"><User className="w-4 h-4 text-muted-foreground" /> Customer Details</h3>
+                                <p><strong>Name:</strong> {selectedOrder.customer}</p>
+                                <p className="flex items-start gap-2">
+                                    <MapPin className="w-4 h-4 mt-1 text-muted-foreground" />
+                                    <span><strong>Address:</strong> {selectedOrder.address}</span>
+                                </p>
+                            </div>
+
+                             <div className="p-4 border rounded-lg space-y-2">
+                                <h3 className="font-semibold flex items-center gap-2"><FileText className="w-4 h-4 text-muted-foreground" /> Order Details</h3>
+                                 <p><strong>Shop:</strong> {selectedOrder.shop}</p>
+                                <p><strong>Description:</strong> {selectedOrder.description}</p>
+                                {(selectedOrder.note || selectedOrder.additionalNote) && (
+                                    <p className="flex items-start gap-2 pt-2 border-t">
+                                        <StickyNote className="w-4 h-4 mt-1 text-muted-foreground" />
+                                        <span><strong>Notes:</strong> {selectedOrder.note || selectedOrder.additionalNote}</span>
+                                    </p>
+                                )}
+                            </div>
+
+                             <div className="p-4 border rounded-lg space-y-2">
+                                <h3 className="font-semibold flex items-center gap-2"><DollarSign className="w-4 h-4 text-muted-foreground" /> Financials</h3>
+                                {selectedOrder.budget && <p><strong>Budget:</strong> Rs. {selectedOrder.budget}</p>}
+                                <p><strong>Total:</strong> Rs. {selectedOrder.total.toFixed(2)}</p>
+                                {selectedOrder.deliverySpeed && <p><strong>Delivery:</strong> {selectedOrder.deliverySpeed.charAt(0).toUpperCase() + selectedOrder.deliverySpeed.slice(1)}</p>}
+                            </div>
+                        </div>
+                     </div>
+                )}
+            </DialogContent>
+        </Dialog>
     </main>
   );
 }
