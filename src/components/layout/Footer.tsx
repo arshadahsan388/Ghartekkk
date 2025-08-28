@@ -5,6 +5,10 @@ import { usePathname } from 'next/navigation';
 import { Home, Package, ShoppingBag, LifeBuoy, User } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { useEffect, useState } from 'react';
+import { onAuthStateChanged } from 'firebase/auth';
+import { ref, onValue, query, orderByChild, equalTo } from 'firebase/database';
+import { auth, db } from '@/lib/firebase';
+import { Badge } from '@/components/ui/badge';
 
 const navItems = [
   { href: '/', icon: Home, label: 'Home' },
@@ -17,9 +21,35 @@ const navItems = [
 export default function Footer() {
   const pathname = usePathname();
   const [isMounted, setIsMounted] = useState(false);
+  const [activeOrdersCount, setActiveOrdersCount] = useState(0);
 
   useEffect(() => {
     setIsMounted(true);
+
+    const unsubscribeAuth = onAuthStateChanged(auth, (user) => {
+        if(user) {
+             const ordersRef = ref(db, 'orders');
+             const userOrdersQuery = query(ordersRef, orderByChild('userId'), equalTo(user.uid));
+
+             const unsubscribeOrders = onValue(userOrdersQuery, (snapshot) => {
+                let count = 0;
+                snapshot.forEach(childSnapshot => {
+                    const order = childSnapshot.val();
+                    if (order.status !== 'Delivered' && order.status !== 'Cancelled' && order.status !== 'Rejected') {
+                        count++;
+                    }
+                });
+                setActiveOrdersCount(count);
+             });
+
+             return () => unsubscribeOrders();
+        } else {
+            setActiveOrdersCount(0);
+        }
+    });
+    
+    return () => unsubscribeAuth();
+
   }, []);
 
   // This prevents hydration errors by ensuring the server and client render the same initial UI
@@ -50,12 +80,15 @@ export default function Footer() {
                key={href}
                href={href}
                className={cn(
-                 'flex flex-col items-center justify-center gap-1 text-xs font-medium w-full h-full transition-colors',
+                 'relative flex flex-col items-center justify-center gap-1 text-xs font-medium w-full h-full transition-colors',
                  isActive
                    ? 'text-primary'
                    : 'text-muted-foreground hover:text-primary'
                )}
              >
+                {label === 'Orders' && activeOrdersCount > 0 && (
+                    <Badge className="absolute top-1 right-5 h-5 w-5 justify-center p-0">{activeOrdersCount}</Badge>
+                )}
                <Icon className={cn("h-6 w-6", isActive && "fill-current")} />
                <span>{label}</span>
              </Link>
