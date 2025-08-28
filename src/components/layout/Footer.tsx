@@ -2,14 +2,14 @@
 'use client';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import { Home, Package, PlusSquare, LifeBuoy, User } from 'lucide-react';
+import { Home, Package, ShoppingBag, LifeBuoy, User } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { useEffect, useState } from 'react';
 
 const navItems = [
   { href: '/', icon: Home, label: 'Home' },
   { href: '/orders', icon: Package, label: 'Orders' },
-  { href: '/custom-order', icon: PlusSquare, label: 'Custom' },
+  { href: '/custom-order', icon: ShoppingBag, label: 'Order' },
   { href: '/support', icon: LifeBuoy, label: 'Support' },
   { href: '/account', icon: User, label: 'Profile' },
 ];
