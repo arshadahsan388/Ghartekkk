@@ -177,7 +177,7 @@ export default function CustomOrderPage() {
   return (
     <div className="container mx-auto px-4 py-8">
       <div className="max-w-2xl mx-auto">
-        <Card className="shadow-2xl">
+        <Card>
           <CardHeader>
             <div className="flex items-center gap-4">
               <div className="bg-primary/20 p-3 rounded-full">
@@ -270,7 +270,7 @@ export default function CustomOrderPage() {
         )}
 
         {result && (
-          <Card className="mt-8 border-primary/20 shadow-lg">
+          <Card className="mt-8 border-primary/20">
             <CardHeader className="bg-primary/5 rounded-t-lg">
               <CardTitle>Order Analysis Complete</CardTitle>
                <CardDescription>Here's what our AI thinks about your order.</CardDescription>

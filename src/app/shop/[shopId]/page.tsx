@@ -234,7 +234,7 @@ export default function ShopPage({ params }: { params: { shopId: string } }) {
             </CardHeader>
             <CardContent>
                <form onSubmit={handleOrderSubmit}>
-                <Card className="shadow-lg">
+                <Card>
                     <CardHeader>
                         <CardTitle className="flex items-center gap-2"><ShoppingBag className="w-6 h-6"/> Order from this Shop</CardTitle>
                     </CardHeader>

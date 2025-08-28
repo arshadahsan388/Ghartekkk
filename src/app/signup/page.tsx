@@ -13,7 +13,7 @@ export default function SignupPage() {
     <div className="w-full lg:grid lg:min-h-[calc(100vh-4rem)] lg:grid-cols-2 xl:min-h-[calc(100vh-4rem)]">
       <div className="flex items-center justify-center py-12 px-4">
         <div className="mx-auto grid w-full max-w-sm gap-6">
-          <Card className="shadow-2xl">
+          <Card>
             <CardHeader className="text-center">
               <CardTitle className="font-headline text-2xl">
                 Create an Account
