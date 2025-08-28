@@ -12,7 +12,6 @@ import { auth, db } from '@/lib/firebase';
 import { ref, onValue } from 'firebase/database';
 import { useToast } from '@/hooks/use-toast';
 import { useRouter } from 'next/navigation';
-import AnnouncementBar from '@/components/layout/AnnouncementBar';
 
 export default function AppLayout({ children }: { children: React.ReactNode }) {
   const { toast } = useToast();
@@ -54,7 +53,6 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
             enableSystem
             disableTransitionOnChange
         >
-            <AnnouncementBar />
             <Header />
             <main className="flex-grow pb-16">{children}</main>
             <Footer />

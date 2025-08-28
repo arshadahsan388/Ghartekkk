@@ -12,6 +12,7 @@ import { useState, useEffect } from 'react';
 import { Label } from '@/components/ui/label';
 import { auth } from '@/lib/firebase';
 import { onAuthStateChanged } from 'firebase/auth';
+import AnnouncementBar from '@/components/layout/AnnouncementBar';
 
 export default function Home() {
   const [searchQuery, setSearchQuery] = useState('');
@@ -62,6 +63,7 @@ export default function Home() {
 
   return (
     <>
+      <AnnouncementBar />
       <div className="relative py-16 md:py-24">
         <div className="absolute inset-0 bg-gradient-to-b from-primary/10 via-transparent to-transparent -z-10"></div>
         <div className="container mx-auto px-4 text-center">
