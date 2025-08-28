@@ -184,7 +184,7 @@ export default function CustomOrderPage() {
                  <ShoppingCart className="w-8 h-8 text-primary" />
               </div>
               <div>
-                <CardTitle className="font-headline text-2xl">
+                <CardTitle className="font-headline text-xl sm:text-2xl">
                   Place a Custom Order
                 </CardTitle>
                 <CardDescription>
