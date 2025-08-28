@@ -29,6 +29,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } f
 
 type Order = {
     id: string;
+    displayId: string;
     customer: string;
     shop: string;
     total: number;
@@ -192,7 +193,7 @@ export default function OrdersPage() {
                         ) : orders.length > 0 ? (
                            orders.map((order) => (
                              <TableRow key={order.id} onClick={() => handleRowClick(order)} className="cursor-pointer">
-                                <TableCell className="font-medium">#{order.id.substring(order.id.length - 6).toUpperCase()}</TableCell>
+                                <TableCell className="font-medium">{order.displayId}</TableCell>
                                 <TableCell>{order.date}</TableCell>
                                 <TableCell>{order.customer}</TableCell>
                                 <TableCell>{order.shop}</TableCell>
@@ -249,7 +250,7 @@ export default function OrdersPage() {
                 <DialogHeader>
                     <DialogTitle>Order Details</DialogTitle>
                     <DialogDescription>
-                        Full details for order #{selectedOrder?.id.substring(selectedOrder.id.length - 6).toUpperCase()}
+                        Full details for order {selectedOrder?.displayId}
                     </DialogDescription>
                 </DialogHeader>
                 {selectedOrder && (

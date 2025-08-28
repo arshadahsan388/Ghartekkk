@@ -13,6 +13,7 @@ import { Progress } from '@/components/ui/progress';
 
 type Order = {
   id: string;
+  displayId: string;
   shop: string;
   status: 'Pending' | 'Confirmed' | 'Out for Delivery' | 'Delivered' | 'Rejected' | 'Cancelled';
   date: string; // ISO String
@@ -135,7 +136,7 @@ export default function TrackOrderPage({ params }: { params: { orderId: string }
     <div className="container mx-auto py-8">
       <div className="max-w-2xl mx-auto">
         <div className="text-center mb-8">
-            <h1 className="font-headline text-3xl font-bold">Tracking Order #{params.orderId.substring(params.orderId.length - 6).toUpperCase()}</h1>
+            <h1 className="font-headline text-3xl font-bold">Tracking Order {order.displayId}</h1>
             <p className="text-muted-foreground mt-2">From "{order.shop}" to your doorstep.</p>
             <div className="mt-2">
                 <Badge variant={isOrderActive ? 'default' : 'destructive'} className="text-base">{order.status}</Badge>

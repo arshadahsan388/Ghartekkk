@@ -18,6 +18,7 @@ import { Skeleton } from '@/components/ui/skeleton';
 import { Input } from '@/components/ui/input';
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import ReviewPrompt from '@/components/reviews/ReviewPrompt';
+import { getNextOrderId } from '@/lib/order-helpers';
 
 type Shop = {
   id: string;
@@ -126,10 +127,12 @@ export default function ShopPage({ params }: { params: { shopId: string } }) {
         const deliveryFee = deliverySpeed === 'fast' ? FAST_DELIVERY_FEE : NORMAL_DELIVERY_FEE;
         const total = (Number(orderPrice) || 0) + deliveryFee;
 
+        const displayId = await getNextOrderId();
         const ordersRef = ref(db, 'orders');
         const newOrderRef = push(ordersRef);
         const newOrder = {
             id: newOrderRef.key,
+            displayId: displayId,
             customer: user.displayName || user.email?.split('@')[0], 
             shop: shop.name,
             shopId: shop.id,

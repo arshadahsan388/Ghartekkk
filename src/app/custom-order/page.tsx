@@ -26,6 +26,7 @@ import { useSearchParams, useRouter } from 'next/navigation';
 import { db, auth } from '@/lib/firebase';
 import { ref, push, get, child, update, set } from "firebase/database";
 import { onAuthStateChanged } from 'firebase/auth';
+import { getNextOrderId } from '@/lib/order-helpers';
 
 export default function CustomOrderPage() {
   const { toast } = useToast();
@@ -86,11 +87,15 @@ export default function CustomOrderPage() {
   const handleOrderSuccess = async (response: CustomOrderOutput) => {
     if (!user) return;
 
+    // Generate new order ID
+    const displayId = await getNextOrderId();
+
     // Save order
     const ordersRef = ref(db, 'orders');
-    const newOrderRef = push(ordersRef);
+    const newOrderRef = push(ordersRef); // Still use push for unique key
     const newOrder = {
         id: newOrderRef.key,
+        displayId: displayId,
         customer: user.displayName || user.email.split('@')[0], 
         shop: shopName || "Custom Order",
         status: 'Pending',
