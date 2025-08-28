@@ -116,6 +116,13 @@ export function AdminSidebar() {
                   {label}
                 </Link>
               ))}
+               <Link
+                  href={settingsNavItem.href}
+                  className="flex items-center gap-4 px-2.5 text-muted-foreground hover:text-foreground"
+                >
+                  <settingsNavItem.icon className="h-5 w-5" />
+                  {settingsNavItem.label}
+                </Link>
             </nav>
           </SheetContent>
         </Sheet>
@@ -138,7 +145,9 @@ export function AdminSidebar() {
             <DropdownMenuContent align="end">
                 <DropdownMenuLabel>My Account</DropdownMenuLabel>
                 <DropdownMenuSeparator />
-                <DropdownMenuItem>Settings</DropdownMenuItem>
+                <DropdownMenuItem asChild>
+                    <Link href="/admin/settings">Settings</Link>
+                </DropdownMenuItem>
                 <DropdownMenuItem>Support</DropdownMenuItem>
                 <DropdownMenuSeparator />
                 <DropdownMenuItem onClick={handleLogout}>Logout</DropdownMenuItem>

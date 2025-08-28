@@ -1,36 +1,67 @@
 
 'use client';
-import { Megaphone } from "lucide-react";
+import { Megaphone, X } from "lucide-react";
 import { useEffect, useState } from "react";
+import { db } from '@/lib/firebase';
+import { ref, onValue } from 'firebase/database';
+import {
+  AlertDialog,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog"
+import { Button } from "../ui/button";
 
 export default function AnnouncementBar() {
-    const [announcement, setAnnouncement] = useState('Free delivery on all orders above Rs. 1000! Limited time offer.');
+    const [announcement, setAnnouncement] = useState('');
     const [isMounted, setIsMounted] = useState(false);
+    const [isOpen, setIsOpen] = useState(false);
 
     useEffect(() => {
         setIsMounted(true);
-        const savedAnnouncement = localStorage.getItem('announcement');
-        if (savedAnnouncement) {
-            setAnnouncement(savedAnnouncement);
-        }
+        const announcementRef = ref(db, 'settings/announcement');
+        
+        const unsubscribe = onValue(announcementRef, (snapshot) => {
+            const data = snapshot.val();
+            if (data && typeof data === 'string') {
+                setAnnouncement(data);
+                if (sessionStorage.getItem('announcementSeen') !== data) {
+                   setIsOpen(true);
+                }
+            } else {
+                setAnnouncement('');
+            }
+        });
+
+        return () => unsubscribe();
     }, []);
 
-    if (!isMounted) {
-        return null; // Or a loading skeleton
+    const handleClose = () => {
+        setIsOpen(false);
+        sessionStorage.setItem('announcementSeen', announcement);
+    }
+
+    if (!isMounted || !announcement || !isOpen) {
+        return null;
     }
 
     return (
-        <div className="bg-gradient-to-r from-primary to-amber-400 text-primary-foreground">
-            <div className="container mx-auto px-4">
-                <div className="flex items-center gap-4 h-10 overflow-hidden">
-                    <Megaphone className="h-5 w-5 shrink-0" />
-                    <div className="flex-1 overflow-hidden">
-                        <p className="whitespace-nowrap moving-text text-sm font-medium">
-                           {announcement}
-                        </p>
-                    </div>
-                </div>
-            </div>
-        </div>
+        <AlertDialog open={isOpen} onOpenChange={setIsOpen}>
+            <AlertDialogContent>
+                <AlertDialogHeader>
+                    <AlertDialogTitle className="flex items-center gap-2">
+                        <Megaphone className="h-6 w-6 text-primary"/>
+                        An Update from Us!
+                    </AlertDialogTitle>
+                    <AlertDialogDescription className="pt-4 text-base">
+                       {announcement}
+                    </AlertDialogDescription>
+                </AlertDialogHeader>
+                <Button variant="outline" onClick={handleClose}>
+                    Got it!
+                </Button>
+            </AlertDialogContent>
+        </AlertDialog>
     )
 }
