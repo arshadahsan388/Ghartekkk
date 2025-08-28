@@ -32,7 +32,7 @@ export default function Home() {
                Aap kia mangwana chahtay han?
             </h1>
             <p className="mt-3 max-w-2xl mx-auto text-base text-muted-foreground">
-              Groceries, medicine, or your favorite meal. Just tell us what you need.
+              Grocery, dawai, ya aap ka pasandeeda khana. Bas humain batain aap ko kya chahiye.
             </p>
             <form onSubmit={handleSearchSubmit} className="mt-8 max-w-xl mx-auto">
               <div className="flex w-full items-center space-x-2">
