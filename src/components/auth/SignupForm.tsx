@@ -7,7 +7,7 @@ import { z } from 'zod';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { createUserWithEmailAndPassword } from 'firebase/auth';
-import { ref, set } from 'firebase/database';
+import { ref, set, query, orderByChild, equalTo, get } from 'firebase/database';
 
 import { Button } from '@/components/ui/button';
 import {
@@ -48,6 +48,25 @@ export default function SignupForm() {
 
   async function onSubmit(values: z.infer<typeof formSchema>) {
     try {
+      // Check if a user with this email is banned
+      const usersRef = ref(db, 'users');
+      const q = query(usersRef, orderByChild('email'), equalTo(values.email));
+      const snapshot = await get(q);
+
+      if (snapshot.exists()) {
+        const usersData = snapshot.val();
+        const user = Object.values(usersData)[0] as any;
+        if (user.isBanned) {
+          toast({
+            variant: 'destructive',
+            title: 'Signup Failed',
+            description: 'This email is associated with a banned account.',
+          });
+          return;
+        }
+      }
+
+
       const userCredential = await createUserWithEmailAndPassword(auth, values.email, values.password);
       const user = userCredential.user;
 
@@ -69,11 +88,19 @@ export default function SignupForm() {
       router.refresh(); 
     } catch (error: any) {
       console.error("Signup error:", error);
-      toast({
-        variant: 'destructive',
-        title: 'Signup Failed',
-        description: error.message || 'An unexpected error occurred.',
-      });
+       if (error.code === 'auth/email-already-in-use') {
+        toast({
+          variant: 'destructive',
+          title: 'Signup Failed',
+          description: 'An account with this email already exists.',
+        });
+      } else {
+        toast({
+          variant: 'destructive',
+          title: 'Signup Failed',
+          description: error.message || 'An unexpected error occurred.',
+        });
+      }
     }
   }
 

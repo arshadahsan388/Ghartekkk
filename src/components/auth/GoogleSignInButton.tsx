@@ -1,8 +1,8 @@
 
 import { Button } from "@/components/ui/button";
 import { auth, db } from "@/lib/firebase";
-import { GoogleAuthProvider, signInWithPopup } from "firebase/auth";
-import { ref, set, get, child } from "firebase/database";
+import { GoogleAuthProvider, signInWithPopup, fetchSignInMethodsForEmail } from "firebase/auth";
+import { ref, set, get, child, query, orderByChild, equalTo } from "firebase/database";
 import { useRouter } from "next/navigation";
 import { useToast } from "@/hooks/use-toast";
 
@@ -26,22 +26,36 @@ export default function GoogleSignInButton() {
       const result = await signInWithPopup(auth, provider);
       const user = result.user;
 
-      // Check if user exists in the database
-      const userRef = ref(db);
-      const snapshot = await get(child(userRef, `users/${user.uid}`));
+      if (!user.email) {
+          throw new Error("Could not retrieve email from Google account.");
+      }
+
+      // Check if the user is banned
+      const usersRef = ref(db, 'users');
+      const q = query(usersRef, orderByChild('email'), equalTo(user.email));
+      const snapshot = await get(q);
+
+      if (snapshot.exists()) {
+        const usersData = snapshot.val();
+        const existingUser = Object.values(usersData)[0] as any;
+        if (existingUser.isBanned) {
+          toast({
+              variant: 'destructive',
+              title: 'Account Banned',
+              description: 'This account has been banned. Please contact support.',
+          });
+          await auth.signOut();
+          return;
+        }
+      }
+
+      // Check if user exists in Auth, if so, just proceed
+      const userAuthRef = ref(db, `users/${user.uid}`);
+      const userAuthSnapshot = await get(userAuthRef);
       
       let userData;
-      if (snapshot.exists()) {
-        userData = snapshot.val();
-        if (userData.isBanned) {
-            toast({
-                variant: 'destructive',
-                title: 'Account Banned',
-                description: 'Your account has been banned. Please contact support.',
-            });
-            await auth.signOut();
-            return;
-        }
+      if (userAuthSnapshot.exists()) {
+        userData = userAuthSnapshot.val();
       } else {
         // New user, save their data
         userData = {
@@ -66,6 +80,7 @@ export default function GoogleSignInButton() {
           router.push('/');
       }
       router.refresh();
+
     } catch(error: any) {
         console.error("Google sign-in error", error);
         toast({

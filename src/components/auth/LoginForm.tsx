@@ -45,7 +45,7 @@ export default function LoginForm() {
       const userCredential = await signInWithEmailAndPassword(auth, values.email, values.password);
       const user = userCredential.user;
 
-      // Check user role
+      // Check user role and ban status
       const userRef = ref(db);
       const snapshot = await get(child(userRef, `users/${user.uid}`));
       if (snapshot.exists()) {
@@ -74,6 +74,7 @@ export default function LoginForm() {
         return;
       }
       
+      // Fallback for users that might not have a DB entry for some reason
       toast({
         title: 'Login Successful',
         description: 'Welcome back! Redirecting you to the dashboard.',
