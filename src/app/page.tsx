@@ -1,5 +1,4 @@
 
-
 'use client';
 
 import { Button } from '@/components/ui/button';
@@ -143,7 +142,7 @@ export default function Home() {
   return (
     <>
       <AnnouncementBar />
-      <div className="relative py-12 md:py-24">
+      <div className="relative py-8 md:py-12">
         <div className="absolute inset-0 bg-gradient-to-b from-primary/10 via-transparent to-transparent -z-10"></div>
         <div className="container mx-auto px-4 text-center">
           <h1 className="text-3xl sm:text-4xl font-extrabold tracking-tight font-headline">
@@ -216,7 +215,7 @@ export default function Home() {
           </form>
         </div>
       </div>
-      <div id="shops" className="container mx-auto px-4 py-12">
+      <div id="shops" className="container mx-auto px-4 py-8">
         <ShopList />
       </div>
     </>
