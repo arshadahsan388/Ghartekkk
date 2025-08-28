@@ -20,7 +20,7 @@ import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { DropdownMenu, DropdownMenuTrigger, DropdownMenuContent, DropdownMenuItem, DropdownMenuLabel } from '@/components/ui/dropdown-menu';
 import { MoreHorizontal, Loader2, FileText, User, MapPin, DollarSign, StickyNote, Rabbit, Turtle } from 'lucide-react';
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useRef } from 'react';
 import { db } from '@/lib/firebase';
 import { ref, onValue, update } from 'firebase/database';
 import { useToast } from '@/hooks/use-toast';
@@ -47,28 +47,44 @@ export default function OrdersPage() {
     const [isLoading, setIsLoading] = useState(true);
     const [selectedOrder, setSelectedOrder] = useState<Order | null>(null);
     const [isDetailsOpen, setIsDetailsOpen] = useState(false);
+    const audioRef = useRef<HTMLAudioElement | null>(null);
+    const isInitialLoad = useRef(true);
 
     useEffect(() => {
+        if (typeof Audio !== 'undefined') {
+            audioRef.current = new Audio('/notification.mp3');
+        }
+
         const ordersRef = ref(db, 'orders');
         const unsubscribe = onValue(ordersRef, (snapshot) => {
             const data = snapshot.val();
+            let newOrders: Order[] = [];
             if (data) {
-                const orderList: Order[] = Object.keys(data).map(key => ({
+                newOrders = Object.keys(data).map(key => ({
                     id: key,
                     ...data[key],
                     date: data[key].date ? new Date(data[key].date).toLocaleDateString() : 'N/A'
                 }))
                 .reverse()
                 .filter(order => order.status !== 'Delivered');
-                setOrders(orderList);
-            } else {
-                setOrders([]);
             }
+            
+            if (!isInitialLoad.current && newOrders.length > orders.length) {
+                toast({
+                    title: 'New Order Received!',
+                    description: 'A customer has placed a new order.',
+                });
+                audioRef.current?.play().catch(error => console.log("Audio play failed:", error));
+            }
+            
+            setOrders(newOrders);
             setIsLoading(false);
+            isInitialLoad.current = false;
         });
 
         return () => unsubscribe();
-    }, []);
+    }, [toast, orders.length]);
+
 
     const handleStatusChange = async (orderId: string, newStatus: string) => {
         const orderRef = ref(db, `orders/${orderId}`);
@@ -250,3 +266,5 @@ export default function OrdersPage() {
     </main>
   );
 }
+
+    
