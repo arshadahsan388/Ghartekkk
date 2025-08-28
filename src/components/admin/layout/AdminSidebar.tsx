@@ -12,7 +12,8 @@ import {
   Settings,
   Star,
   Store,
-  LayoutGrid
+  LayoutGrid,
+  PackageCheck
 } from 'lucide-react';
 import { Sheet, SheetContent, SheetTrigger } from '@/components/ui/sheet';
 import { Button } from '@/components/ui/button';
@@ -37,7 +38,8 @@ import { TooltipProvider } from '@/components/ui/tooltip';
 
 const mainNavItems = [
     { href: "/admin", label: "Dashboard", icon: Home },
-    { href: "/admin/orders", label: "Orders", icon: Package },
+    { href: "/admin/orders", label: "Active Orders", icon: Package },
+    { href: "/admin/delivered-orders", label: "Delivered Orders", icon: PackageCheck },
     { href: "/admin/users", label: "Users", icon: Users2 },
     { href: "/admin/shops", label: "Shops", icon: Store },
     { href: "/admin/shop-categories", label: "Categories", icon: LayoutGrid },

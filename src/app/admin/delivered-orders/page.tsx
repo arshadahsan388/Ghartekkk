@@ -18,13 +18,11 @@ import {
   } from '@/components/ui/table';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
-import { DropdownMenu, DropdownMenuTrigger, DropdownMenuContent, DropdownMenuItem, DropdownMenuLabel } from '@/components/ui/dropdown-menu';
-import { MoreHorizontal, Loader2, FileText, User, MapPin, DollarSign, StickyNote, Rabbit, Turtle } from 'lucide-react';
+import { MoreHorizontal, Loader2, FileText, User, MapPin, DollarSign, StickyNote, Rabbit, Turtle, Eye } from 'lucide-react';
 import { useEffect, useState } from 'react';
 import { db } from '@/lib/firebase';
-import { ref, onValue, update } from 'firebase/database';
-import { useToast } from '@/hooks/use-toast';
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from '@/components/ui/dialog';
+import { ref, onValue } from 'firebase/database';
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter } from '@/components/ui/dialog';
 
 type Order = {
     id: string;
@@ -41,8 +39,7 @@ type Order = {
     deliverySpeed?: string;
 };
 
-export default function OrdersPage() {
-    const { toast } = useToast();
+export default function DeliveredOrdersPage() {
     const [orders, setOrders] = useState<Order[]>([]);
     const [isLoading, setIsLoading] = useState(true);
     const [selectedOrder, setSelectedOrder] = useState<Order | null>(null);
@@ -59,7 +56,7 @@ export default function OrdersPage() {
                     date: data[key].date ? new Date(data[key].date).toLocaleDateString() : 'N/A'
                 }))
                 .reverse()
-                .filter(order => order.status !== 'Delivered');
+                .filter(order => order.status === 'Delivered');
                 setOrders(orderList);
             } else {
                 setOrders([]);
@@ -69,23 +66,6 @@ export default function OrdersPage() {
 
         return () => unsubscribe();
     }, []);
-
-    const handleStatusChange = async (orderId: string, newStatus: string) => {
-        const orderRef = ref(db, `orders/${orderId}`);
-        try {
-            await update(orderRef, { status: newStatus });
-            toast({
-                title: 'Order Status Updated',
-                description: `Order #${orderId.substring(orderId.length - 6).toUpperCase()} is now ${newStatus}.`,
-            });
-        } catch (error) {
-            console.error(error);
-            toast({
-                variant: 'destructive',
-                title: 'Failed to update status',
-            });
-        }
-    }
     
     const handleRowClick = (order: Order) => {
         setSelectedOrder(order);
@@ -94,18 +74,8 @@ export default function OrdersPage() {
 
     const getStatusBadge = (status: string) => {
         switch (status?.toLowerCase()) {
-        case 'out for delivery':
-            return 'bg-blue-500 hover:bg-blue-600';
-        case 'confirmed':
-            return 'bg-blue-500 hover:bg-blue-600';
         case 'delivered':
             return 'bg-green-500 hover:bg-green-600';
-        case 'rejected':
-            return 'bg-red-500 hover:bg-red-600';
-        case 'cancelled':
-            return 'bg-red-500 hover:bg-red-600';
-        case 'pending':
-            return 'bg-yellow-500 hover:bg-yellow-600';
         default:
             return 'bg-gray-500 hover:bg-gray-600';
         }
@@ -114,11 +84,11 @@ export default function OrdersPage() {
 
   return (
     <main className="grid flex-1 items-start gap-4 p-4 sm:px-6 sm:py-0 md:gap-8">
-        <AdminHeader title="Active Orders" description="View and manage all active customer orders." />
+        <AdminHeader title="Delivered Orders" description="View all successfully delivered orders." />
         <Card>
             <CardHeader>
-                <CardTitle>Active Orders</CardTitle>
-                <CardDescription>A list of all current orders. Click a row to see details.</CardDescription>
+                <CardTitle>Order History</CardTitle>
+                <CardDescription>A list of all completed orders.</CardDescription>
             </CardHeader>
             <CardContent>
                  <Table>
@@ -163,30 +133,17 @@ export default function OrdersPage() {
                                     )}
                                 </TableCell>
                                 <TableCell className="text-right">
-                                    <DropdownMenu>
-                                        <DropdownMenuTrigger asChild>
-                                        <Button aria-haspopup="true" size="icon" variant="ghost" onClick={(e) => e.stopPropagation()}>
-                                            <MoreHorizontal className="h-4 w-4" />
-                                            <span className="sr-only">Toggle menu</span>
-                                        </Button>
-                                        </DropdownMenuTrigger>
-                                        <DropdownMenuContent align="end">
-                                            <DropdownMenuLabel>Change Status</DropdownMenuLabel>
-                                            <DropdownMenuItem onClick={(e) => {e.stopPropagation(); handleStatusChange(order.id, 'Pending')}}>Pending</DropdownMenuItem>
-                                            <DropdownMenuItem onClick={(e) => {e.stopPropagation(); handleStatusChange(order.id, 'Confirmed')}}>Confirmed</DropdownMenuItem>
-                                            <DropdownMenuItem onClick={(e) => {e.stopPropagation(); handleStatusChange(order.id, 'Out for Delivery')}}>Out for Delivery</DropdownMenuItem>
-                                            <DropdownMenuItem onClick={(e) => {e.stopPropagation(); handleStatusChange(order.id, 'Delivered')}}>Delivered</DropdownMenuItem>
-                                            <DropdownMenuItem onClick={(e) => {e.stopPropagation(); handleStatusChange(order.id, 'Rejected')}} className="text-destructive">Rejected</DropdownMenuItem>
-                                            <DropdownMenuItem onClick={(e) => {e.stopPropagation(); handleStatusChange(order.id, 'Cancelled')}} className="text-destructive">Cancelled</DropdownMenuItem>
-                                        </DropdownMenuContent>
-                                    </DropdownMenu>
+                                    <Button size="sm" variant="outline" onClick={() => handleRowClick(order)}>
+                                        <Eye className="mr-2 h-4 w-4"/>
+                                        View Details
+                                    </Button>
                                 </TableCell>
                             </TableRow>
                            ))
                         ) : (
                              <TableRow>
                                 <TableCell colSpan={8} className="text-center">
-                                    No active orders found.
+                                    No delivered orders found.
                                 </TableCell>
                             </TableRow>
                         )}
@@ -245,6 +202,9 @@ export default function OrdersPage() {
                         </div>
                      </div>
                 )}
+                 <DialogFooter>
+                    <Button variant="outline" onClick={() => setIsDetailsOpen(false)}>Close</Button>
+                </DialogFooter>
             </DialogContent>
         </Dialog>
     </main>
