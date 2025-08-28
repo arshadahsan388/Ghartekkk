@@ -107,8 +107,6 @@ export default function OrdersPage() {
                <Table>
                 <TableHeader>
                     <TableRow>
-                      <TableHead><Skeleton className="h-4 w-[80px]" /></TableHead>
-                      <TableHead><Skeleton className="h-4 w-[100px]" /></TableHead>
                       <TableHead><Skeleton className="h-4 w-[120px]" /></TableHead>
                       <TableHead><Skeleton className="h-4 w-[80px]" /></TableHead>
                       <TableHead><Skeleton className="h-4 w-[100px]" /></TableHead>
@@ -118,8 +116,6 @@ export default function OrdersPage() {
                 <TableBody>
                     {[...Array(3)].map((_, i) => (
                         <TableRow key={i}>
-                            <TableCell><Skeleton className="h-4 w-full" /></TableCell>
-                            <TableCell><Skeleton className="h-4 w-full" /></TableCell>
                             <TableCell><Skeleton className="h-4 w-full" /></TableCell>
                             <TableCell><Skeleton className="h-4 w-full" /></TableCell>
                             <TableCell><Skeleton className="h-4 w-full" /></TableCell>
@@ -149,8 +145,6 @@ export default function OrdersPage() {
                     <Table>
                     <TableHeader>
                         <TableRow>
-                        <TableHead>Order ID</TableHead>
-                        <TableHead>Date</TableHead>
                         <TableHead>Shop/Description</TableHead>
                         <TableHead>Total</TableHead>
                         <TableHead>Status</TableHead>
@@ -160,8 +154,6 @@ export default function OrdersPage() {
                     <TableBody>
                         {orders.map((order) => (
                         <TableRow key={order.id}>
-                            <TableCell className="font-medium">#{order.id.substring(order.id.length-6).toUpperCase()}</TableCell>
-                            <TableCell>{order.date}</TableCell>
                             <TableCell>{order.shop === "Custom Order" ? order.description.substring(0, 30)+'...' : order.shop}</TableCell>
                             <TableCell>Rs. {order.total.toFixed(2)}</TableCell>
                             <TableCell>
@@ -206,4 +198,3 @@ export default function OrdersPage() {
     </div>
   );
 }
-
