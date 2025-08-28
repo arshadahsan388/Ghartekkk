@@ -5,7 +5,7 @@ export default function RefundPolicyPage() {
       <div className="max-w-3xl mx-auto bg-card p-8 rounded-lg shadow-lg">
         <h1 className="text-4xl font-bold mb-6 font-headline text-primary">Refund Policy</h1>
         <div className="prose dark:prose-invert max-w-none space-y-4">
-            <p>Last updated: July 30, 2024</p>
+            <p>Last updated: August 28, 2025</p>
             <p>Thank you for shopping at GharTek. We appreciate the fact that you like to buy the stuff we deliver. We also want to make sure you have a rewarding experience while you’re exploring, evaluating, and purchasing our products.</p>
 
             <h2 className="text-2xl font-semibold mt-6">General Policy</h2>
@@ -29,7 +29,7 @@ export default function RefundPolicyPage() {
             <h2 className="text-2xl font-semibold mt-6">Contact Us</h2>
             <p>If you have any questions about our Refunds and Returns Policy, please contact us:</p>
             <ul>
-                <li>By email: contact@ghartek.com</li>
+                <li>By email: arshadahsan388@gmail.com</li>
             </ul>
         </div>
       </div>

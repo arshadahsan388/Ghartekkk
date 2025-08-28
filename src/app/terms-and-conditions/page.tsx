@@ -5,7 +5,7 @@ export default function TermsAndConditionsPage() {
       <div className="max-w-3xl mx-auto bg-card p-8 rounded-lg shadow-lg">
         <h1 className="text-4xl font-bold mb-6 font-headline text-primary">Terms and Conditions</h1>
         <div className="prose dark:prose-invert max-w-none space-y-4">
-            <p>Last updated: July 30, 2024</p>
+            <p>Last updated: August 28, 2025</p>
             <p>Please read these terms and conditions carefully before using Our Service.</p>
 
             <h2 className="text-2xl font-semibold mt-6">Acknowledgment</h2>
@@ -30,7 +30,7 @@ export default function TermsAndConditionsPage() {
             <h2 className="text-2xl font-semibold mt-6">Contact Us</h2>
             <p>If you have any questions about these Terms and Conditions, You can contact us:</p>
             <ul>
-                <li>By email: contact@ghartek.com</li>
+                <li>By email: arshadahsan388@gmail.com</li>
             </ul>
         </div>
       </div>

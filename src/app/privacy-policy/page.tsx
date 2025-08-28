@@ -5,7 +5,7 @@ export default function PrivacyPolicyPage() {
       <div className="max-w-3xl mx-auto bg-card p-8 rounded-lg shadow-lg">
         <h1 className="text-4xl font-bold mb-6 font-headline text-primary">Privacy Policy</h1>
         <div className="prose dark:prose-invert max-w-none space-y-4">
-          <p>Last updated: July 30, 2024</p>
+          <p>Last updated: August 28, 2025</p>
 
           <p>
             This Privacy Policy describes Our policies and procedures on the
@@ -75,7 +75,7 @@ export default function PrivacyPolicyPage() {
             us:
           </p>
           <ul>
-            <li>By email: contact@ghartek.com</li>
+            <li>By email: arshadahsan388@gmail.com</li>
           </ul>
         </div>
       </div>
