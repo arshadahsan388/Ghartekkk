@@ -163,7 +163,7 @@ export default function SupportPage() {
   return (
     <div className="container mx-auto px-4 py-8">
       <div className="max-w-2xl mx-auto">
-        <Card className="flex flex-col h-[calc(100vh-12rem)]">
+        <Card className="flex flex-col h-[calc(100vh-14rem)]">
           <CardHeader>
             <CardTitle>Support Chat</CardTitle>
             <CardDescription>
