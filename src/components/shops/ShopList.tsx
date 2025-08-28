@@ -67,7 +67,7 @@ export default function ShopList() {
   return (
     <div className="space-y-12">
       {categories.map(category => (
-        <div key={category}>
+        <div key={category} id={category.replace(/\s+/g, '-')}>
           <div className="mb-6">
             <h2 className="text-3xl sm:text-4xl font-bold font-headline">{category}</h2>
             <p className="text-muted-foreground mt-1">Find the best {category.toLowerCase()} options in town.</p>

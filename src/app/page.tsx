@@ -15,6 +15,7 @@ import AnnouncementBar from '@/components/layout/AnnouncementBar';
 import { getSearchSuggestions } from '@/ai/flows/get-search-suggestions';
 import { useToast } from '@/hooks/use-toast';
 import { Card } from '@/components/ui/card';
+import CategoryNav from '@/components/shops/CategoryNav';
 
 // Debounce function
 const debounce = <F extends (...args: any[]) => any>(func: F, waitFor: number) => {
@@ -142,7 +143,7 @@ export default function Home() {
   return (
     <>
       <AnnouncementBar />
-      <div className="relative py-8 md:py-12">
+      <div className="relative py-8">
         <div className="absolute inset-0 bg-gradient-to-b from-primary/10 via-transparent to-transparent -z-10"></div>
         <div className="container mx-auto px-4 text-center">
           <h1 className="text-3xl sm:text-4xl font-extrabold tracking-tight font-headline">
@@ -215,6 +216,7 @@ export default function Home() {
           </form>
         </div>
       </div>
+      <CategoryNav />
       <div id="shops" className="container mx-auto px-4 py-8">
         <ShopList />
       </div>
