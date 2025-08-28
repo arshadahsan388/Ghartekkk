@@ -96,6 +96,7 @@ export const onNewMessage = onValueCreated(
         lastMessageType: 'text',
         timestamp: Date.now(),
         unreadByAdmin: true, // Keep it unread so admin can see AI interaction
+        unreadByUser: true, // Mark as unread for the user
       });
 
       console.log('AI response sent successfully for user:', userId);

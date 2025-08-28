@@ -64,6 +64,11 @@ export default function SupportPage() {
           setMessages([]);
         }
       });
+      
+      // Mark chat as read when component mounts or user changes
+      const metadataRef = ref(db, `chats/${user.uid}/metadata`);
+      update(metadataRef, { unreadByUser: false });
+
       return () => unsubscribeMessages();
     }
   }, [user]);
@@ -83,36 +88,40 @@ export default function SupportPage() {
         const chatRef = ref(db, `chats/${user.uid}/messages`);
         const newMsgRef = push(chatRef);
         const metadataRef = ref(db, `chats/${user.uid}/metadata`);
+        const messageData = {
+          sender: 'user',
+          timestamp: serverTimestamp(),
+          userName: user.displayName || user.email,
+        };
+
+        const metadataUpdate = {
+          timestamp: serverTimestamp(),
+          unreadByAdmin: true,
+          customerName: user.displayName || user.email,
+          unreadByUser: false, // User just sent a message, so it's read by them
+        };
 
         if (imagePreview) {
              await set(newMsgRef, {
+                ...messageData,
                 imageUrl: imagePreview,
                 type: 'image',
-                sender: 'user',
-                timestamp: serverTimestamp(),
-                userName: user.displayName || user.email,
             });
              await set(metadataRef, {
+                ...metadataUpdate,
                 lastMessage: 'Image',
                 lastMessageType: 'image',
-                timestamp: serverTimestamp(),
-                unreadByAdmin: true,
-                customerName: user.displayName || user.email,
             });
         } else {
              await set(newMsgRef, {
+                ...messageData,
                 text: newMessage,
                 type: 'text',
-                sender: 'user',
-                timestamp: serverTimestamp(),
-                userName: user.displayName || user.email,
             });
             await set(metadataRef, {
+                ...metadataUpdate,
                 lastMessage: newMessage,
                 lastMessageType: 'text',
-                timestamp: serverTimestamp(),
-                unreadByAdmin: true,
-                customerName: user.displayName || user.email,
             });
         }
         

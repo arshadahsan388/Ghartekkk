@@ -75,6 +75,11 @@ export default function SupportPage() {
             }
         }
       });
+
+      // Mark chat as read when component mounts or user changes
+      const metadataRef = ref(db, `chats/${user.uid}/metadata`);
+      update(metadataRef, { unreadByUser: false });
+
       return () => unsubscribeMessages();
     }
   }, [user, isAfterHours]);
@@ -107,7 +112,8 @@ export default function SupportPage() {
         lastMessage: aiResponse.response,
         lastMessageType: 'text',
         timestamp: serverTimestamp(),
-        unreadByAdmin: true, 
+        unreadByAdmin: true,
+        unreadByUser: true,
     });
   }
 
@@ -141,6 +147,7 @@ export default function SupportPage() {
                 unreadByAdmin: true,
                 customerName: user.displayName || user.email,
                 userId: user.uid,
+                unreadByUser: false,
             });
         } else {
              await set(newMsgRef, {
@@ -157,6 +164,7 @@ export default function SupportPage() {
                 unreadByAdmin: true,
                 customerName: user.displayName || user.email,
                 userId: user.uid,
+                unreadByUser: false,
             });
         }
         
