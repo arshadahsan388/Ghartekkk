@@ -87,9 +87,9 @@ export default function Home() {
             </div>
             
             {showExtraFields && user && (
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-left animate-in fade-in-0 duration-500">
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-4 text-left animate-in fade-in-0 duration-500">
                     <div className="space-y-2">
-                        <Label htmlFor="budget" className="flex items-center gap-2"><Wallet className="w-4 h-4" /> Your Budget (Optional)</Label>
+                        <Label htmlFor="budget" className="flex items-center gap-2"><Wallet className="w-4 h-4" /> Budget (Optional)</Label>
                         <Input 
                             id="budget"
                             type="number"
@@ -99,34 +99,33 @@ export default function Home() {
                         />
                     </div>
                      <div className="space-y-2">
-                        <Label htmlFor="address" className="flex items-center gap-2"><HomeIcon className="w-4 h-4" /> Delivery Address</Label>
+                        <Label htmlFor="address" className="flex items-center gap-2"><HomeIcon className="w-4 h-4" /> Address</Label>
                         <Input 
                             id="address"
-                            placeholder="e.g., House 123, Street 4, Vehari"
+                            placeholder="e.g., Vehari"
                             value={address}
                             onChange={(e) => setAddress(e.target.value)}
                             required
                         />
                     </div>
+                    <div className="space-y-2">
+                        <Label>&nbsp;</Label>
+                        <Button type="submit" size="lg" className="w-full h-10">
+                            Submit
+                            <Send className="ml-2 h-4 w-4" />
+                        </Button>
+                    </div>
                 </div>
             )}
 
-            {(showExtraFields || !user) && (
+            {!user && showExtraFields && (
                 <Button type="submit" size="lg" className="w-full">
-                    {user ? 'Submit Custom Order' : 'Place an Order'}
+                    Place an Order
                     <Send className="ml-2 h-4 w-4" />
                 </Button>
             )}
 
           </form>
-          <div className="mt-4 text-sm">
-            <Link
-              href="/custom-order"
-              className="text-muted-foreground hover:text-primary transition-colors flex items-center justify-center gap-1"
-            >
-              or go to custom order page <ArrowRight className="w-3 h-3" />
-            </Link>
-          </div>
         </div>
       </div>
       <div id="shops" className="container mx-auto px-4 py-12">
