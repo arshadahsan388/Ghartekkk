@@ -54,7 +54,7 @@ export default function Footer() {
                    : 'text-muted-foreground hover:text-primary'
                )}
              >
-               <Icon className="h-6 w-6" />
+               <Icon className={cn("h-6 w-6", isActive && "fill-current")} />
                <span>{label}</span>
              </Link>
            );
