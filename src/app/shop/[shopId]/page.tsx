@@ -32,7 +32,7 @@ export default function ShopPage({ params }: { params: { shopId: string } }) {
   const router = useRouter();
   const searchParams = useSearchParams();
   const shopData = searchParams.get('data');
-  const shop: Shop = shopData ? JSON.parse(decodeURIComponent(shopData)) : null;
+  const shop: Shop | null = shopData ? JSON.parse(decodeURIComponent(shopData)) : null;
 
   const [isMounted, setIsMounted] = useState(false);
   const [user, setUser] = useState<User | null>(null);
@@ -60,7 +60,7 @@ export default function ShopPage({ params }: { params: { shopId: string } }) {
   
   const handleOrderSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!user) return;
+    if (!user || !shop) return;
     setIsOrdering(true);
 
     try {
@@ -73,6 +73,7 @@ export default function ShopPage({ params }: { params: { shopId: string } }) {
             shopId: shop.id,
             status: 'Pending',
             description: orderDescription,
+            total: 0, // Placeholder for total, can be updated later
             email: user.email,
             address: localStorage.getItem('deliveryAddress') || 'Vehari, Pakistan',
             userId: user.uid,
@@ -107,7 +108,7 @@ export default function ShopPage({ params }: { params: { shopId: string } }) {
 
   const handleReviewSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!user) return;
+    if (!user || !shop) return;
     setIsSubmittingReview(true);
 
     try {
@@ -135,6 +136,7 @@ export default function ShopPage({ params }: { params: { shopId: string } }) {
             });
             reviewData.aiSummary = complaintResult.summary;
             reviewData.aiCategory = complaintResult.category;
+            reviewData.aiUrgency = complaintResult.urgency;
         }
 
         await set(newReviewRef, reviewData);
@@ -163,16 +165,29 @@ export default function ShopPage({ params }: { params: { shopId: string } }) {
   if (!isMounted || !user || !shop) {
     return (
       <div className="container mx-auto px-4 py-8">
-        <Card>
-            <CardHeader>
-                <Skeleton className="h-8 w-3/4" />
-                <Skeleton className="h-4 w-1/2" />
-                <Skeleton className="h-4 w-1/3" />
-            </CardHeader>
-            <CardContent>
-                <Skeleton className="h-40 w-full" />
-            </CardContent>
-        </Card>
+        <div className="grid md:grid-cols-2 gap-8">
+            <Card>
+                <CardHeader>
+                    <Skeleton className="h-8 w-3/4" />
+                    <Skeleton className="h-4 w-1/2" />
+                    <Skeleton className="h-4 w-1/3" />
+                </CardHeader>
+                <CardContent>
+                    <Skeleton className="h-40 w-full" />
+                </CardContent>
+            </Card>
+             <Card>
+                <CardHeader>
+                    <Skeleton className="h-8 w-3/4" />
+                    <Skeleton className="h-4 w-1/2" />
+                </CardHeader>
+                <CardContent className="space-y-4">
+                    <Skeleton className="h-10 w-full" />
+                    <Skeleton className="h-10 w-full" />
+                    <Skeleton className="h-10 w-full" />
+                </CardContent>
+            </Card>
+        </div>
       </div>
     );
   }
@@ -260,11 +275,11 @@ export default function ShopPage({ params }: { params: { shopId: string } }) {
                                 <SelectValue placeholder="Select a reason" />
                             </SelectTrigger>
                             <SelectContent>
-                                <SelectItem value="late-delivery">Late Delivery</SelectItem>
-                                <SelectItem value="bad-food">Bad Food</SelectItem>
-                                <SelectItem value="product-damage">Product Damage</SelectItem>
-                                <SelectItem value="misbehavior">Rider/Staff Misbehavior</SelectItem>
-                                <SelectItem value="other">Other</SelectItem>
+                                <SelectItem value="Late Delivery">Late Delivery</SelectItem>
+                                <SelectItem value="Bad Food">Bad Food</SelectItem>
+                                <SelectItem value="Product Damage">Product Damage</SelectItem>
+                                <SelectItem value="Rider/Staff Misbehavior">Rider/Staff Misbehavior</SelectItem>
+                                <SelectItem value="Other">Other</SelectItem>
                             </SelectContent>
                         </Select>
                     </div>
@@ -292,3 +307,5 @@ export default function ShopPage({ params }: { params: { shopId: string } }) {
     </div>
   );
 }
+
+    
