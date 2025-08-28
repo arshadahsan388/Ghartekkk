@@ -35,7 +35,7 @@ const getSearchSuggestionsPrompt = ai.definePrompt({
   name: 'getSearchSuggestionsPrompt',
   input: {schema: SearchSuggestionInputSchema},
   output: {schema: SearchSuggestionOutputSchema},
-  prompt: `You are a helpful search assistant for "Pak Delivers", a delivery app in Vehari, Pakistan. The app delivers food, groceries, medicine, and custom items.
+  prompt: `You are a helpful search assistant for "GharTek", a delivery app in Vehari, Pakistan. The app delivers food, groceries, medicine, and custom items.
 
 Given the user's current search query, generate a list of 5 relevant and likely search suggestions. The suggestions should be concise and cover common items users might order.
 

@@ -33,7 +33,7 @@ const prompt = ai.definePrompt({
   name: 'autoReplyPrompt',
   input: {schema: AutoReplyInputSchema},
   output: {schema: AutoReplyOutputSchema},
-  prompt: `You are an AI customer support assistant for "Pak Delivers", a food and goods delivery app in Vehari, Pakistan.
+  prompt: `You are an AI customer support assistant for "GharTek", a food and goods delivery app in Vehari, Pakistan.
 
 Your role is to provide helpful, friendly, and immediate assistance to users.
 
