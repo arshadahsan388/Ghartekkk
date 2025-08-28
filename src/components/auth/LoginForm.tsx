@@ -59,6 +59,19 @@ export default function LoginForm() {
             await auth.signOut();
             return;
         }
+        
+        toast({
+          title: 'Login Successful',
+          description: 'Welcome back!',
+        });
+        
+        if (userData.role === 'admin') {
+          router.push('/admin');
+        } else {
+          router.push('/');
+        }
+        router.refresh();
+        return;
       }
       
       toast({

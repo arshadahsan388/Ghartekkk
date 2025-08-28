@@ -1,3 +1,4 @@
+
 import { Button } from "@/components/ui/button";
 import { auth, db } from "@/lib/firebase";
 import { GoogleAuthProvider, signInWithPopup } from "firebase/auth";
@@ -28,8 +29,10 @@ export default function GoogleSignInButton() {
       // Check if user exists in the database
       const userRef = ref(db);
       const snapshot = await get(child(userRef, `users/${user.uid}`));
+      
+      let userData;
       if (snapshot.exists()) {
-        const userData = snapshot.val();
+        userData = snapshot.val();
         if (userData.isBanned) {
             toast({
                 variant: 'destructive',
@@ -41,20 +44,27 @@ export default function GoogleSignInButton() {
         }
       } else {
         // New user, save their data
-         await set(ref(db, 'users/' + user.uid), {
+        userData = {
             id: user.uid,
             name: user.displayName,
             email: user.email,
             orders: 0,
-            isBanned: false
-        });
+            isBanned: false,
+            role: 'customer' // Default role
+        };
+        await set(ref(db, 'users/' + user.uid), userData);
       }
 
       toast({
         title: "Signed In with Google",
-        description: "Welcome! Redirecting you to the dashboard."
+        description: "Welcome! Redirecting..."
       });
-      router.push('/');
+
+      if (userData.role === 'admin') {
+          router.push('/admin');
+      } else {
+          router.push('/');
+      }
       router.refresh();
     } catch(error: any) {
         console.error("Google sign-in error", error);

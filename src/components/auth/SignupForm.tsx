@@ -1,3 +1,4 @@
+
 'use client';
 
 import { zodResolver } from '@hookform/resolvers/zod';
@@ -56,7 +57,8 @@ export default function SignupForm() {
         name: values.fullName,
         email: values.email,
         orders: 0,
-        isBanned: false
+        isBanned: false,
+        role: 'customer' // Default role for new signups
       });
 
       toast({
