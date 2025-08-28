@@ -5,6 +5,7 @@ import Header from '@/components/layout/Header';
 import { PT_Sans } from 'next/font/google';
 import Footer from '@/components/layout/Footer';
 import { ThemeProvider } from '@/components/theme/ThemeProvider';
+import GlobalAlert from '@/components/layout/GlobalAlert';
 
 const ptSans = PT_Sans({
   subsets: ['latin'],
@@ -39,6 +40,7 @@ export default function RootLayout({
             <main className="flex-grow pb-16">{children}</main>
             <Footer />
             <Toaster />
+            <GlobalAlert />
         </ThemeProvider>
       </body>
     </html>

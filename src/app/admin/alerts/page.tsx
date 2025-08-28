@@ -7,19 +7,9 @@ import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import AdminHeader from '@/components/admin/layout/AdminHeader';
 import { db } from '@/lib/firebase';
-import { ref, set, get, onValue } from 'firebase/database';
+import { ref, set, get } from 'firebase/database';
 import { useToast } from '@/hooks/use-toast';
 import { Loader2 } from 'lucide-react';
-import {
-  AlertDialog,
-  AlertDialogContent,
-  AlertDialogHeader,
-  AlertDialogTitle,
-  AlertDialogDescription,
-  AlertDialogFooter,
-  AlertDialogAction,
-} from '@/components/ui/alert-dialog';
-import { Siren } from 'lucide-react';
 
 
 export default function AlertsPage() {
@@ -27,7 +17,6 @@ export default function AlertsPage() {
     const [alert, setAlert] = useState('');
     const [isLoading, setIsLoading] = useState(true);
     const [isSaving, setIsSaving] = useState(false);
-    const [alertToShow, setAlertToShow] = useState<string | null>(null);
 
     useEffect(() => {
         const fetchSettings = async () => {
@@ -52,21 +41,6 @@ export default function AlertsPage() {
         fetchSettings();
     }, [toast]);
     
-    useEffect(() => {
-        const settingsRef = ref(db, 'settings/alert');
-        const lastSeenAlert = localStorage.getItem('lastSeenAlert');
-
-        const unsubscribe = onValue(settingsRef, (snapshot) => {
-            const data = snapshot.val();
-            if (data && typeof data === 'string' && data.trim() !== '' && data !== lastSeenAlert) {
-                setAlertToShow(data);
-            } else {
-                setAlertToShow(null);
-            }
-        });
-
-        return () => unsubscribe();
-    }, []);
 
     const handleSave = async () => {
         setIsSaving(true);
@@ -87,17 +61,9 @@ export default function AlertsPage() {
             setIsSaving(false);
         }
     };
-    
-    const handleAlertClose = () => {
-        if (alertToShow) {
-            localStorage.setItem('lastSeenAlert', alertToShow);
-        }
-        setAlertToShow(null);
-    }
 
 
   return (
-    <>
     <main className="grid flex-1 items-start gap-4 p-4 sm:px-6 sm:py-0 md:gap-8">
         <AdminHeader title="Alerts" description="Manage the pop-up alert for all users." />
         <Card>
@@ -129,22 +95,5 @@ export default function AlertsPage() {
             </CardFooter>
         </Card>
     </main>
-    <AlertDialog open={!!alertToShow} onOpenChange={(open) => !open && handleAlertClose()}>
-        <AlertDialogContent>
-        <AlertDialogHeader>
-            <AlertDialogTitle className="flex items-center justify-center gap-2">
-                <Siren className="w-6 h-6 text-destructive" />
-                Alert
-            </AlertDialogTitle>
-            <AlertDialogDescription className="text-center pt-2">
-                {alertToShow}
-            </AlertDialogDescription>
-        </AlertDialogHeader>
-        <AlertDialogFooter>
-            <AlertDialogAction onClick={handleAlertClose}>Got it</AlertDialogAction>
-        </AlertDialogFooter>
-        </AlertDialogContent>
-    </AlertDialog>
-    </>
   );
 }
