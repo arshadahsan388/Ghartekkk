@@ -1,4 +1,5 @@
 
+
 export const initialShops = [
   // Food Shops
   { id: 'al-madina-restaurant', name: 'Al-Madina Restaurant', cuisine: 'Pakistani', rating: 4.5, deliveryTime: 40, category: 'Food', address: 'Club Road, Vehari' },

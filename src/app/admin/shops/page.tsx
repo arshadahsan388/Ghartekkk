@@ -18,7 +18,7 @@ import {
 } from '@/components/ui/table';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
-import { MoreHorizontal, PlusCircle, Star, Trash2, Edit } from 'lucide-react';
+import { Star, Trash2, Edit, Loader2 } from 'lucide-react';
 import {
   Dialog,
   DialogContent,
@@ -29,7 +29,7 @@ import {
 } from '@/components/ui/dialog';
 import { Label } from '@/components/ui/label';
 import { Input } from '@/components/ui/input';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { useToast } from '@/hooks/use-toast';
 import {
   Select,
@@ -38,15 +38,65 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select';
+import { db } from '@/lib/firebase';
+import { ref, onValue, set, push, remove } from 'firebase/database';
 import { initialShops, initialCategories } from '@/lib/shops';
 
-type Shop = typeof initialShops[0];
+type Shop = {
+  id: string;
+  name: string;
+  cuisine: string;
+  rating: number;
+  deliveryTime: number;
+  address: string;
+  category: string;
+};
 
 export default function ShopsPage() {
   const { toast } = useToast();
-  const [shops, setShops] = useState(initialShops);
+  const [shops, setShops] = useState<Shop[]>([]);
+  const [categories, setCategories] = useState<string[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [shopToEdit, setShopToEdit] = useState<Partial<Shop> | null>(null);
+
+  // Function to seed initial data
+  const seedDatabase = async () => {
+    const shopsRef = ref(db, 'shops');
+    const categoriesRef = ref(db, 'categories');
+    await set(shopsRef, initialShops.reduce((acc, shop) => ({...acc, [shop.id]: shop }), {}));
+    await set(categoriesRef, initialCategories);
+    toast({ title: "Database Seeded", description: "Initial shops and categories have been loaded."});
+  }
+
+  useEffect(() => {
+    const shopsRef = ref(db, 'shops');
+    const categoriesRef = ref(db, 'categories');
+
+    const unsubscribeShops = onValue(shopsRef, (snapshot) => {
+        const data = snapshot.val();
+        if (data) {
+            setShops(Object.values(data));
+        } else {
+            // If no data, seed it for the first time.
+            seedDatabase();
+        }
+        setIsLoading(false);
+    });
+
+    const unsubscribeCategories = onValue(categoriesRef, (snapshot) => {
+        const data = snapshot.val();
+        if (data) {
+            setCategories(data);
+        }
+    });
+
+    return () => {
+        unsubscribeShops();
+        unsubscribeCategories();
+    }
+  }, []);
+
 
   const handleOpenDialog = (shop: Partial<Shop> | null = null) => {
     setShopToEdit(shop ? {...shop} : {});
@@ -58,7 +108,7 @@ export default function ShopsPage() {
     setIsDialogOpen(false);
   }
   
-  const handleSaveShop = () => {
+  const handleSaveShop = async () => {
     if (!shopToEdit || !shopToEdit.name || !shopToEdit.category || !shopToEdit.address) {
         toast({
             variant: 'destructive',
@@ -68,35 +118,51 @@ export default function ShopsPage() {
         return;
     }
     
-    if (shopToEdit.id) { // Editing existing shop
-        setShops(shops.map(s => s.id === shopToEdit.id ? shopToEdit as Shop : s));
-        toast({
-            title: 'Shop Updated',
-            description: `${shopToEdit.name} has been updated.`,
-        });
-    } else { // Adding new shop
-        const newShop: Shop = {
-            id: shopToEdit.name!.toLowerCase().replace(/\s+/g, '-'),
-            rating: 0,
-            deliveryTime: 30,
-            ...shopToEdit,
-        } as Shop;
-        setShops([...shops, newShop]);
-        toast({
-            title: 'Shop Added',
-            description: `${newShop.name} has been added.`,
-        });
+    try {
+        if (shopToEdit.id) { // Editing existing shop
+            const shopRef = ref(db, `shops/${shopToEdit.id}`);
+            await set(shopRef, shopToEdit);
+            toast({
+                title: 'Shop Updated',
+                description: `${shopToEdit.name} has been updated.`,
+            });
+        } else { // Adding new shop
+            const shopsRef = ref(db, 'shops');
+            const newShopRef = push(shopsRef);
+            const newShopId = newShopRef.key!;
+            const newShopData = {
+                id: newShopId,
+                rating: shopToEdit.rating || 0,
+                deliveryTime: shopToEdit.deliveryTime || 30,
+                ...shopToEdit,
+            };
+            await set(ref(db, `shops/${newShopId}`), newShopData);
+
+            toast({
+                title: 'Shop Added',
+                description: `${newShopData.name} has been added.`,
+            });
+        }
+        handleCloseDialog();
+    } catch(error) {
+        console.error(error);
+        toast({ variant: 'destructive', title: 'Save Failed' });
     }
-    handleCloseDialog();
   };
 
 
-  const handleRemoveShop = (shopId: string) => {
-    setShops(shops.filter((shop) => shop.id !== shopId));
-    toast({
-        variant: 'destructive',
-        title: 'Shop Removed'
-    })
+  const handleRemoveShop = async (shopId: string) => {
+    try {
+        const shopRef = ref(db, `shops/${shopId}`);
+        await remove(shopRef);
+        toast({
+            variant: 'destructive',
+            title: 'Shop Removed'
+        })
+    } catch (error) {
+        console.error(error);
+        toast({ variant: 'destructive', title: 'Removal Failed' });
+    }
   }
   
   const handleInputChange = (field: keyof Shop, value: string | number) => {
@@ -121,42 +187,46 @@ export default function ShopsPage() {
           </CardDescription>
         </CardHeader>
         <CardContent>
-          <Table>
-            <TableHeader>
-              <TableRow>
-                <TableHead>Name</TableHead>
-                <TableHead>Category</TableHead>
-                <TableHead>Cuisine/Type</TableHead>
-                <TableHead>Rating</TableHead>
-                <TableHead className="text-right">Actions</TableHead>
-              </TableRow>
-            </TableHeader>
-            <TableBody>
-              {shops.map((shop) => (
-                <TableRow key={shop.id}>
-                  <TableCell className="font-medium">{shop.name}</TableCell>
-                  <TableCell>
-                    <Badge variant="secondary">{shop.category}</Badge>
-                  </TableCell>
-                  <TableCell>{shop.cuisine}</TableCell>
-                  <TableCell className="flex items-center gap-1">
-                    <Star className="w-4 h-4 text-primary" />
-                    {shop.rating.toFixed(1)}
-                  </TableCell>
-                  <TableCell className="text-right">
-                    <Button variant="ghost" size="icon" onClick={() => handleOpenDialog(shop)}>
-                        <Edit className="h-4 w-4" />
-                        <span className="sr-only">Edit Shop</span>
-                    </Button>
-                    <Button variant="ghost" size="icon" onClick={() => handleRemoveShop(shop.id)}>
-                        <Trash2 className="h-4 w-4 text-destructive" />
-                        <span className="sr-only">Remove Shop</span>
-                    </Button>
-                  </TableCell>
-                </TableRow>
-              ))}
-            </TableBody>
-          </Table>
+           {isLoading ? (
+                <Loader2 className="animate-spin mx-auto" />
+           ) : (
+                <Table>
+                    <TableHeader>
+                    <TableRow>
+                        <TableHead>Name</TableHead>
+                        <TableHead>Category</TableHead>
+                        <TableHead>Cuisine/Type</TableHead>
+                        <TableHead>Rating</TableHead>
+                        <TableHead className="text-right">Actions</TableHead>
+                    </TableRow>
+                    </TableHeader>
+                    <TableBody>
+                    {shops.map((shop) => (
+                        <TableRow key={shop.id}>
+                        <TableCell className="font-medium">{shop.name}</TableCell>
+                        <TableCell>
+                            <Badge variant="secondary">{shop.category}</Badge>
+                        </TableCell>
+                        <TableCell>{shop.cuisine}</TableCell>
+                        <TableCell className="flex items-center gap-1">
+                            <Star className="w-4 h-4 text-primary" />
+                            {shop.rating.toFixed(1)}
+                        </TableCell>
+                        <TableCell className="text-right">
+                            <Button variant="ghost" size="icon" onClick={() => handleOpenDialog(shop)}>
+                                <Edit className="h-4 w-4" />
+                                <span className="sr-only">Edit Shop</span>
+                            </Button>
+                            <Button variant="ghost" size="icon" onClick={() => handleRemoveShop(shop.id)}>
+                                <Trash2 className="h-4 w-4 text-destructive" />
+                                <span className="sr-only">Remove Shop</span>
+                            </Button>
+                        </TableCell>
+                        </TableRow>
+                    ))}
+                    </TableBody>
+                </Table>
+           )}
         </CardContent>
       </Card>
 
@@ -185,7 +255,7 @@ export default function ShopsPage() {
                   <SelectValue placeholder="Select a category" />
                 </SelectTrigger>
                 <SelectContent>
-                  {initialCategories.map(cat => <SelectItem key={cat} value={cat}>{cat}</SelectItem>)}
+                  {categories.map(cat => <SelectItem key={cat} value={cat}>{cat}</SelectItem>)}
                 </SelectContent>
               </Select>
             </div>

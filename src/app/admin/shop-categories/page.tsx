@@ -4,7 +4,6 @@ import {
   Card,
   CardContent,
   CardDescription,
-  CardFooter,
   CardHeader,
   CardTitle,
 } from '@/components/ui/card';
@@ -18,7 +17,7 @@ import {
   TableHeader,
   TableRow,
 } from '@/components/ui/table';
-import { MoreHorizontal, PlusCircle, Trash2 } from 'lucide-react';
+import { Trash2, Loader2 } from 'lucide-react';
 import {
   Dialog,
   DialogContent,
@@ -29,26 +28,46 @@ import {
 } from '@/components/ui/dialog';
 import { Label } from '@/components/ui/label';
 import { Input } from '@/components/ui/input';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useToast } from '@/hooks/use-toast';
-
-const initialCategories = ['Food', 'Grocery', 'Medical'];
+import { db } from '@/lib/firebase';
+import { ref, onValue, set } from 'firebase/database';
 
 export default function ShopCategoriesPage() {
   const { toast } = useToast();
-  const [categories, setCategories] = useState(initialCategories);
+  const [categories, setCategories] = useState<string[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [newCategory, setNewCategory] = useState('');
 
-  const handleAddCategory = () => {
+  useEffect(() => {
+    const categoriesRef = ref(db, 'categories');
+    const unsubscribe = onValue(categoriesRef, (snapshot) => {
+        const data = snapshot.val();
+        if(data) {
+            setCategories(data);
+        }
+        setIsLoading(false);
+    });
+
+    return () => unsubscribe();
+  }, []);
+
+
+  const handleAddCategory = async () => {
     if (newCategory && !categories.includes(newCategory)) {
-      setCategories([...categories, newCategory]);
-      setNewCategory('');
-      setIsDialogOpen(false);
-      toast({
-        title: 'Category Added',
-        description: `"${newCategory}" has been added.`,
-      });
+        const updatedCategories = [...categories, newCategory];
+        try {
+            await set(ref(db, 'categories'), updatedCategories);
+            setNewCategory('');
+            setIsDialogOpen(false);
+            toast({
+                title: 'Category Added',
+                description: `"${newCategory}" has been added.`,
+            });
+        } catch (error) {
+            toast({ variant: 'destructive', title: 'Error adding category' });
+        }
     } else {
       toast({
         variant: 'destructive',
@@ -58,13 +77,18 @@ export default function ShopCategoriesPage() {
     }
   };
 
-  const handleRemoveCategory = (categoryToRemove: string) => {
-    setCategories(categories.filter((cat) => cat !== categoryToRemove));
-    toast({
-        variant: 'destructive',
-        title: 'Category Removed',
-        description: `"${categoryToRemove}" has been removed.`,
-    });
+  const handleRemoveCategory = async (categoryToRemove: string) => {
+    const updatedCategories = categories.filter((cat) => cat !== categoryToRemove);
+    try {
+        await set(ref(db, 'categories'), updatedCategories);
+        toast({
+            variant: 'destructive',
+            title: 'Category Removed',
+            description: `"${categoryToRemove}" has been removed.`,
+        });
+    } catch(error) {
+         toast({ variant: 'destructive', title: 'Error removing category' });
+    }
   };
 
   return (
@@ -83,6 +107,9 @@ export default function ShopCategoriesPage() {
           </CardDescription>
         </CardHeader>
         <CardContent>
+         {isLoading ? (
+            <Loader2 className="animate-spin mx-auto" />
+         ) : (
           <Table>
             <TableHeader>
               <TableRow>
@@ -108,6 +135,7 @@ export default function ShopCategoriesPage() {
               ))}
             </TableBody>
           </Table>
+         )}
         </CardContent>
       </Card>
 
