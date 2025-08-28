@@ -6,7 +6,6 @@ import { Button } from '@/components/ui/button';
 import ShopList from '@/components/shops/ShopList';
 import Link from 'next/link';
 import { ArrowRight, Home as HomeIcon, Send, Wallet } from 'lucide-react';
-import AnnouncementBar from '@/components/layout/AnnouncementBar';
 import { Input } from '@/components/ui/input';
 import { useRouter } from 'next/navigation';
 import { useState, useEffect } from 'react';
@@ -63,7 +62,6 @@ export default function Home() {
 
   return (
     <>
-      <AnnouncementBar />
       <div className="relative py-16 md:py-24">
         <div className="absolute inset-0 bg-gradient-to-b from-primary/10 via-transparent to-transparent -z-10"></div>
         <div className="container mx-auto px-4 text-center">
