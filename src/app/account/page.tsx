@@ -1,20 +1,17 @@
 
-
 'use client';
 
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { CreditCard, Home, LifeBuoy, MessageSquare, Package, PlusCircle, Trash2 } from 'lucide-react';
+import { Home } from 'lucide-react';
 import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { auth } from '@/lib/firebase';
 import { onAuthStateChanged } from 'firebase/auth';
 import { Skeleton } from '@/components/ui/skeleton';
 import { useToast } from '@/hooks/use-toast';
-import Link from 'next/link';
-import { Separator } from '@/components/ui/separator';
 
 export default function AccountPage() {
   const [address, setAddress] = useState('');
@@ -63,15 +60,6 @@ export default function AccountPage() {
                          <Skeleton className="h-10 w-24" />
                     </CardFooter>
                 </Card>
-                 <Card>
-                    <CardHeader>
-                        <Skeleton className="h-8 w-3/4" />
-                    </CardHeader>
-                    <CardContent className="space-y-4">
-                        <Skeleton className="h-6 w-full" />
-                        <Skeleton className="h-6 w-full" />
-                    </CardContent>
-                </Card>
             </div>
         </div>
     );
@@ -108,24 +96,6 @@ export default function AccountPage() {
             <Button onClick={handleSave}>Save Address</Button>
           </CardFooter>
         </Card>
-
-         <Card>
-          <CardHeader>
-            <CardTitle>Account Links</CardTitle>
-          </CardHeader>
-          <CardContent className="space-y-2">
-            <Link href="/orders" className="flex items-center p-3 -m-3 rounded-lg hover:bg-muted transition-colors">
-                <Package className="w-5 h-5 mr-4 text-primary" />
-                <span>My Orders</span>
-            </Link>
-            <Separator />
-             <Link href="/support" className="flex items-center p-3 -m-3 rounded-lg hover:bg-muted transition-colors">
-                <LifeBuoy className="w-5 h-5 mr-4 text-primary" />
-                <span>Support Chat</span>
-            </Link>
-          </CardContent>
-        </Card>
-
       </div>
     </div>
   );
