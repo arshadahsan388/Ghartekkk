@@ -166,16 +166,6 @@ export default function CustomOrderPage() {
                 />
               </div>
               <div className="space-y-2">
-                <Label htmlFor="additionalNote">Additional Note (Optional)</Label>
-                <Textarea
-                  id="additionalNote"
-                  placeholder="e.g., 'Please call upon arrival' or 'No spicy food'"
-                  value={additionalNote}
-                  onChange={(e) => setAdditionalNote(e.target.value)}
-                  rows={2}
-                />
-              </div>
-              <div className="space-y-2">
                 <Label htmlFor="email">Your Email</Label>
                 <Input
                     id="email"
@@ -184,6 +174,16 @@ export default function CustomOrderPage() {
                     value={email}
                     onChange={(e) => setEmail(e.target.value)}
                     required
+                />
+              </div>
+               <div className="space-y-2">
+                <Label htmlFor="additionalNote">Additional Note (Optional)</Label>
+                <Textarea
+                  id="additionalNote"
+                  placeholder="e.g., 'Please call upon arrival' or 'No spicy food'"
+                  value={additionalNote}
+                  onChange={(e) => setAdditionalNote(e.target.value)}
+                  rows={2}
                 />
               </div>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -291,3 +291,5 @@ export default function CustomOrderPage() {
     </div>
   );
 }
+
+    
