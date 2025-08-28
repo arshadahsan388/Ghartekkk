@@ -14,7 +14,7 @@ type Shop = {
   name: string;
   cuisine: string;
   rating: number;
-  deliveryTime: number;
+  description: string;
   address: string;
   category: string;
 };

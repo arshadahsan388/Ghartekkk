@@ -42,13 +42,14 @@ import {
 import { db } from '@/lib/firebase';
 import { ref, onValue, set, push, remove } from 'firebase/database';
 import { initialShops, initialCategories } from '@/lib/shops';
+import { Textarea } from '@/components/ui/textarea';
 
 type Shop = {
   id: string;
   name: string;
   cuisine: string;
   rating: number;
-  deliveryTime: number;
+  description: string;
   address: string;
   category: string;
 };
@@ -134,7 +135,7 @@ export default function ShopsPage() {
             const newShopData = {
                 id: newShopId,
                 rating: shopToEdit.rating || 0,
-                deliveryTime: shopToEdit.deliveryTime || 30,
+                description: shopToEdit.description || "No description provided.",
                 ...shopToEdit,
             };
             await set(ref(db, `shops/${newShopId}`), newShopData);
@@ -270,6 +271,16 @@ export default function ShopsPage() {
                 onChange={(e) => handleInputChange('cuisine', e.target.value)}
                 placeholder="e.g., Fast Food"
               />
+            </div>
+             <div className="grid gap-2">
+                <Label htmlFor="shop-description">Description</Label>
+                <Textarea
+                    id="shop-description"
+                    value={shopToEdit?.description || ''}
+                    onChange={(e) => handleInputChange('description', e.target.value)}
+                    placeholder="e.g., Known for our juicy, flame-grilled burgers."
+                    rows={3}
+                />
             </div>
              <div className="grid gap-2">
               <Label htmlFor="shop-address">Address</Label>

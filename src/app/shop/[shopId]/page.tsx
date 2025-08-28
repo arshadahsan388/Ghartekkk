@@ -24,7 +24,7 @@ type Shop = {
   name: string;
   cuisine: string;
   rating: number;
-  deliveryTime: number;
+  description: string;
   address: string;
   category: string;
 };
@@ -223,10 +223,8 @@ export default function ShopPage({ params }: { params: { shopId: string } }) {
                 </div>
                 <CardDescription className="flex items-center gap-4 pt-2">
                 <Badge variant="secondary" className="capitalize text-base">{shop.cuisine}</Badge>
-                <span className="flex items-center gap-1 text-sm text-muted-foreground">
-                    <Clock className="w-4 h-4"/> Delivery in {shop.deliveryTime} min
-                </span>
                 </CardDescription>
+                 <p className="text-sm text-muted-foreground pt-2">{shop.description}</p>
                 <div className="flex items-start gap-2 text-sm text-muted-foreground pt-2">
                     <MapPin className="w-4 h-4 shrink-0 mt-0.5" />
                     <span className="flex-1">{shop.address}</span>
@@ -320,5 +318,3 @@ export default function ShopPage({ params }: { params: { shopId: string } }) {
     </div>
   );
 }
-
-    

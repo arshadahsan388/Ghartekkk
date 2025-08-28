@@ -8,7 +8,7 @@ type Shop = {
   name: string;
   cuisine: string;
   rating: number;
-  deliveryTime: number;
+  description: string;
   address: string;
   category: string;
 };
@@ -31,10 +31,8 @@ export default function ShopCard({ shop }: { shop: Shop }) {
           </CardDescription>
         </CardHeader>
         <CardContent className="p-4 pt-0 space-y-2 flex-grow flex flex-col">
-          <div className="flex items-center justify-between text-sm text-muted-foreground">
-            <span className="flex items-center gap-1">
-              <Clock className="w-4 h-4"/> Delivery in {shop.deliveryTime} min
-            </span>
+          <div className="text-sm text-muted-foreground">
+            <p className="line-clamp-2">{shop.description}</p>
           </div>
           <div className="flex-grow"></div>
            <div className="flex items-start gap-2 text-xs text-muted-foreground pt-2 border-t mt-auto">
