@@ -3,7 +3,7 @@
 import { useState, useEffect } from 'react';
 import { ref, onValue, set } from 'firebase/database';
 import { db, auth } from '@/lib/firebase';
-import { onAuthStateChanged } from 'firebase/auth';
+import { onAuthStateChanged, type User } from 'firebase/auth';
 import {
   AlertDialog,
   AlertDialogContent,
@@ -16,17 +16,20 @@ import {
 import { Siren } from 'lucide-react';
 
 export default function GlobalAlert() {
-  const [alertToShow, setAlertToShow] = useState<string | null>(null);
-  const [isUserSpecific, setIsUserSpecific] = useState(false);
-  const [userId, setUserId] = useState<string | null>(null);
+  const [globalAlert, setGlobalAlert] = useState<string | null>(null);
+  const [userAlert, setUserAlert] = useState<string | null>(null);
+  const [user, setUser] = useState<User | null>(null);
+
+  const alertToShow = userAlert || globalAlert;
+  const isUserSpecific = !!userAlert;
 
   useEffect(() => {
-    const unsubscribeAuth = onAuthStateChanged(auth, (user) => {
-        if (user) {
-            setUserId(user.uid);
-        } else {
-            setUserId(null);
-        }
+    const unsubscribeAuth = onAuthStateChanged(auth, (currentUser) => {
+      setUser(currentUser);
+      if (!currentUser) {
+        // Clear user-specific alert if logged out
+        setUserAlert(null);
+      }
     });
 
     return () => unsubscribeAuth();
@@ -40,8 +43,9 @@ export default function GlobalAlert() {
     const unsubscribeGlobal = onValue(globalAlertRef, (snapshot) => {
       const data = snapshot.val();
       if (data && typeof data === 'string' && data.trim() !== '' && data !== lastSeenGlobalAlert) {
-        setAlertToShow(data);
-        setIsUserSpecific(false);
+        setGlobalAlert(data);
+      } else {
+        setGlobalAlert(null);
       }
     });
 
@@ -49,34 +53,34 @@ export default function GlobalAlert() {
   }, []);
   
   useEffect(() => {
-     if (userId) {
+     if (user) {
         // Listener for user-specific alerts
-        const userAlertRef = ref(db, `users/${userId}/alert`);
+        const userAlertRef = ref(db, `users/${user.uid}/alert`);
         const unsubscribeUser = onValue(userAlertRef, (snapshot) => {
             const data = snapshot.val();
             if (data && typeof data === 'string' && data.trim() !== '') {
-                // User-specific alerts always take priority
-                setAlertToShow(data);
-                setIsUserSpecific(true);
+                setUserAlert(data);
+            } else {
+                setUserAlert(null);
             }
         });
 
         return () => unsubscribeUser();
     }
-  }, [userId]);
+  }, [user]);
 
 
   const handleAlertClose = async () => {
-    if (isUserSpecific && userId) {
+    if (isUserSpecific && user) {
         // For user-specific alerts, remove them from the database
-        const userAlertRef = ref(db, `users/${userId}/alert`);
+        const userAlertRef = ref(db, `users/${user.uid}/alert`);
         await set(userAlertRef, null);
-    } else if (alertToShow) {
+        setUserAlert(null);
+    } else if (globalAlert) {
        // For global alerts, save to localStorage
-      localStorage.setItem('userLastSeenAlert', alertToShow);
+      localStorage.setItem('userLastSeenAlert', globalAlert);
+      setGlobalAlert(null);
     }
-    setAlertToShow(null);
-    setIsUserSpecific(false);
   };
 
   if (!alertToShow) {
