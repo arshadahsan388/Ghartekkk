@@ -4,7 +4,7 @@
 import { Button } from '@/components/ui/button';
 import ShopList from '@/components/shops/ShopList';
 import Link from 'next/link';
-import { ArrowRight, Search, ShoppingCart } from 'lucide-react';
+import { ArrowRight, Search } from 'lucide-react';
 import AnnouncementBar from '@/components/layout/AnnouncementBar';
 import { Input } from '@/components/ui/input';
 import { useRouter } from 'next/navigation';
