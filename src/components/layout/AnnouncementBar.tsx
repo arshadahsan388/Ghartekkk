@@ -26,7 +26,7 @@ export default function AnnouncementBar() {
             const data = snapshot.val();
             if (data && typeof data === 'string') {
                 setAnnouncement(data);
-                if (sessionStorage.getItem('announcementSeen') !== data) {
+                if (localStorage.getItem('announcementSeen') !== data) {
                    setIsOpen(true);
                 }
             } else {
@@ -39,7 +39,7 @@ export default function AnnouncementBar() {
 
     const handleClose = () => {
         setIsOpen(false);
-        sessionStorage.setItem('announcementSeen', announcement);
+        localStorage.setItem('announcementSeen', announcement);
     }
 
     if (!isMounted || !announcement || !isOpen) {
