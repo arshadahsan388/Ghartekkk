@@ -5,7 +5,7 @@
 import { Button } from '@/components/ui/button';
 import ShopList from '@/components/shops/ShopList';
 import Link from 'next/link';
-import { ArrowRight, Search, Home as HomeIcon, Wallet } from 'lucide-react';
+import { ArrowRight, Search, Home as HomeIcon, Wallet, Send } from 'lucide-react';
 import AnnouncementBar from '@/components/layout/AnnouncementBar';
 import { Input } from '@/components/ui/input';
 import { useRouter } from 'next/navigation';
@@ -54,8 +54,8 @@ export default function Home() {
             Grocery, dawai, ya aap ka pasandeeda khana. Bas humain batain aap ko
             kya chahiye.
           </p>
-          <form onSubmit={handleSearchSubmit} className="mt-8 max-w-xl mx-auto">
-            <div className="flex w-full items-center space-x-2">
+          <form onSubmit={handleSearchSubmit} className="mt-8 max-w-xl mx-auto space-y-4">
+            <div className="w-full">
               <Input
                 type="text"
                 placeholder="e.g., 'A box of Panadol and some fresh bread'"
@@ -64,14 +64,10 @@ export default function Home() {
                 onChange={(e) => setSearchQuery(e.target.value)}
                 onFocus={() => setShowExtraFields(true)}
               />
-              <Button type="submit" size="lg">
-                <Search className="h-5 w-5" />
-                <span className="sr-only">Search</span>
-              </Button>
             </div>
             
             {showExtraFields && (
-                <div className="mt-4 grid grid-cols-1 md:grid-cols-2 gap-4 text-left animate-in fade-in-0 duration-500">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-left animate-in fade-in-0 duration-500">
                     <div className="space-y-2">
                         <Label htmlFor="budget" className="flex items-center gap-2"><Wallet className="w-4 h-4" /> Your Budget (Optional)</Label>
                         <Input 
@@ -93,6 +89,13 @@ export default function Home() {
                         />
                     </div>
                 </div>
+            )}
+
+            {showExtraFields && (
+                <Button type="submit" size="lg" className="w-full">
+                    Submit Custom Order
+                    <Send className="ml-2 h-4 w-4" />
+                </Button>
             )}
 
           </form>
