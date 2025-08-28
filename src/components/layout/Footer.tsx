@@ -2,15 +2,14 @@
 'use client';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import { Home, Package, PlusSquare, User, MessageSquare } from 'lucide-react';
+import { Home, Package, PlusSquare } from 'lucide-react';
 import { cn } from '@/lib/utils';
+import Logo from '../icons/Logo';
 
 const navItems = [
   { href: '/', icon: Home, label: 'Home' },
   { href: '/orders', icon: Package, label: 'Orders' },
   { href: '/custom-order', icon: PlusSquare, label: 'Custom' },
-  { href: '/support', icon: MessageSquare, label: 'Support' },
-  { href: '/account', icon: User, label: 'Profile' },
 ];
 
 export default function Footer() {
@@ -19,7 +18,32 @@ export default function Footer() {
   return (
     <footer className="fixed bottom-0 left-0 right-0 z-50 border-t bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 md:hidden">
       <nav className="flex items-center justify-around h-16">
-        {navItems.map(({ href, icon: Icon, label }) => {
+        {navItems.slice(0,1).map(({ href, icon: Icon, label }) => {
+           const isActive = pathname === href;
+           return (
+             <Link
+               key={href}
+               href={href}
+               className={cn(
+                 'flex flex-col items-center justify-center gap-1 text-xs font-medium w-full h-full transition-colors',
+                 isActive
+                   ? 'text-primary'
+                   : 'text-muted-foreground hover:text-primary'
+               )}
+             >
+               <Icon className="h-6 w-6" />
+               <span>{label}</span>
+             </Link>
+           );
+        })}
+
+        <div className="w-full flex justify-center">
+            <Link href="/" className="bg-primary text-primary-foreground rounded-full p-3 -mt-8 shadow-lg border-4 border-background">
+                <Logo className="w-8 h-8" />
+            </Link>
+        </div>
+
+        {navItems.slice(1).map(({ href, icon: Icon, label }) => {
           const isActive = pathname === href;
           return (
             <Link
