@@ -6,7 +6,7 @@ import { useForm } from 'react-hook-form';
 import { z } from 'zod';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
-import { createUserWithEmailAndPassword } from 'firebase/auth';
+import { createUserWithEmailAndPassword, sendEmailVerification } from 'firebase/auth';
 import { ref, set, query, orderByChild, equalTo, get } from 'firebase/database';
 
 import { Button } from '@/components/ui/button';
@@ -69,6 +69,8 @@ export default function SignupForm() {
 
       const userCredential = await createUserWithEmailAndPassword(auth, values.email, values.password);
       const user = userCredential.user;
+      
+      await sendEmailVerification(user);
 
       // Save user data to Realtime Database
       await set(ref(db, 'users/' + user.uid), {
@@ -82,8 +84,8 @@ export default function SignupForm() {
       });
 
       toast({
-        title: 'Account Created',
-        description: 'Welcome! Redirecting you to the dashboard.',
+        title: 'Account Created!',
+        description: 'Welcome! A verification email has been sent to your inbox.',
       });
       router.push('/');
       router.refresh(); 
