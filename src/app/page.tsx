@@ -44,6 +44,7 @@ export default function Home() {
   const [isSuggesting, setIsSuggesting] = useState(false);
   const [showSuggestions, setShowSuggestions] = useState(false);
   const suggestionsRef = useRef<HTMLDivElement>(null);
+  const isTyping = useRef(false);
 
 
   useEffect(() => {
@@ -93,7 +94,7 @@ export default function Home() {
   );
   
    useEffect(() => {
-    if (searchQuery) {
+    if (searchQuery && isTyping.current) {
       debouncedGetSuggestions(searchQuery);
     } else {
       setSuggestions([]);
@@ -128,9 +129,15 @@ export default function Home() {
   }
   
   const handleSuggestionClick = (suggestion: string) => {
+    isTyping.current = false;
     setSearchQuery(suggestion);
     setSuggestions([]);
     setShowSuggestions(false);
+  }
+  
+  const handleSearchChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    isTyping.current = true;
+    setSearchQuery(e.target.value);
   }
 
   return (
@@ -153,7 +160,7 @@ export default function Home() {
                 placeholder="e.g., 'A box of Panadol and some fresh bread'"
                 className="h-12 text-base"
                 value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
+                onChange={handleSearchChange}
                 onFocus={handleFocus}
                 autoComplete="off"
               />
