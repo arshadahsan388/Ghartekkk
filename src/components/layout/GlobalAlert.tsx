@@ -1,8 +1,9 @@
 
 'use client';
 import { useState, useEffect } from 'react';
-import { ref, onValue } from 'firebase/database';
-import { db } from '@/lib/firebase';
+import { ref, onValue, set } from 'firebase/database';
+import { db, auth } from '@/lib/firebase';
+import { onAuthStateChanged } from 'firebase/auth';
 import {
   AlertDialog,
   AlertDialogContent,
@@ -16,32 +17,66 @@ import { Siren } from 'lucide-react';
 
 export default function GlobalAlert() {
   const [alertToShow, setAlertToShow] = useState<string | null>(null);
+  const [isUserSpecific, setIsUserSpecific] = useState(false);
+  const [userId, setUserId] = useState<string | null>(null);
 
   useEffect(() => {
-    const settingsRef = ref(db, 'settings/alert');
-    // Use a unique key for localStorage to avoid conflicts with admin panel logic
-    const lastSeenAlertKey = 'userLastSeenAlert';
-    const lastSeenAlert = localStorage.getItem(lastSeenAlertKey);
+    const unsubscribeAuth = onAuthStateChanged(auth, (user) => {
+        if (user) {
+            setUserId(user.uid);
+        } else {
+            setUserId(null);
+        }
+    });
 
-    const unsubscribe = onValue(settingsRef, (snapshot) => {
+    return () => unsubscribeAuth();
+  }, []);
+
+  useEffect(() => {
+    // Listener for global alerts
+    const globalAlertRef = ref(db, 'settings/alert');
+    const lastSeenGlobalAlert = localStorage.getItem('userLastSeenAlert');
+    
+    const unsubscribeGlobal = onValue(globalAlertRef, (snapshot) => {
       const data = snapshot.val();
-      // Show the alert if it's new, non-empty, and different from the last one seen by the user.
-      if (data && typeof data === 'string' && data.trim() !== '' && data !== lastSeenAlert) {
+      if (data && typeof data === 'string' && data.trim() !== '' && data !== lastSeenGlobalAlert) {
         setAlertToShow(data);
-      } else {
-        setAlertToShow(null);
+        setIsUserSpecific(false);
       }
     });
 
-    return () => unsubscribe();
+    return () => unsubscribeGlobal();
   }, []);
+  
+  useEffect(() => {
+     if (userId) {
+        // Listener for user-specific alerts
+        const userAlertRef = ref(db, `users/${userId}/alert`);
+        const unsubscribeUser = onValue(userAlertRef, (snapshot) => {
+            const data = snapshot.val();
+            if (data && typeof data === 'string' && data.trim() !== '') {
+                // User-specific alerts always take priority
+                setAlertToShow(data);
+                setIsUserSpecific(true);
+            }
+        });
 
-  const handleAlertClose = () => {
-    if (alertToShow) {
-       // Use the same unique key to save the alert
+        return () => unsubscribeUser();
+    }
+  }, [userId]);
+
+
+  const handleAlertClose = async () => {
+    if (isUserSpecific && userId) {
+        // For user-specific alerts, remove them from the database
+        const userAlertRef = ref(db, `users/${userId}/alert`);
+        await set(userAlertRef, null);
+    } else if (alertToShow) {
+       // For global alerts, save to localStorage
       localStorage.setItem('userLastSeenAlert', alertToShow);
     }
     setAlertToShow(null);
+    setIsUserSpecific(false);
   };
 
   if (!alertToShow) {
