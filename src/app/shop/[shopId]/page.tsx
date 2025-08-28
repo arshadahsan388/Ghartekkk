@@ -29,6 +29,9 @@ type Shop = {
   category: string;
 };
 
+const NORMAL_DELIVERY_FEE = 50;
+const FAST_DELIVERY_FEE = 70;
+
 export default function ShopPage({ params }: { params: { shopId: string } }) {
   const { toast } = useToast();
   const router = useRouter();
@@ -69,6 +72,9 @@ export default function ShopPage({ params }: { params: { shopId: string } }) {
     setIsOrdering(true);
 
     try {
+        const deliveryFee = deliverySpeed === 'fast' ? FAST_DELIVERY_FEE : NORMAL_DELIVERY_FEE;
+        const total = (Number(orderPrice) || 0) + deliveryFee;
+
         const ordersRef = ref(db, 'orders');
         const newOrderRef = push(ordersRef);
         const newOrder = {
@@ -78,7 +84,7 @@ export default function ShopPage({ params }: { params: { shopId: string } }) {
             shopId: shop.id,
             status: 'Pending',
             description: orderDescription,
-            total: Number(orderPrice) || 0,
+            total: total,
             note: orderNote,
             deliverySpeed: deliverySpeed,
             email: user.email,
@@ -266,21 +272,27 @@ export default function ShopPage({ params }: { params: { shopId: string } }) {
                                     required
                                 />
                             </div>
-                            <div>
+                            <div className="space-y-2">
                                 <Label>Delivery Speed</Label>
                                 <RadioGroup
                                     defaultValue="normal"
-                                    className="flex items-center space-x-4 pt-2"
+                                    className="flex flex-col space-y-2 pt-1"
                                     value={deliverySpeed}
                                     onValueChange={setDeliverySpeed}
                                 >
                                     <div className="flex items-center space-x-2">
                                         <RadioGroupItem value="normal" id="normal" />
-                                        <Label htmlFor="normal">Normal</Label>
+                                        <Label htmlFor="normal" className="flex flex-col gap-0.5 w-full cursor-pointer">
+                                            <span>Normal</span>
+                                            <span className="text-xs text-muted-foreground">Rs. {NORMAL_DELIVERY_FEE} &bull; ~30 mins</span>
+                                        </Label>
                                     </div>
                                     <div className="flex items-center space-x-2">
                                         <RadioGroupItem value="fast" id="fast" />
-                                        <Label htmlFor="fast">Fast</Label>
+                                        <Label htmlFor="fast" className="flex flex-col gap-0.5 w-full cursor-pointer">
+                                            <span>Fast</span>
+                                            <span className="text-xs text-muted-foreground">Rs. {FAST_DELIVERY_FEE} &bull; ~20 mins</span>
+                                        </Label>
                                     </div>
                                 </RadioGroup>
                             </div>
