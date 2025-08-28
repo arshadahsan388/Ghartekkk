@@ -128,13 +128,14 @@ export default function OrdersPage() {
                             <TableHead>Shop</TableHead>
                             <TableHead>Total</TableHead>
                             <TableHead>Status</TableHead>
+                            <TableHead>Delivery</TableHead>
                             <TableHead className="text-right">Actions</TableHead>
                         </TableRow>
                     </TableHeader>
                      <TableBody>
                         {isLoading ? (
                             <TableRow>
-                                <TableCell colSpan={7} className="text-center">
+                                <TableCell colSpan={8} className="text-center">
                                     <Loader2 className="animate-spin mx-auto" />
                                 </TableCell>
                             </TableRow>
@@ -150,6 +151,14 @@ export default function OrdersPage() {
                                     <Badge className={getStatusBadge(order.status)}>
                                         {order.status}
                                     </Badge>
+                                </TableCell>
+                                <TableCell>
+                                    {order.deliverySpeed && (
+                                        <Badge variant={order.deliverySpeed === 'fast' ? 'default' : 'secondary'} className="capitalize">
+                                            {order.deliverySpeed === 'fast' ? <Rabbit className="w-3 h-3 mr-1" /> : <Turtle className="w-3 h-3 mr-1" />}
+                                            {order.deliverySpeed}
+                                        </Badge>
+                                    )}
                                 </TableCell>
                                 <TableCell className="text-right">
                                     <DropdownMenu>
@@ -174,7 +183,7 @@ export default function OrdersPage() {
                            ))
                         ) : (
                              <TableRow>
-                                <TableCell colSpan={7} className="text-center">
+                                <TableCell colSpan={8} className="text-center">
                                     No orders found.
                                 </TableCell>
                             </TableRow>
