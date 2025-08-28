@@ -15,6 +15,7 @@ import { onAuthStateChanged } from 'firebase/auth';
 import AnnouncementBar from '@/components/layout/AnnouncementBar';
 import { getSearchSuggestions } from '@/ai/flows/get-search-suggestions';
 import { useToast } from '@/hooks/use-toast';
+import { Card } from '@/components/ui/card';
 
 // Debounce function
 const debounce = <F extends (...args: any[]) => any>(func: F, waitFor: number) => {
