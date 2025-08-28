@@ -59,28 +59,14 @@ export default function LoginForm() {
             await auth.signOut();
             return;
         }
-        if (userData.role === 'admin') {
-          toast({
-            title: 'Admin Login Successful',
-            description: 'Welcome back, Admin! Redirecting you to the dashboard.',
-          });
-          router.push('/admin');
-        } else {
-           toast({
-            title: 'Login Successful',
-            description: 'Welcome back! Redirecting you to the dashboard.',
-          });
-          router.push('/');
-        }
-      } else {
-        // Fallback for users who might not have a DB entry for some reason
-        toast({
-            title: 'Login Successful',
-            description: 'Welcome back! Redirecting you to the dashboard.',
-        });
-        router.push('/');
       }
-       router.refresh();
+      
+      toast({
+        title: 'Login Successful',
+        description: 'Welcome back! Redirecting you to the dashboard.',
+      });
+      router.push('/');
+      router.refresh();
 
     } catch (error: any) {
        console.error("Login error:", error);

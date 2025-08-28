@@ -12,19 +12,17 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from '../ui/dropdown-menu';
-import { LogOut, Package, User, ShoppingBag, Shield, LogIn, UserPlus } from 'lucide-react';
+import { LogOut, Package, User, ShoppingBag, LogIn, UserPlus } from 'lucide-react';
 import Logo from '../icons/Logo';
 import { usePathname, useRouter } from 'next/navigation';
 import { useEffect, useState } from 'react';
 import { useToast } from '@/hooks/use-toast';
 import { ThemeSwitcher } from '../theme/ThemeSwitcher';
 import { onAuthStateChanged, signOut, type User as FirebaseUser } from 'firebase/auth';
-import { auth, db } from '@/lib/firebase';
-import { ref, get, child } from 'firebase/database';
+import { auth } from '@/lib/firebase';
 
 export default function Header() {
   const [user, setUser] = useState<FirebaseUser | null>(null);
-  const [isAdmin, setIsAdmin] = useState(false);
   const router = useRouter();
   const pathname = usePathname();
   const { toast } = useToast();
@@ -32,18 +30,6 @@ export default function Header() {
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, async (currentUser) => {
       setUser(currentUser);
-      if (currentUser) {
-        // Check user role from database
-        const userRef = ref(db);
-        const snapshot = await get(child(userRef, `users/${currentUser.uid}`));
-        if (snapshot.exists() && snapshot.val().role === 'admin') {
-          setIsAdmin(true);
-        } else {
-          setIsAdmin(false);
-        }
-      } else {
-        setIsAdmin(false);
-      }
     });
 
     // Cleanup subscription on unmount
@@ -103,7 +89,7 @@ export default function Header() {
               <DropdownMenuContent className="w-56" align="end" forceMount>
                 <DropdownMenuLabel className="font-normal">
                   <div className="flex flex-col space-y-1">
-                    <p className="text-sm font-medium leading-none">{user.displayName || (isAdmin ? 'Admin' : 'User')}</p>
+                    <p className="text-sm font-medium leading-none">{user.displayName || 'User'}</p>
                     <p className="text-xs leading-none text-muted-foreground">
                       {user.email}
                     </p>
@@ -122,14 +108,6 @@ export default function Header() {
                     <span>My Orders</span>
                   </Link>
                 </DropdownMenuItem>
-                 {isAdmin && (
-                  <DropdownMenuItem asChild>
-                    <Link href="/admin">
-                      <Shield className="mr-2 h-4 w-4" />
-                      <span>Admin Dashboard</span>
-                    </Link>
-                  </DropdownMenuItem>
-                )}
                 <DropdownMenuSeparator />
                 <DropdownMenuItem onClick={handleLogout} className="cursor-pointer">
                   <LogOut className="mr-2 h-4 w-4" />

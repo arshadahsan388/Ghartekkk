@@ -56,7 +56,6 @@ export default function SignupForm() {
         name: values.fullName,
         email: values.email,
         orders: 0,
-        role: 'customer',
         isBanned: false
       });
 

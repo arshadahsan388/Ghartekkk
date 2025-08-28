@@ -46,7 +46,6 @@ export default function GoogleSignInButton() {
             name: user.displayName,
             email: user.email,
             orders: 0,
-            role: 'customer',
             isBanned: false
         });
       }
