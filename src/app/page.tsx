@@ -29,7 +29,7 @@ export default function Home() {
         <div className="absolute inset-0 bg-gradient-to-b from-primary/10 via-transparent to-transparent -z-10"></div>
         <div className="container mx-auto px-4 text-center">
             <h1 className="text-3xl sm:text-4xl font-extrabold tracking-tight font-headline">
-               What can we get for you?
+               Aap kia mangwana chahtay han?
             </h1>
             <p className="mt-3 max-w-2xl mx-auto text-base text-muted-foreground">
               Groceries, medicine, or your favorite meal. Just tell us what you need.
