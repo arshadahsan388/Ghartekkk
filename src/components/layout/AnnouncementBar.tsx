@@ -50,15 +50,15 @@ export default function AnnouncementBar() {
         <AlertDialog open={isOpen} onOpenChange={setIsOpen}>
             <AlertDialogContent>
                 <AlertDialogHeader>
-                    <AlertDialogTitle className="flex items-center gap-2">
+                    <AlertDialogTitle className="flex items-center justify-center gap-2 font-bold text-xl">
                         <Siren className="h-6 w-6 text-primary"/>
                         Alert
                     </AlertDialogTitle>
-                    <AlertDialogDescription className="pt-4 text-base">
+                    <AlertDialogDescription className="pt-4 text-base text-center">
                        {announcement}
                     </AlertDialogDescription>
                 </AlertDialogHeader>
-                <Button variant="outline" onClick={handleClose}>
+                <Button variant="outline" onClick={handleClose} className="w-full">
                     Got it!
                 </Button>
             </AlertDialogContent>
