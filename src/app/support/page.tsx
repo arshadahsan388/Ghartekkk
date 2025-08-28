@@ -10,11 +10,10 @@ import { Send, User, Paperclip, X, Bot } from 'lucide-react';
 import { onAuthStateChanged, type User as FirebaseUser } from 'firebase/auth';
 import { auth, db } from '@/lib/firebase';
 import { useRouter } from 'next/navigation';
-import { ref, onValue, push, set, serverTimestamp } from 'firebase/database';
+import { ref, onValue, push, set, serverTimestamp, update } from 'firebase/database';
 import { Skeleton } from '@/components/ui/skeleton';
 import { useToast } from '@/hooks/use-toast';
 import Image from 'next/image';
-import { supportChat } from '@/ai/flows/support-chat-flow';
 
 type Message = {
   id: string;
@@ -72,12 +71,6 @@ export default function SupportPage() {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
   }, [messages]);
   
-  const isAfterHours = () => {
-    const now = new Date();
-    // PKT is UTC+5, so we adjust the client's UTC time.
-    const pktHour = (now.getUTCHours() + 5) % 24;
-    return pktHour < 9 || pktHour >= 21; // 9 AM to 9 PM PKT
-  }
 
   const handleSendMessage = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -89,8 +82,6 @@ export default function SupportPage() {
         const chatRef = ref(db, `chats/${user.uid}/messages`);
         const newMsgRef = push(chatRef);
         const metadataRef = ref(db, `chats/${user.uid}/metadata`);
-
-        let userMessageText = newMessage;
 
         if (imagePreview) {
              await set(newMsgRef, {
@@ -105,9 +96,8 @@ export default function SupportPage() {
                 lastMessageType: 'image',
                 timestamp: serverTimestamp(),
                 unreadByAdmin: true,
-                customerName: user.displayName || user.email
+                customerName: user.displayName || user.email,
             });
-            userMessageText = "The user sent an image."; // Placeholder for AI context
         } else {
              await set(newMsgRef, {
                 text: newMessage,
@@ -121,40 +111,10 @@ export default function SupportPage() {
                 lastMessageType: 'text',
                 timestamp: serverTimestamp(),
                 unreadByAdmin: true,
-                customerName: user.displayName || user.email
+                customerName: user.displayName || user.email,
             });
         }
         
-        // After user message is sent, check for after hours and trigger AI
-        if (isAfterHours()) {
-            const conversationHistory = messages.map(m => ({
-                sender: m.sender,
-                message: m.text || (m.type === 'image' ? 'Image' : '')
-            }));
-
-            const aiResponse = await supportChat({
-                message: userMessageText,
-                history: conversationHistory
-            });
-            
-            const aiMsgRef = push(chatRef);
-            await set(aiMsgRef, {
-                text: aiResponse.response,
-                type: 'text',
-                sender: 'admin',
-                timestamp: serverTimestamp(),
-                userName: 'AI Support',
-            });
-            await update(metadataRef, {
-                lastMessage: aiResponse.response,
-                lastMessageType: 'text',
-                timestamp: serverTimestamp(),
-                // Remains unread by admin so human can see the AI interaction
-                unreadByAdmin: true, 
-            });
-        }
-
-
         setNewMessage('');
         setImagePreview(null);
     } catch(error) {
