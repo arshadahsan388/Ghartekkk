@@ -6,7 +6,7 @@ import {
   Home,
   Package,
   Users2,
-  Megaphone,
+  Siren,
   PanelLeft,
 } from 'lucide-react';
 import { Sheet, SheetContent, SheetTrigger } from '@/components/ui/sheet';
@@ -36,7 +36,7 @@ const mainNavItems = [
     { href: "/admin/users", label: "Users", icon: Users2 },
 ];
 
-const settingsNavItem = { href: "/admin/announcements", label: "Announcements", icon: Megaphone };
+const settingsNavItem = { href: "/admin/announcements", label: "Alerts", icon: Siren };
 
 export function AdminSidebar() {
   const [user, setUser] = useState<User | null>(null);
@@ -146,7 +146,7 @@ export function AdminSidebar() {
                 <DropdownMenuLabel>My Account</DropdownMenuLabel>
                 <DropdownMenuSeparator />
                 <DropdownMenuItem asChild>
-                    <Link href="/admin/announcements">Announcements</Link>
+                    <Link href="/admin/announcements">Alerts</Link>
                 </DropdownMenuItem>
                 <DropdownMenuItem>Support</DropdownMenuItem>
                 <DropdownMenuSeparator />

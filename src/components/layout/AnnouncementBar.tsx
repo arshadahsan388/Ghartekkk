@@ -1,6 +1,6 @@
 
 'use client';
-import { Megaphone, X } from "lucide-react";
+import { Siren, X } from "lucide-react";
 import { useEffect, useState } from "react";
 import { db } from '@/lib/firebase';
 import { ref, onValue } from 'firebase/database';
@@ -51,8 +51,8 @@ export default function AnnouncementBar() {
             <AlertDialogContent>
                 <AlertDialogHeader>
                     <AlertDialogTitle className="flex items-center gap-2">
-                        <Megaphone className="h-6 w-6 text-primary"/>
-                        An Update from Us!
+                        <Siren className="h-6 w-6 text-primary"/>
+                        Alert
                     </AlertDialogTitle>
                     <AlertDialogDescription className="pt-4 text-base">
                        {announcement}
