@@ -260,8 +260,8 @@ export default function ShopPage({ params }: { params: { shopId: string } }) {
                                 onChange={(e) => setOrderNote(e.target.value)}
                             />
                         </div>
-                        <div className="grid grid-cols-2 gap-4">
-                            <div>
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                            <div className="space-y-2">
                                 <Label htmlFor="order-price">Price / Budget (PKR)</Label>
                                 <Input 
                                     id="order-price"
@@ -372,5 +372,3 @@ export default function ShopPage({ params }: { params: { shopId: string } }) {
     </div>
   );
 }
-
-    
