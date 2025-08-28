@@ -164,6 +164,7 @@ export default function ShopPage({ params }: { params: { shopId: string } }) {
         setOrderPrice('');
         setOrderNote('');
         setDeliverySpeed('normal');
+        router.push(`/track-order/${newOrder.id}`);
 
     } catch(error) {
         console.error(error);
