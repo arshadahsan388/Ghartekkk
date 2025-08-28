@@ -87,7 +87,7 @@ export default function Footer() {
                )}
              >
                 {label === 'Orders' && activeOrdersCount > 0 && (
-                    <Badge className="absolute top-1 right-5 h-5 w-5 justify-center p-0">{activeOrdersCount}</Badge>
+                    <Badge variant="destructive" className="absolute top-1 right-5 h-5 w-5 justify-center p-0">{activeOrdersCount}</Badge>
                 )}
                <Icon className={cn("h-6 w-6", isActive && "fill-current")} />
                <span>{label}</span>
