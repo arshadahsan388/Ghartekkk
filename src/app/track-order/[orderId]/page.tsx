@@ -17,6 +17,7 @@ type Order = {
   status: 'Pending' | 'Confirmed' | 'Out for Delivery' | 'Delivered' | 'Rejected' | 'Cancelled';
   date: string; // ISO String
   deliverySpeed?: 'normal' | 'fast';
+  outForDeliveryTimestamp?: number;
 };
 
 const statusSteps = [
@@ -69,9 +70,9 @@ export default function TrackOrderPage({ params }: { params: { orderId: string }
   }, [params.orderId]);
 
   useEffect(() => {
-    if (order?.status === 'Out for Delivery') {
+    if (order?.status === 'Out for Delivery' && order.outForDeliveryTimestamp) {
         const totalDuration = (order.deliverySpeed === 'fast' ? DELIVERY_TIME_FAST_MINS : DELIVERY_TIME_NORMAL_MINS) * 60; // in seconds
-        const startTime = new Date(order.date).getTime(); // This should be when it's marked "Out for Delivery"
+        const startTime = order.outForDeliveryTimestamp;
         
         const interval = setInterval(() => {
             const now = Date.now();
@@ -81,7 +82,7 @@ export default function TrackOrderPage({ params }: { params: { orderId: string }
             setProgress(newProgress);
             setTimeLeft(Math.max(0, totalDuration - timeElapsed));
 
-            if (newProgress >= 100) {
+            if (newProgress >= 100 && order.status !== 'Delivered') {
                 clearInterval(interval);
                 const orderRef = ref(db, `orders/${order.id}`);
                 update(orderRef, { status: 'Delivered' });
@@ -146,7 +147,7 @@ export default function TrackOrderPage({ params }: { params: { orderId: string }
                 <CardHeader>
                     <CardTitle>Delivery Progress</CardTitle>
                     <CardDescription>
-                        {progress < 100 ? `Estimated arrival in ${Math.ceil(timeLeft / 60)} minutes.` : 'Your order has arrived!'}
+                        {progress < 100 && order.status === 'Out for Delivery' ? `Estimated arrival in ${Math.ceil(timeLeft / 60)} minutes.` : order.status === 'Delivered' ? 'Your order has arrived!' : 'Waiting for rider to pick up your order...'}
                     </CardDescription>
                 </CardHeader>
                 <CardContent className="p-6 space-y-4">

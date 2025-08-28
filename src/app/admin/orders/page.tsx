@@ -23,7 +23,7 @@ import { DropdownMenu, DropdownMenuTrigger, DropdownMenuContent, DropdownMenuIte
 import { MoreHorizontal, Loader2, FileText, User, MapPin, DollarSign, StickyNote, Rabbit, Turtle } from 'lucide-react';
 import { useEffect, useState, useRef } from 'react';
 import { db } from '@/lib/firebase';
-import { ref, onValue, update, query, orderByChild, equalTo } from 'firebase/database';
+import { ref, onValue, update, query, orderByChild, equalTo, serverTimestamp } from 'firebase/database';
 import { useToast } from '@/hooks/use-toast';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from '@/components/ui/dialog';
 
@@ -116,7 +116,11 @@ export default function OrdersPage() {
     const handleStatusChange = async (orderId: string, newStatus: string) => {
         const orderRef = ref(db, `orders/${orderId}`);
         try {
-            await update(orderRef, { status: newStatus });
+            const updates: { [key: string]: any } = { status: newStatus };
+            if (newStatus === 'Out for Delivery') {
+                updates.outForDeliveryTimestamp = serverTimestamp();
+            }
+            await update(orderRef, updates);
             toast({
                 title: 'Order Status Updated',
                 description: `Order #${orderId.substring(orderId.length - 6).toUpperCase()} is now ${newStatus}.`,
