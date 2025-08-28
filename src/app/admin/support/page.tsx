@@ -14,6 +14,9 @@ import AdminHeader from '@/components/admin/layout/AdminHeader';
 import { Badge } from '@/components/ui/badge';
 import type { User as FirebaseUser } from 'firebase/auth';
 import Image from 'next/image';
+import { Label } from '@/components/ui/label';
+import { Switch } from '@/components/ui/switch';
+import { useToast } from '@/hooks/use-toast';
 
 type Message = {
   id: string;
@@ -41,12 +44,23 @@ export default function AdminSupportPage() {
   const [newMessage, setNewMessage] = useState('');
   const messagesEndRef = useRef<HTMLDivElement | null>(null);
   const [adminUser, setAdminUser] = useState<FirebaseUser | null>(null);
+  const [isAiSupportActive, setIsAiSupportActive] = useState(false);
+  const { toast } = useToast();
 
   useEffect(() => {
     const unsubscribeAuth = auth.onAuthStateChanged(user => {
       setAdminUser(user);
     });
-    return () => unsubscribeAuth();
+
+    const aiSupportRef = ref(db, 'settings/aiSupportActive');
+    const unsubscribeAi = onValue(aiSupportRef, (snapshot) => {
+        setIsAiSupportActive(snapshot.val() ?? false);
+    });
+
+    return () => {
+        unsubscribeAuth();
+        unsubscribeAi();
+    };
   }, [])
 
   useEffect(() => {
@@ -127,6 +141,24 @@ export default function AdminSupportPage() {
     const metadataRef = ref(db, `chats/${chat.id}/metadata`);
     update(metadataRef, { unreadByAdmin: false });
   };
+  
+  const handleAiToggle = async (checked: boolean) => {
+      const aiSupportRef = ref(db, 'settings/aiSupportActive');
+      try {
+          await set(aiSupportRef, checked);
+          setIsAiSupportActive(checked);
+          toast({
+              title: `AI Support ${checked ? 'Enabled' : 'Disabled'}`,
+              description: `The AI assistant will now ${checked ? 'automatically reply to customers' : 'be inactive'}.`
+          });
+      } catch (error) {
+          console.error("Failed to toggle AI support:", error);
+           toast({
+              variant: 'destructive',
+              title: 'Update Failed',
+          });
+      }
+  }
 
   const renderLastMessage = (chat: ChatMetadata) => {
     if (chat.lastMessageType === 'image') {
@@ -143,7 +175,13 @@ export default function AdminSupportPage() {
 
   return (
     <main className="grid flex-1 items-start gap-4 p-4 sm:px-6 sm:py-0 md:gap-8 h-[calc(100vh-80px)]">
-        <AdminHeader title="Support Chat" description="Respond to live customer queries." />
+        <div className="flex items-center justify-between">
+            <AdminHeader title="Support Chat" description="Respond to live customer queries." />
+            <div className="flex items-center space-x-2">
+              <Switch id="ai-support" checked={isAiSupportActive} onCheckedChange={handleAiToggle} />
+              <Label htmlFor="ai-support">Enable AI Assistant</Label>
+            </div>
+        </div>
         <div className="grid md:grid-cols-[300px_1fr] gap-8 h-full">
             <Card className="flex flex-col">
                 <CardHeader>
@@ -190,19 +228,19 @@ export default function AdminSupportPage() {
                                 <div
                                     key={message.id}
                                     className={cn('flex items-end gap-2', 
-                                        message.sender === 'user' ? 'justify-end' : 'justify-start'
+                                        message.sender === 'user' ? 'justify-start' : 'justify-end'
                                     )}
                                 >
-                                    {message.sender === 'admin' && (
+                                    {message.sender === 'user' && (
                                     <Avatar className="h-8 w-8">
-                                        <AvatarFallback>A</AvatarFallback>
+                                        <AvatarFallback><User className="w-4 h-4" /></AvatarFallback>
                                     </Avatar>
                                     )}
                                     <div
                                     className={cn('max-w-xs md:max-w-md rounded-lg px-4 py-2',
                                         message.sender === 'user'
-                                        ? 'bg-primary text-primary-foreground'
-                                        : 'bg-muted'
+                                        ? 'bg-muted'
+                                        : 'bg-primary text-primary-foreground'
                                     )}
                                     >
                                      {message.type === 'image' && message.imageUrl ? (
@@ -211,9 +249,9 @@ export default function AdminSupportPage() {
                                         <p className="text-sm">{message.text}</p>
                                     )}
                                     </div>
-                                    {message.sender === 'user' && (
+                                    {message.sender === 'admin' && (
                                     <Avatar className="h-8 w-8">
-                                        <AvatarFallback><User className="w-4 h-4" /></AvatarFallback>
+                                        <AvatarFallback>A</AvatarFallback>
                                     </Avatar>
                                     )}
                                 </div>
