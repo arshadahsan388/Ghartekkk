@@ -9,6 +9,7 @@ import {
   Megaphone,
   Siren,
   PanelLeft,
+  Settings,
 } from 'lucide-react';
 import { Sheet, SheetContent, SheetTrigger } from '@/components/ui/sheet';
 import { Button } from '@/components/ui/button';
@@ -36,9 +37,10 @@ const mainNavItems = [
     { href: "/admin/orders", label: "Orders", icon: Package },
     { href: "/admin/users", label: "Users", icon: Users2 },
     { href: "/admin/announcements", label: "Announcements", icon: Megaphone },
+    { href: "/admin/alerts", label: "Alerts", icon: Siren },
 ];
 
-const settingsNavItem = { href: "/admin/settings", label: "Alerts", icon: Siren };
+const settingsNavItem = { href: "/admin/settings", label: "Settings", icon: Settings };
 
 export function AdminSidebar() {
   const [user, setUser] = useState<User | null>(null);
@@ -148,7 +150,7 @@ export function AdminSidebar() {
                 <DropdownMenuLabel>My Account</DropdownMenuLabel>
                 <DropdownMenuSeparator />
                 <DropdownMenuItem asChild>
-                    <Link href="/admin/settings">Alerts</Link>
+                    <Link href="/admin/settings">Settings</Link>
                 </DropdownMenuItem>
                 <DropdownMenuItem>Support</DropdownMenuItem>
                 <DropdownMenuSeparator />
