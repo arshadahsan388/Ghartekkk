@@ -4,21 +4,13 @@
 import Link from 'next/link';
 import { Avatar, AvatarFallback, AvatarImage } from '../ui/avatar';
 import { Button } from '../ui/button';
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuLabel,
-  DropdownMenuSeparator,
-  DropdownMenuTrigger,
-} from '../ui/dropdown-menu';
-import { LogOut, Package, User, ShoppingBag, LogIn, UserPlus, LifeBuoy } from 'lucide-react';
+import { LogIn, UserPlus, LifeBuoy, ShoppingBag } from 'lucide-react';
 import Logo from '../icons/Logo';
 import { usePathname, useRouter } from 'next/navigation';
 import { useEffect, useState } from 'react';
 import { useToast } from '@/hooks/use-toast';
 import { ThemeSwitcher } from '../theme/ThemeSwitcher';
-import { onAuthStateChanged, signOut, type User as FirebaseUser } from 'firebase/auth';
+import { onAuthStateChanged, type User as FirebaseUser } from 'firebase/auth';
 import { auth } from '@/lib/firebase';
 
 export default function Header() {
@@ -35,24 +27,6 @@ export default function Header() {
     // Cleanup subscription on unmount
     return () => unsubscribe();
   }, []);
-
-  const handleLogout = async () => {
-    try {
-        await signOut(auth);
-        toast({
-            title: 'Logged Out',
-            description: 'You have been successfully logged out.',
-        });
-        router.push('/login');
-        router.refresh();
-    } catch (error) {
-        toast({
-            variant: 'destructive',
-            title: 'Logout Failed',
-            description: 'An error occurred while logging out.',
-        });
-    }
-  };
 
   const isNotAdminPage = !pathname.startsWith('/admin');
 
@@ -85,53 +59,8 @@ export default function Header() {
 
         <div className="flex items-center justify-end space-x-2 flex-1">
            <ThemeSwitcher />
-          {user ? (
-            <DropdownMenu>
-              <DropdownMenuTrigger asChild>
-                <Button variant="ghost" className="relative h-9 w-9 rounded-full">
-                  <Avatar className="h-9 w-9">
-                    <AvatarImage src={user.photoURL || "https://picsum.photos/100"} alt={user.displayName || "User"} />
-                    <AvatarFallback>{user.email?.[0].toUpperCase() || 'U'}</AvatarFallback>
-                  </Avatar>
-                </Button>
-              </DropdownMenuTrigger>
-              <DropdownMenuContent className="w-56" align="end" forceMount>
-                <DropdownMenuLabel className="font-normal">
-                  <div className="flex flex-col space-y-1">
-                    <p className="text-sm font-medium leading-none">{user.displayName || 'User'}</p>
-                    <p className="text-xs leading-none text-muted-foreground">
-                      {user.email}
-                    </p>
-                  </div>
-                </DropdownMenuLabel>
-                <DropdownMenuSeparator />
-                <DropdownMenuItem asChild>
-                  <Link href="/account">
-                    <User className="mr-2 h-4 w-4" />
-                    <span>Profile</span>
-                  </Link>
-                </DropdownMenuItem>
-                 <DropdownMenuItem asChild>
-                  <Link href="/orders">
-                    <Package className="mr-2 h-4 w-4" />
-                    <span>My Orders</span>
-                  </Link>
-                </DropdownMenuItem>
-                 <DropdownMenuItem asChild>
-                  <Link href="/support">
-                    <LifeBuoy className="mr-2 h-4 w-4" />
-                    <span>Support</span>
-                  </Link>
-                </DropdownMenuItem>
-                <DropdownMenuSeparator />
-                <DropdownMenuItem onClick={handleLogout} className="cursor-pointer">
-                  <LogOut className="mr-2 h-4 w-4" />
-                  <span>Log out</span>
-                </DropdownMenuItem>
-              </DropdownMenuContent>
-            </DropdownMenu>
-          ) : (
-            <div className="space-x-2">
+          {!user && (
+             <div className="space-x-2">
               <Button asChild variant="ghost">
                 <Link href="/login">
                   <LogIn className="mr-2 h-4 w-4" /> Login
