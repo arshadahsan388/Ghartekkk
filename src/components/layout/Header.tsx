@@ -61,7 +61,7 @@ export default function Header() {
   }
 
   return (
-    <header className="sticky top-0 z-50 w-full border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
+    <header className="sticky top-0 z-50 w-full border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 hidden md:block">
       <div className="container flex h-16 items-center">
         <Link href="/" className="mr-6 flex items-center space-x-2">
           <Logo className="h-8 w-8" />
@@ -112,6 +112,12 @@ export default function Header() {
                   <Link href="/orders">
                     <Package className="mr-2 h-4 w-4" />
                     <span>My Orders</span>
+                  </Link>
+                </DropdownMenuItem>
+                 <DropdownMenuItem asChild>
+                  <Link href="/support">
+                    <LifeBuoy className="mr-2 h-4 w-4" />
+                    <span>Support</span>
                   </Link>
                 </DropdownMenuItem>
                 <DropdownMenuSeparator />
