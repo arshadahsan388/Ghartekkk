@@ -1,13 +1,15 @@
+
 'use client';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import { Home, Package, PlusSquare, User } from 'lucide-react';
+import { Home, Package, PlusSquare, User, MessageSquare } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
 const navItems = [
   { href: '/', icon: Home, label: 'Home' },
   { href: '/orders', icon: Package, label: 'Orders' },
   { href: '/custom-order', icon: PlusSquare, label: 'Custom' },
+  { href: '/support', icon: MessageSquare, label: 'Support' },
   { href: '/account', icon: User, label: 'Profile' },
 ];
 
