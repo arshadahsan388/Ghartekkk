@@ -6,16 +6,20 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { Avatar, AvatarFallback } from '@/components/ui/avatar';
-import { Send, User } from 'lucide-react';
+import { Send, User, Paperclip, X } from 'lucide-react';
 import { onAuthStateChanged, type User as FirebaseUser } from 'firebase/auth';
 import { auth, db } from '@/lib/firebase';
 import { useRouter } from 'next/navigation';
 import { ref, onValue, push, set, serverTimestamp } from 'firebase/database';
 import { Skeleton } from '@/components/ui/skeleton';
+import { useToast } from '@/hooks/use-toast';
+import Image from 'next/image';
 
 type Message = {
   id: string;
-  text: string;
+  text?: string;
+  imageUrl?: string;
+  type: 'text' | 'image';
   sender: 'user' | 'admin';
   timestamp: number;
   userName: string;
@@ -23,11 +27,15 @@ type Message = {
 
 export default function SupportPage() {
   const router = useRouter();
+  const { toast } = useToast();
   const [user, setUser] = useState<FirebaseUser | null>(null);
   const [messages, setMessages] = useState<Message[]>([]);
   const [newMessage, setNewMessage] = useState('');
   const [isLoading, setIsLoading] = useState(true);
   const messagesEndRef = useRef<HTMLDivElement | null>(null);
+  const fileInputRef = useRef<HTMLInputElement | null>(null);
+  const [imagePreview, setImagePreview] = useState<string | null>(null);
+  const [isSending, setIsSending] = useState(false);
 
   useEffect(() => {
     const unsubscribeAuth = onAuthStateChanged(auth, (currentUser) => {
@@ -65,26 +73,73 @@ export default function SupportPage() {
 
   const handleSendMessage = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!user || newMessage.trim() === '') return;
+    if (!user || (newMessage.trim() === '' && !imagePreview)) return;
 
-    const chatRef = ref(db, `chats/${user.uid}/messages`);
-    const newMsgRef = push(chatRef);
-    await set(newMsgRef, {
-      text: newMessage,
-      sender: 'user',
-      timestamp: serverTimestamp(),
-      userName: user.displayName || user.email,
-    });
+    setIsSending(true);
 
-    const metadataRef = ref(db, `chats/${user.uid}/metadata`);
-    await set(metadataRef, {
-        lastMessage: newMessage,
-        timestamp: serverTimestamp(),
-        unreadByAdmin: true,
-        customerName: user.displayName || user.email
-    })
+    try {
+        const chatRef = ref(db, `chats/${user.uid}/messages`);
+        const newMsgRef = push(chatRef);
+        const metadataRef = ref(db, `chats/${user.uid}/metadata`);
 
-    setNewMessage('');
+        if (imagePreview) {
+             await set(newMsgRef, {
+                imageUrl: imagePreview,
+                type: 'image',
+                sender: 'user',
+                timestamp: serverTimestamp(),
+                userName: user.displayName || user.email,
+            });
+             await set(metadataRef, {
+                lastMessage: 'Image',
+                lastMessageType: 'image',
+                timestamp: serverTimestamp(),
+                unreadByAdmin: true,
+                customerName: user.displayName || user.email
+            });
+        } else {
+             await set(newMsgRef, {
+                text: newMessage,
+                type: 'text',
+                sender: 'user',
+                timestamp: serverTimestamp(),
+                userName: user.displayName || user.email,
+            });
+            await set(metadataRef, {
+                lastMessage: newMessage,
+                lastMessageType: 'text',
+                timestamp: serverTimestamp(),
+                unreadByAdmin: true,
+                customerName: user.displayName || user.email
+            });
+        }
+        setNewMessage('');
+        setImagePreview(null);
+    } catch(error) {
+        console.error(error);
+        toast({ variant: 'destructive', title: 'Error sending message'});
+    } finally {
+        setIsSending(false);
+    }
+  };
+
+  const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0];
+    if (file) {
+      if (file.size > 2 * 1024 * 1024) { // 2MB limit
+        toast({
+            variant: 'destructive',
+            title: 'File too large',
+            description: 'Please select an image smaller than 2MB.',
+        });
+        return;
+      }
+      const reader = new FileReader();
+      reader.onload = (e) => {
+        setImagePreview(e.target?.result as string);
+      };
+      reader.readAsDataURL(file);
+    }
   };
   
   if (isLoading) {
@@ -127,13 +182,17 @@ export default function SupportPage() {
                   </Avatar>
                 )}
                 <div
-                  className={`max-w-xs md:max-w-md rounded-lg px-4 py-2 ${
+                  className={`max-w-xs md:max-w-md rounded-lg p-2 ${
                     message.sender === 'user'
                       ? 'bg-primary text-primary-foreground'
                       : 'bg-muted'
                   }`}
                 >
-                  <p className="text-sm">{message.text}</p>
+                  {message.type === 'image' && message.imageUrl ? (
+                    <Image src={message.imageUrl} alt="User upload" width={200} height={200} className="rounded-md" />
+                  ) : (
+                    <p className="text-sm px-2 py-1">{message.text}</p>
+                  )}
                 </div>
                  {message.sender === 'user' && (
                   <Avatar className="h-8 w-8">
@@ -144,15 +203,46 @@ export default function SupportPage() {
             ))}
              <div ref={messagesEndRef} />
           </CardContent>
-          <CardFooter className="p-4 border-t">
+          <CardFooter className="p-4 border-t flex flex-col items-start gap-2">
+            {imagePreview && (
+                <div className="relative">
+                    <Image src={imagePreview} alt="Preview" width={80} height={80} className="rounded-md" />
+                    <Button
+                        variant="destructive"
+                        size="icon"
+                        className="absolute -top-2 -right-2 h-6 w-6 rounded-full"
+                        onClick={() => setImagePreview(null)}
+                    >
+                        <X className="h-4 w-4" />
+                    </Button>
+                </div>
+            )}
             <form onSubmit={handleSendMessage} className="flex w-full items-center space-x-2">
+                <input
+                    type="file"
+                    ref={fileInputRef}
+                    onChange={handleFileChange}
+                    accept="image/*"
+                    className="hidden"
+                />
+                 <Button
+                    type="button"
+                    variant="ghost"
+                    size="icon"
+                    onClick={() => fileInputRef.current?.click()}
+                    disabled={isSending}
+                >
+                    <Paperclip className="h-5 w-5" />
+                    <span className="sr-only">Attach file</span>
+                </Button>
               <Input
                 type="text"
                 placeholder="Type your message..."
                 value={newMessage}
                 onChange={(e) => setNewMessage(e.target.value)}
+                disabled={!!imagePreview || isSending}
               />
-              <Button type="submit">
+              <Button type="submit" disabled={isSending}>
                 <Send className="h-4 w-4" />
                 <span className="sr-only">Send</span>
               </Button>

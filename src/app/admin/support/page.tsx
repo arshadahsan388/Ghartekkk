@@ -6,17 +6,20 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Card, CardContent, CardHeader, CardTitle, CardFooter } from '@/components/ui/card';
 import { Avatar, AvatarFallback } from '@/components/ui/avatar';
-import { Send, User } from 'lucide-react';
+import { Send, User, Image as ImageIcon } from 'lucide-react';
 import { auth, db } from '@/lib/firebase';
 import { ref, onValue, push, set, serverTimestamp, update } from 'firebase/database';
 import { cn } from '@/lib/utils';
 import AdminHeader from '@/components/admin/layout/AdminHeader';
 import { Badge } from '@/components/ui/badge';
 import type { User as FirebaseUser } from 'firebase/auth';
+import Image from 'next/image';
 
 type Message = {
   id: string;
-  text: string;
+  text?: string;
+  imageUrl?: string;
+  type: 'text' | 'image';
   sender: 'user' | 'admin';
   timestamp: number;
   userName: string;
@@ -28,6 +31,7 @@ type ChatMetadata = {
     timestamp: number;
     unreadByAdmin: boolean;
     customerName: string;
+    lastMessageType: 'text' | 'image';
 }
 
 export default function AdminSupportPage() {
@@ -96,6 +100,7 @@ export default function AdminSupportPage() {
     const newMsgRef = push(chatRef);
     await set(newMsgRef, {
       text: newMessage,
+      type: 'text',
       sender: 'admin',
       timestamp: serverTimestamp(),
       userName: 'Admin',
@@ -104,6 +109,7 @@ export default function AdminSupportPage() {
     const metadataRef = ref(db, `chats/${selectedChat.id}/metadata`);
     await update(metadataRef, {
         lastMessage: newMessage,
+        lastMessageType: 'text',
         timestamp: serverTimestamp(),
         unreadByAdmin: false, // Admin sent a message, so it's read by admin
     })
@@ -121,6 +127,19 @@ export default function AdminSupportPage() {
     const metadataRef = ref(db, `chats/${chat.id}/metadata`);
     update(metadataRef, { unreadByAdmin: false });
   };
+
+  const renderLastMessage = (chat: ChatMetadata) => {
+    if (chat.lastMessageType === 'image') {
+        return (
+            <div className="flex items-center gap-1 text-xs text-muted-foreground truncate">
+                <ImageIcon className="w-3 h-3" />
+                <span>Image</span>
+            </div>
+        )
+    }
+    return <p className="text-xs text-muted-foreground truncate">{chat.lastMessage}</p>;
+  }
+
 
   return (
     <main className="grid flex-1 items-start gap-4 p-4 sm:px-6 sm:py-0 md:gap-8 h-[calc(100vh-80px)]">
@@ -145,7 +164,7 @@ export default function AdminSupportPage() {
                                     <p className="font-semibold text-sm">{chat.customerName}</p>
                                     {chat.unreadByAdmin && <Badge className="bg-primary h-2.5 w-2.5 p-0" />}
                                </div>
-                               <p className="text-xs text-muted-foreground truncate">{chat.lastMessage}</p>
+                               {renderLastMessage(chat)}
                             </button>
                         ))}
                          {chats.length === 0 && (
@@ -186,7 +205,11 @@ export default function AdminSupportPage() {
                                         : 'bg-muted'
                                     )}
                                     >
-                                    <p className="text-sm">{message.text}</p>
+                                     {message.type === 'image' && message.imageUrl ? (
+                                        <Image src={message.imageUrl} alt="User upload" width={200} height={200} className="rounded-md" />
+                                    ) : (
+                                        <p className="text-sm">{message.text}</p>
+                                    )}
                                     </div>
                                     {message.sender === 'user' && (
                                     <Avatar className="h-8 w-8">
@@ -220,5 +243,3 @@ export default function AdminSupportPage() {
     </main>
   );
 }
-
-    
