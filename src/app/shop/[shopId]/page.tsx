@@ -264,7 +264,7 @@ export default function ShopPage({ params }: { params: { shopId: string } }) {
                         </div>
                         <div className="space-y-2">
                             <Label>Delivery Speed</Label>
-                            {isFreeDelivery && (
+                             {isFreeDelivery && (
                                 <div className="p-3 rounded-md bg-green-100 dark:bg-green-900/30 border border-green-500/50 flex items-center gap-2">
                                     <Sparkles className="w-5 h-5 text-green-600" />
                                     <div className="text-sm">
