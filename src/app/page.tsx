@@ -4,7 +4,7 @@
 import { Button } from '@/components/ui/button';
 import ShopList from '@/components/shops/ShopList';
 import Link from 'next/link';
-import { ArrowRight, Home as HomeIcon, Send, Wallet, Loader2, Store } from 'lucide-react';
+import { ArrowRight, Home as HomeIcon, Wallet, Loader2, Store } from 'lucide-react';
 import { Input } from '@/components/ui/input';
 import { useRouter } from 'next/navigation';
 import { useState, useEffect, useCallback, useRef } from 'react';
@@ -145,8 +145,7 @@ export default function Home() {
   return (
     <>
       <AnnouncementBar />
-      <div className="relative py-8">
-        <div className="absolute inset-0 bg-gradient-to-b from-primary/10 via-transparent to-transparent -z-10"></div>
+      <div className="py-8">
         <div className="container mx-auto px-4 text-center">
           <h1 className="text-3xl sm:text-4xl font-extrabold tracking-tight font-headline">
             Aap kia mangwana chahtay han?
@@ -218,8 +217,8 @@ export default function Home() {
                 </div>
                 <div className="space-y-2 self-end">
                     <Button type="submit" size="lg" className="w-full h-10">
-                        Submit
-                        <Send className="ml-2 h-4 w-4" />
+                        Next
+                        <ArrowRight className="ml-2 h-4 w-4" />
                     </Button>
                 </div>
             </div>
