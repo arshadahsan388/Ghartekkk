@@ -56,8 +56,6 @@ export default function ShopPage({ params }: { params: { shopId: string } }) {
   const [isReviewEligible, setIsReviewEligible] = useState(false);
   const [orderToReviewId, setOrderToReviewId] = useState<string | null>(null);
 
-  const isFreeDelivery = userData?.hasUsedFreeDelivery === false;
-
   useEffect(() => {
     setIsMounted(true);
     const unsubscribe = onAuthStateChanged(auth, (currentUser) => {
@@ -65,7 +63,7 @@ export default function ShopPage({ params }: { params: { shopId: string } }) {
         router.push('/login');
       } else {
         setUser(currentUser);
-        // Fetch user data for free delivery check
+        // Fetch user data
         const userRef = ref(db, `users/${currentUser.uid}`);
         onValue(userRef, (snapshot) => {
             if (snapshot.exists()) {
@@ -125,7 +123,7 @@ export default function ShopPage({ params }: { params: { shopId: string } }) {
     }
 
     try {
-        const deliveryFee = isFreeDelivery ? 0 : (deliverySpeed === 'fast' ? FAST_DELIVERY_FEE : NORMAL_DELIVERY_FEE);
+        const deliveryFee = deliverySpeed === 'fast' ? FAST_DELIVERY_FEE : NORMAL_DELIVERY_FEE;
         const total = (Number(orderPrice) || 0) + deliveryFee;
 
         const ordersRef = ref(db, 'orders');
@@ -155,9 +153,6 @@ export default function ShopPage({ params }: { params: { shopId: string } }) {
         if(snapshot.exists()) {
             const currentData = snapshot.val();
             const updates: any = { orders: (currentData.orders || 0) + 1 };
-            if (isFreeDelivery) {
-                updates.hasUsedFreeDelivery = true;
-            }
             await update(userRef, updates);
         }
 
@@ -278,28 +273,18 @@ export default function ShopPage({ params }: { params: { shopId: string } }) {
                         </div>
                         <div className="space-y-2">
                             <Label>Delivery Speed</Label>
-                             {isFreeDelivery && (
-                                <div className="p-3 rounded-md bg-green-100 dark:bg-green-900/30 border border-green-500/50 flex items-center gap-2">
-                                    <Sparkles className="w-5 h-5 text-green-600" />
-                                    <div className="text-sm">
-                                        <p className="font-bold text-green-700 dark:text-green-300">Congratulations! Your first delivery is FREE.</p>
-                                        <p className="text-xs text-green-600 dark:text-green-400">Normal delivery fee will be waived.</p>
-                                    </div>
-                                </div>
-                            )}
                             <RadioGroup
                                 defaultValue="normal"
                                 className="flex flex-col space-y-2 pt-1"
                                 value={deliverySpeed}
                                 onValueChange={setDeliverySpeed}
-                                disabled={isFreeDelivery}
                             >
                                 <div className="flex items-center space-x-2">
                                     <RadioGroupItem value="normal" id="normal" />
                                     <Label htmlFor="normal" className="flex flex-col gap-0.5 w-full cursor-pointer">
-                                        <span>Normal {isFreeDelivery && <Badge className="ml-2 bg-green-500">Free</Badge>}</span>
-                                        <span className={`text-xs text-muted-foreground ${isFreeDelivery && 'line-through'}`}>
-                                            Rs. {NORMAL_DELIVERY_FEE} &bull; ~30 mins
+                                        <span>Normal</span>
+                                        <span className="text-xs text-muted-foreground">
+                                            Rs. {NORMAL_DELIVERY_FEE} &bull; ~40 mins
                                         </span>
                                     </Label>
                                 </div>
@@ -335,3 +320,5 @@ export default function ShopPage({ params }: { params: { shopId: string } }) {
     </div>
   );
 }
+
+    

@@ -7,7 +7,7 @@ import { z } from 'zod';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { createUserWithEmailAndPassword, sendEmailVerification } from 'firebase/auth';
-import { ref, set, query, orderByChild, equalTo, get } from 'firebase/database';
+import { ref, set } from 'firebase/database';
 
 import { Button } from '@/components/ui/button';
 import {
@@ -65,7 +65,6 @@ export default function SignupForm() {
         orders: 0,
         isBanned: false,
         role: 'customer', // Default role for new signups
-        hasUsedFreeDelivery: false,
       });
 
       toast({
@@ -158,3 +157,5 @@ export default function SignupForm() {
     </div>
   );
 }
+
+    

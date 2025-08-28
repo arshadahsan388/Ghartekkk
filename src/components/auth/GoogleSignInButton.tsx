@@ -3,8 +3,8 @@
 
 import { Button } from "@/components/ui/button";
 import { auth, db } from "@/lib/firebase";
-import { GoogleAuthProvider, signInWithPopup, fetchSignInMethodsForEmail } from "firebase/auth";
-import { ref, set, get, child, query, orderByChild, equalTo } from "firebase/database";
+import { GoogleAuthProvider, signInWithPopup } from "firebase/auth";
+import { ref, set, get } from "firebase/database";
 import { useRouter } from "next/navigation";
 import { useToast } from "@/hooks/use-toast";
 
@@ -56,7 +56,6 @@ export default function GoogleSignInButton() {
             orders: 0,
             isBanned: false,
             role: 'customer', // Default role
-            hasUsedFreeDelivery: false,
         };
         await set(ref(db, 'users/' + user.uid), userData);
       }
@@ -90,3 +89,5 @@ export default function GoogleSignInButton() {
     </Button>
   );
 }
+
+    
