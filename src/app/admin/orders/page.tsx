@@ -19,7 +19,7 @@ import {
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { DropdownMenu, DropdownMenuTrigger, DropdownMenuContent, DropdownMenuItem, DropdownMenuLabel } from '@/components/ui/dropdown-menu';
-import { MoreHorizontal, Loader2, FileText, User, MapPin, DollarSign, StickyNote } from 'lucide-react';
+import { MoreHorizontal, Loader2, FileText, User, MapPin, DollarSign, StickyNote, Rabbit, Turtle } from 'lucide-react';
 import { useEffect, useState } from 'react';
 import { db } from '@/lib/firebase';
 import { ref, onValue, update } from 'firebase/database';
@@ -217,10 +217,19 @@ export default function OrdersPage() {
                             </div>
 
                              <div className="p-4 border rounded-lg space-y-2">
-                                <h3 className="font-semibold flex items-center gap-2"><DollarSign className="w-4 h-4 text-muted-foreground" /> Financials</h3>
+                                <h3 className="font-semibold flex items-center gap-2"><DollarSign className="w-4 h-4 text-muted-foreground" /> Financials & Delivery</h3>
                                 {selectedOrder.budget && <p><strong>Budget:</strong> Rs. {selectedOrder.budget}</p>}
                                 <p><strong>Total:</strong> Rs. {selectedOrder.total.toFixed(2)}</p>
-                                {selectedOrder.deliverySpeed && <p><strong>Delivery:</strong> {selectedOrder.deliverySpeed.charAt(0).toUpperCase() + selectedOrder.deliverySpeed.slice(1)}</p>}
+                                {selectedOrder.deliverySpeed && (
+                                    <p className="flex items-center gap-2">
+                                        {selectedOrder.deliverySpeed === 'fast' 
+                                            ? <Rabbit className="w-4 h-4 text-muted-foreground" /> 
+                                            : <Turtle className="w-4 h-4 text-muted-foreground" />}
+                                        <span>
+                                            <strong>Delivery:</strong> {selectedOrder.deliverySpeed.charAt(0).toUpperCase() + selectedOrder.deliverySpeed.slice(1)}
+                                        </span>
+                                    </p>
+                                )}
                             </div>
                         </div>
                      </div>
