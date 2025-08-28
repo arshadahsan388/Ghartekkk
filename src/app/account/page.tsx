@@ -8,21 +8,29 @@ import { Label } from '@/components/ui/label';
 import { CreditCard, Home, PlusCircle, Trash2 } from 'lucide-react';
 import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
+import { auth } from '@/lib/firebase';
+import { onAuthStateChanged } from 'firebase/auth';
+import { Skeleton } from '@/components/ui/skeleton';
 
 export default function AccountPage() {
   const [address, setAddress] = useState('');
   const router = useRouter();
   const [isMounted, setIsMounted] = useState(false);
+  const [user, setUser] = useState<any>(null);
 
   useEffect(() => {
     setIsMounted(true);
-    const isLoggedIn = localStorage.getItem('isLoggedIn') === 'true';
-    if (!isLoggedIn) {
-      router.push('/login');
-    } else {
-      const savedAddress = localStorage.getItem('deliveryAddress') || 'Vehari, Pakistan';
-      setAddress(savedAddress);
-    }
+    const unsubscribe = onAuthStateChanged(auth, (currentUser) => {
+      if (!currentUser) {
+        router.push('/login');
+      } else {
+        setUser(currentUser);
+        const savedAddress = localStorage.getItem('deliveryAddress') || 'Vehari, Pakistan';
+        setAddress(savedAddress);
+      }
+    });
+
+    return () => unsubscribe();
   }, [router]);
 
   const handleSave = () => {
@@ -30,8 +38,36 @@ export default function AccountPage() {
     alert('Address saved!');
   }
 
-  if (!isMounted) {
-    return null;
+  if (!isMounted || !user) {
+    return (
+        <div className="container mx-auto px-4 py-8">
+            <Skeleton className="h-12 w-1/4 mb-12" />
+            <div className="grid md:grid-cols-2 gap-8">
+                <Card>
+                    <CardHeader>
+                        <Skeleton className="h-8 w-3/4" />
+                        <Skeleton className="h-4 w-1/2" />
+                    </CardHeader>
+                    <CardContent>
+                        <Skeleton className="h-10 w-full" />
+                    </CardContent>
+                    <CardFooter>
+                         <Skeleton className="h-10 w-24" />
+                    </CardFooter>
+                </Card>
+                <Card>
+                     <CardHeader>
+                        <Skeleton className="h-8 w-3/4" />
+                        <Skeleton className="h-4 w-1/2" />
+                    </CardHeader>
+                    <CardContent className="space-y-4">
+                        <Skeleton className="h-16 w-full" />
+                        <Skeleton className="h-10 w-full" />
+                    </CardContent>
+                </Card>
+            </div>
+        </div>
+    );
   }
 
   return (

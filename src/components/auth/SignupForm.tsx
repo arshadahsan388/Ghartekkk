@@ -5,6 +5,8 @@ import { useForm } from 'react-hook-form';
 import { z } from 'zod';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
+import { createUserWithEmailAndPassword } from 'firebase/auth';
+import { ref, set } from 'firebase/database';
 
 import { Button } from '@/components/ui/button';
 import {
@@ -19,6 +21,7 @@ import { Input } from '@/components/ui/input';
 import { useToast } from '@/hooks/use-toast';
 import { Separator } from '../ui/separator';
 import GoogleSignInButton from './GoogleSignInButton';
+import { auth, db } from '@/lib/firebase';
 
 const formSchema = z.object({
   fullName: z
@@ -42,16 +45,35 @@ export default function SignupForm() {
     },
   });
 
-  function onSubmit(values: z.infer<typeof formSchema>) {
-    console.log(values);
-    // Simulate successful signup
-    localStorage.setItem('isLoggedIn', 'true');
-    toast({
-      title: 'Account Created',
-      description: 'Welcome! Redirecting you to the dashboard.',
-    });
-    router.push('/');
-    router.refresh(); // Forces a refresh to update header state
+  async function onSubmit(values: z.infer<typeof formSchema>) {
+    try {
+      const userCredential = await createUserWithEmailAndPassword(auth, values.email, values.password);
+      const user = userCredential.user;
+
+      // Save user data to Realtime Database
+      await set(ref(db, 'users/' + user.uid), {
+        id: user.uid,
+        name: values.fullName,
+        email: values.email,
+        orders: 0,
+        role: 'customer',
+        isBanned: false
+      });
+
+      toast({
+        title: 'Account Created',
+        description: 'Welcome! Redirecting you to the dashboard.',
+      });
+      router.push('/');
+      router.refresh(); 
+    } catch (error: any) {
+      console.error("Signup error:", error);
+      toast({
+        variant: 'destructive',
+        title: 'Signup Failed',
+        description: error.message || 'An unexpected error occurred.',
+      });
+    }
   }
 
   return (

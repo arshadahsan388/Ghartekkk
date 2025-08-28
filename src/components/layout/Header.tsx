@@ -18,35 +18,54 @@ import { usePathname, useRouter } from 'next/navigation';
 import { useEffect, useState } from 'react';
 import { useToast } from '@/hooks/use-toast';
 import { ThemeSwitcher } from '../theme/ThemeSwitcher';
+import { onAuthStateChanged, signOut, type User as FirebaseUser } from 'firebase/auth';
+import { auth, db } from '@/lib/firebase';
+import { ref, get, child } from 'firebase/database';
 
 export default function Header() {
-  const [isLoggedIn, setIsLoggedIn] = useState(false);
+  const [user, setUser] = useState<FirebaseUser | null>(null);
   const [isAdmin, setIsAdmin] = useState(false);
   const router = useRouter();
   const pathname = usePathname();
   const { toast } = useToast();
 
   useEffect(() => {
-    // This check is necessary to ensure localStorage is accessed only on the client side.
-    if (typeof window !== 'undefined') {
-      const loggedIn = localStorage.getItem('isLoggedIn') === 'true';
-      const admin = localStorage.getItem('role') === 'admin';
-      setIsLoggedIn(loggedIn);
-      setIsAdmin(admin);
-    }
-  }, [pathname]);
-
-  const handleLogout = () => {
-    localStorage.removeItem('isLoggedIn');
-    localStorage.removeItem('role');
-    setIsLoggedIn(false);
-    setIsAdmin(false);
-    toast({
-      title: 'Logged Out',
-      description: 'You have been successfully logged out.',
+    const unsubscribe = onAuthStateChanged(auth, async (currentUser) => {
+      setUser(currentUser);
+      if (currentUser) {
+        // Check user role from database
+        const userRef = ref(db);
+        const snapshot = await get(child(userRef, `users/${currentUser.uid}`));
+        if (snapshot.exists() && snapshot.val().role === 'admin') {
+          setIsAdmin(true);
+        } else {
+          setIsAdmin(false);
+        }
+      } else {
+        setIsAdmin(false);
+      }
     });
-    router.push('/login');
-    router.refresh();
+
+    // Cleanup subscription on unmount
+    return () => unsubscribe();
+  }, []);
+
+  const handleLogout = async () => {
+    try {
+        await signOut(auth);
+        toast({
+            title: 'Logged Out',
+            description: 'You have been successfully logged out.',
+        });
+        router.push('/login');
+        router.refresh();
+    } catch (error) {
+        toast({
+            variant: 'destructive',
+            title: 'Logout Failed',
+            description: 'An error occurred while logging out.',
+        });
+    }
   };
 
   const isNotAdminPage = !pathname.startsWith('/admin');
@@ -71,22 +90,22 @@ export default function Header() {
 
         <div className="flex items-center justify-end space-x-2 flex-1">
            <ThemeSwitcher />
-          {isLoggedIn ? (
+          {user ? (
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
                 <Button variant="ghost" className="relative h-9 w-9 rounded-full">
                   <Avatar className="h-9 w-9">
-                    <AvatarImage src="https://picsum.photos/100" alt="User" />
-                    <AvatarFallback>U</AvatarFallback>
+                    <AvatarImage src={user.photoURL || "https://picsum.photos/100"} alt={user.displayName || "User"} />
+                    <AvatarFallback>{user.email?.[0].toUpperCase() || 'U'}</AvatarFallback>
                   </Avatar>
                 </Button>
               </DropdownMenuTrigger>
               <DropdownMenuContent className="w-56" align="end" forceMount>
                 <DropdownMenuLabel className="font-normal">
                   <div className="flex flex-col space-y-1">
-                    <p className="text-sm font-medium leading-none">{isAdmin ? 'Admin' : 'User'}</p>
+                    <p className="text-sm font-medium leading-none">{user.displayName || (isAdmin ? 'Admin' : 'User')}</p>
                     <p className="text-xs leading-none text-muted-foreground">
-                      {isAdmin ? 'admin@example.com' : 'user@example.com'}
+                      {user.email}
                     </p>
                   </div>
                 </DropdownMenuLabel>

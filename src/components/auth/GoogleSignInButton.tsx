@@ -1,4 +1,9 @@
 import { Button } from "@/components/ui/button";
+import { auth, db } from "@/lib/firebase";
+import { GoogleAuthProvider, signInWithPopup } from "firebase/auth";
+import { ref, set, get, child } from "firebase/database";
+import { useRouter } from "next/navigation";
+import { useToast } from "@/hooks/use-toast";
 
 const GoogleIcon = () => (
     <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
@@ -10,10 +15,49 @@ const GoogleIcon = () => (
     </svg>
 )
 
-
 export default function GoogleSignInButton() {
+  const router = useRouter();
+  const { toast } = useToast();
+  
+  const handleGoogleSignIn = async () => {
+    const provider = new GoogleAuthProvider();
+    try {
+      const result = await signInWithPopup(auth, provider);
+      const user = result.user;
+
+      // Check if user exists in the database
+      const userRef = ref(db);
+      const snapshot = await get(child(userRef, `users/${user.uid}`));
+      if (!snapshot.exists()) {
+        // New user, save their data
+         await set(ref(db, 'users/' + user.uid), {
+            id: user.uid,
+            name: user.displayName,
+            email: user.email,
+            orders: 0,
+            role: 'customer',
+            isBanned: false
+        });
+      }
+
+      toast({
+        title: "Signed In with Google",
+        description: "Welcome! Redirecting you to the dashboard."
+      });
+      router.push('/');
+      router.refresh();
+    } catch(error: any) {
+        console.error("Google sign-in error", error);
+        toast({
+            variant: "destructive",
+            title: "Google Sign-In Failed",
+            description: error.message || "Could not sign in with Google."
+        });
+    }
+  }
+
   return (
-    <Button variant="outline" className="w-full">
+    <Button variant="outline" className="w-full" onClick={handleGoogleSignIn}>
       <GoogleIcon />
       Sign in with Google
     </Button>

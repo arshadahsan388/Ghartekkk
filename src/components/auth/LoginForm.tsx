@@ -4,6 +4,8 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import { useForm } from 'react-hook-form';
 import { z } from 'zod';
 import Link from 'next/link';
+import { signInWithEmailAndPassword } from 'firebase/auth';
+import { ref, get, child } from 'firebase/database';
 
 import { Button } from '@/components/ui/button';
 import {
@@ -19,6 +21,7 @@ import { useToast } from '@/hooks/use-toast';
 import { Separator } from '../ui/separator';
 import GoogleSignInButton from './GoogleSignInButton';
 import { useRouter } from 'next/navigation';
+import { auth, db } from '@/lib/firebase';
 
 const formSchema = z.object({
   email: z.string().email({ message: 'Please enter a valid email.' }),
@@ -36,25 +39,47 @@ export default function LoginForm() {
     },
   });
 
-  function onSubmit(values: z.infer<typeof formSchema>) {
-    // Simulate successful login
-    localStorage.setItem('isLoggedIn', 'true');
-    if (values.email === 'admin@example.com') {
-      localStorage.setItem('role', 'admin');
+  async function onSubmit(values: z.infer<typeof formSchema>) {
+    try {
+      const userCredential = await signInWithEmailAndPassword(auth, values.email, values.password);
+      const user = userCredential.user;
+
+      // Check user role
+      const userRef = ref(db);
+      const snapshot = await get(child(userRef, `users/${user.uid}`));
+      if (snapshot.exists()) {
+        const userData = snapshot.val();
+        if (userData.role === 'admin') {
+          toast({
+            title: 'Admin Login Successful',
+            description: 'Welcome back, Admin! Redirecting you to the dashboard.',
+          });
+          router.push('/admin');
+        } else {
+           toast({
+            title: 'Login Successful',
+            description: 'Welcome back! Redirecting you to the dashboard.',
+          });
+          router.push('/');
+        }
+      } else {
+        // Fallback for users who might not have a DB entry for some reason
+        toast({
+            title: 'Login Successful',
+            description: 'Welcome back! Redirecting you to the dashboard.',
+        });
+        router.push('/');
+      }
+       router.refresh();
+
+    } catch (error: any) {
+       console.error("Login error:", error);
        toast({
-        title: 'Admin Login Successful',
-        description: 'Welcome back, Admin! Redirecting you to the dashboard.',
+        variant: 'destructive',
+        title: 'Login Failed',
+        description: error.message || 'Incorrect email or password.',
       });
-      router.push('/admin');
-    } else {
-      localStorage.removeItem('role');
-      toast({
-        title: 'Login Successful',
-        description: 'Welcome back! Redirecting you to the dashboard.',
-      });
-      router.push('/');
     }
-    router.refresh(); // Forces a refresh to update header state
   }
 
   return (

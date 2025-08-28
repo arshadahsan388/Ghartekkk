@@ -20,6 +20,9 @@ import { ArrowRight } from 'lucide-react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { useEffect, useState } from 'react';
+import { auth } from '@/lib/firebase';
+import { onAuthStateChanged } from 'firebase/auth';
+import { Skeleton } from '@/components/ui/skeleton';
 
 const orders = [
   {
@@ -55,13 +58,19 @@ const orders = [
 export default function OrdersPage() {
   const router = useRouter();
   const [isMounted, setIsMounted] = useState(false);
+  const [user, setUser] = useState<any>(null);
 
   useEffect(() => {
     setIsMounted(true);
-    const isLoggedIn = localStorage.getItem('isLoggedIn') === 'true';
-    if (!isLoggedIn) {
-      router.push('/login');
-    }
+    const unsubscribe = onAuthStateChanged(auth, (currentUser) => {
+        if (!currentUser) {
+            router.push('/login');
+        } else {
+            setUser(currentUser);
+        }
+    });
+
+    return () => unsubscribe();
   }, [router]);
 
   const getStatusBadge = (status: string) => {
@@ -77,8 +86,43 @@ export default function OrdersPage() {
     }
   };
 
-  if (!isMounted) {
-    return null;
+  if (!isMounted || !user) {
+     return (
+      <div className="container mx-auto px-4 py-8">
+        <div className="max-w-4xl mx-auto">
+          <Skeleton className="h-12 w-1/2 mb-2" />
+          <Skeleton className="h-4 w-3/4 mb-12" />
+          <Card className="shadow-xl">
+            <CardContent className="p-0">
+               <Table>
+                <TableHeader>
+                    <TableRow>
+                      <TableHead><Skeleton className="h-4 w-[80px]" /></TableHead>
+                      <TableHead><Skeleton className="h-4 w-[100px]" /></TableHead>
+                      <TableHead><Skeleton className="h-4 w-[120px]" /></TableHead>
+                      <TableHead><Skeleton className="h-4 w-[80px]" /></TableHead>
+                      <TableHead><Skeleton className="h-4 w-[100px]" /></TableHead>
+                      <TableHead className="text-right"><Skeleton className="h-4 w-[80px] ml-auto" /></TableHead>
+                    </TableRow>
+                </TableHeader>
+                <TableBody>
+                    {[...Array(3)].map((_, i) => (
+                        <TableRow key={i}>
+                            <TableCell><Skeleton className="h-4 w-[80px]" /></TableCell>
+                            <TableCell><Skeleton className="h-4 w-[100px]" /></TableCell>
+                            <TableCell><Skeleton className="h-4 w-[120px]" /></TableCell>
+                            <TableCell><Skeleton className="h-4 w-[80px]" /></TableCell>
+                            <TableCell><Skeleton className="h-4 w-[100px]" /></TableCell>
+                             <TableCell className="text-right"><Skeleton className="h-8 w-[120px] ml-auto" /></TableCell>
+                        </TableRow>
+                    ))}
+                </TableBody>
+               </Table>
+            </CardContent>
+          </Card>
+        </div>
+      </div>
+    );
   }
 
   return (

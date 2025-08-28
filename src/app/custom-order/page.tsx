@@ -23,8 +23,9 @@ import {
 import { Skeleton } from '@/components/ui/skeleton';
 import { Badge } from '@/components/ui/badge';
 import { useSearchParams, useRouter } from 'next/navigation';
-import { db } from '@/lib/firebase';
+import { db, auth } from '@/lib/firebase';
 import { ref, push, get, child, update, set } from "firebase/database";
+import { onAuthStateChanged } from 'firebase/auth';
 
 export default function CustomOrderPage() {
   const { toast } = useToast();
@@ -34,17 +35,26 @@ export default function CustomOrderPage() {
   const [budget, setBudget] = useState('');
   const [address, setAddress] = useState('');
   const [additionalNote, setAdditionalNote] = useState('');
-  const [email, setEmail] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const [result, setResult] = useState<CustomOrderOutput | null>(null);
   const [isMounted, setIsMounted] = useState(false);
+  const [user, setUser] = useState<any | null>(null);
 
-  useEffect(() => {
+   useEffect(() => {
     setIsMounted(true);
-    const isLoggedIn = localStorage.getItem('isLoggedIn') === 'true';
-    if (!isLoggedIn) {
-      router.push('/login');
-    }
+    const unsubscribe = onAuthStateChanged(auth, (currentUser) => {
+      if (!currentUser) {
+        router.push('/login');
+      } else {
+        setUser(currentUser);
+        const savedAddress = localStorage.getItem('deliveryAddress');
+        if (savedAddress) {
+          setAddress(savedAddress);
+        }
+      }
+    });
+
+    return () => unsubscribe();
   }, [router]);
   
   useEffect(() => {
@@ -69,47 +79,32 @@ export default function CustomOrderPage() {
   }, [searchParams]);
 
   const handleOrderSuccess = async (response: CustomOrderOutput) => {
+    if (!user) return;
+
     // Save order
     const ordersRef = ref(db, 'orders');
     const newOrderRef = push(ordersRef);
     const newOrder = {
         id: newOrderRef.key,
-        customer: email.split('@')[0], // Simple name from email
+        customer: user.displayName || user.email.split('@')[0], 
         shop: response.suggestedShop,
         status: 'Pending',
         total: response.estimatedCost,
-        email: email,
+        email: user.email,
         description: description,
         address: address,
         budget: budget,
         additionalNote: additionalNote,
+        userId: user.uid,
     };
     await set(newOrderRef, newOrder);
 
-    // Save or update user
-    const usersRef = ref(db, 'users');
-    const snapshot = await get(usersRef);
-    const users = snapshot.val() || {};
-    
-    let userId = Object.keys(users).find(key => users[key].email === email);
-    
-    if (userId) {
-        // User exists, update their order count
-        const userRef = child(usersRef, userId);
-        const user = users[userId];
-        await update(userRef, { orders: (user.orders || 0) + 1 });
-    } else {
-        // New user
-        const newUserRef = push(usersRef);
-        const newUser = {
-            id: newUserRef.key,
-            name: email.split('@')[0],
-            email: email,
-            orders: 1,
-            role: 'customer' as const,
-            isBanned: false,
-        };
-        await set(newUserRef, newUser);
+    // Update user's order count
+    const userRef = ref(db, `users/${user.uid}`);
+    const snapshot = await get(userRef);
+    if(snapshot.exists()) {
+        const userData = snapshot.val();
+        await update(userRef, { orders: (userData.orders || 0) + 1 });
     }
 
     // Save address in local storage for convenience
@@ -121,11 +116,11 @@ export default function CustomOrderPage() {
     setIsLoading(true);
     setResult(null);
 
-    if (!email) {
+    if (!user) {
         toast({
             variant: 'destructive',
-            title: 'Email Required',
-            description: 'Please enter your email to place an order.',
+            title: 'Not Logged In',
+            description: 'You must be logged in to place an order.',
         });
         setIsLoading(false);
         return;
@@ -157,8 +152,24 @@ export default function CustomOrderPage() {
     }
   };
 
-  if (!isMounted) {
-    return null;
+  if (!isMounted || !user) {
+    return (
+        <div className="container mx-auto px-4 py-8">
+            <div className="max-w-2xl mx-auto">
+                <Card>
+                    <CardHeader>
+                        <Skeleton className="h-8 w-3/4" />
+                        <Skeleton className="h-4 w-1/2" />
+                    </CardHeader>
+                    <CardContent className="space-y-4">
+                        <Skeleton className="h-10 w-full" />
+                        <Skeleton className="h-10 w-full" />
+                        <Skeleton className="h-10 w-full" />
+                    </CardContent>
+                </Card>
+            </div>
+        </div>
+    );
   }
 
   return (
@@ -192,17 +203,6 @@ export default function CustomOrderPage() {
                   onChange={(e) => setDescription(e.target.value)}
                   required
                   rows={4}
-                />
-              </div>
-              <div className="space-y-2">
-                <Label htmlFor="email">Your Email</Label>
-                <Input
-                    id="email"
-                    type="email"
-                    placeholder="e.g., yourname@example.com"
-                    value={email}
-                    onChange={(e) => setEmail(e.target.value)}
-                    required
                 />
               </div>
                <div className="space-y-2">

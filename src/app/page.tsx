@@ -11,29 +11,34 @@ import { Input } from '@/components/ui/input';
 import { useRouter } from 'next/navigation';
 import { useState, useEffect } from 'react';
 import { Label } from '@/components/ui/label';
+import { auth } from '@/lib/firebase';
+import { onAuthStateChanged } from 'firebase/auth';
 
 export default function Home() {
   const [searchQuery, setSearchQuery] = useState('');
   const [budget, setBudget] = useState('');
   const [address, setAddress] = useState('');
   const [showExtraFields, setShowExtraFields] = useState(false);
-  const [isLoggedIn, setIsLoggedIn] = useState(false);
+  const [user, setUser] = useState<any>(null);
   const router = useRouter();
 
   useEffect(() => {
-    const loggedIn = localStorage.getItem('isLoggedIn') === 'true';
-    setIsLoggedIn(loggedIn);
-    if (loggedIn) {
-      const savedAddress = localStorage.getItem('deliveryAddress');
-      if (savedAddress) {
-        setAddress(savedAddress);
+    const unsubscribe = onAuthStateChanged(auth, (currentUser) => {
+      setUser(currentUser);
+      if (currentUser) {
+        const savedAddress = localStorage.getItem('deliveryAddress');
+        if (savedAddress) {
+          setAddress(savedAddress);
+        }
       }
-    }
+    });
+
+    return () => unsubscribe();
   }, []);
 
   const handleSearchSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    if (!isLoggedIn) {
+    if (!user) {
       router.push('/login');
       return;
     }
@@ -51,7 +56,7 @@ export default function Home() {
   };
 
   const handleFocus = () => {
-    if (isLoggedIn) {
+    if (user) {
       setShowExtraFields(true);
     }
   }
@@ -81,7 +86,7 @@ export default function Home() {
               />
             </div>
             
-            {showExtraFields && isLoggedIn && (
+            {showExtraFields && user && (
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-left animate-in fade-in-0 duration-500">
                     <div className="space-y-2">
                         <Label htmlFor="budget" className="flex items-center gap-2"><Wallet className="w-4 h-4" /> Your Budget (Optional)</Label>
@@ -106,9 +111,9 @@ export default function Home() {
                 </div>
             )}
 
-            {(showExtraFields || !isLoggedIn) && (
+            {(showExtraFields || !user) && (
                 <Button type="submit" size="lg" className="w-full">
-                    {isLoggedIn ? 'Submit Custom Order' : 'Place an Order'}
+                    {user ? 'Submit Custom Order' : 'Place an Order'}
                     <Send className="ml-2 h-4 w-4" />
                 </Button>
             )}
