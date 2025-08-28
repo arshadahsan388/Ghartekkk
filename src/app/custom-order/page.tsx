@@ -22,9 +22,11 @@ import {
 } from '@/ai/flows/process-custom-order';
 import { Skeleton } from '@/components/ui/skeleton';
 import { Badge } from '@/components/ui/badge';
+import { useSearchParams } from 'next/navigation';
 
 export default function CustomOrderPage() {
   const { toast } = useToast();
+  const searchParams = useSearchParams();
   const [description, setDescription] = useState('');
   const [budget, setBudget] = useState('');
   const [address, setAddress] = useState('');
@@ -37,7 +39,12 @@ export default function CustomOrderPage() {
     if (savedAddress) {
       setAddress(savedAddress);
     }
-  }, []);
+    
+    const descriptionFromParams = searchParams.get('description');
+    if (descriptionFromParams) {
+        setDescription(descriptionFromParams);
+    }
+  }, [searchParams]);
 
   const handleOrderSuccess = (response: CustomOrderOutput) => {
     // Save order
