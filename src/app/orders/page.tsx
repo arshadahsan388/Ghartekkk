@@ -18,6 +18,8 @@ import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { ArrowRight } from 'lucide-react';
 import Link from 'next/link';
+import { useRouter } from 'next/navigation';
+import { useEffect, useState } from 'react';
 
 const orders = [
   {
@@ -51,6 +53,17 @@ const orders = [
 ];
 
 export default function OrdersPage() {
+  const router = useRouter();
+  const [isMounted, setIsMounted] = useState(false);
+
+  useEffect(() => {
+    setIsMounted(true);
+    const isLoggedIn = localStorage.getItem('isLoggedIn') === 'true';
+    if (!isLoggedIn) {
+      router.push('/login');
+    }
+  }, [router]);
+
   const getStatusBadge = (status: string) => {
     switch (status.toLowerCase()) {
       case 'out for delivery':
@@ -63,6 +76,10 @@ export default function OrdersPage() {
         return 'bg-yellow-500 hover:bg-yellow-600';
     }
   };
+
+  if (!isMounted) {
+    return null;
+  }
 
   return (
     <div className="container mx-auto px-4 py-8">

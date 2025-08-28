@@ -22,11 +22,12 @@ import {
 } from '@/ai/flows/process-custom-order';
 import { Skeleton } from '@/components/ui/skeleton';
 import { Badge } from '@/components/ui/badge';
-import { useSearchParams } from 'next/navigation';
+import { useSearchParams, useRouter } from 'next/navigation';
 
 export default function CustomOrderPage() {
   const { toast } = useToast();
   const searchParams = useSearchParams();
+  const router = useRouter();
   const [description, setDescription] = useState('');
   const [budget, setBudget] = useState('');
   const [address, setAddress] = useState('');
@@ -34,7 +35,16 @@ export default function CustomOrderPage() {
   const [email, setEmail] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const [result, setResult] = useState<CustomOrderOutput | null>(null);
+  const [isMounted, setIsMounted] = useState(false);
 
+  useEffect(() => {
+    setIsMounted(true);
+    const isLoggedIn = localStorage.getItem('isLoggedIn') === 'true';
+    if (!isLoggedIn) {
+      router.push('/login');
+    }
+  }, [router]);
+  
   useEffect(() => {
     const descriptionFromParams = searchParams.get('description');
     const budgetFromParams = searchParams.get('budget');
@@ -131,6 +141,10 @@ export default function CustomOrderPage() {
       setIsLoading(false);
     }
   };
+
+  if (!isMounted) {
+    return null;
+  }
 
   return (
     <div className="container mx-auto px-4 py-8">
@@ -291,5 +305,3 @@ export default function CustomOrderPage() {
     </div>
   );
 }
-
-    

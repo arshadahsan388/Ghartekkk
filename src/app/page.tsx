@@ -5,7 +5,7 @@
 import { Button } from '@/components/ui/button';
 import ShopList from '@/components/shops/ShopList';
 import Link from 'next/link';
-import { ArrowRight, Search, Home as HomeIcon, Wallet, Send } from 'lucide-react';
+import { ArrowRight, Home as HomeIcon, Send, Wallet } from 'lucide-react';
 import AnnouncementBar from '@/components/layout/AnnouncementBar';
 import { Input } from '@/components/ui/input';
 import { useRouter } from 'next/navigation';
@@ -17,17 +17,26 @@ export default function Home() {
   const [budget, setBudget] = useState('');
   const [address, setAddress] = useState('');
   const [showExtraFields, setShowExtraFields] = useState(false);
+  const [isLoggedIn, setIsLoggedIn] = useState(false);
   const router = useRouter();
 
   useEffect(() => {
-    const savedAddress = localStorage.getItem('deliveryAddress');
-    if (savedAddress) {
-      setAddress(savedAddress);
+    const loggedIn = localStorage.getItem('isLoggedIn') === 'true';
+    setIsLoggedIn(loggedIn);
+    if (loggedIn) {
+      const savedAddress = localStorage.getItem('deliveryAddress');
+      if (savedAddress) {
+        setAddress(savedAddress);
+      }
     }
   }, []);
 
   const handleSearchSubmit = (e: React.FormEvent) => {
     e.preventDefault();
+    if (!isLoggedIn) {
+      router.push('/login');
+      return;
+    }
     if (searchQuery.trim()) {
       const params = new URLSearchParams();
       params.set('description', searchQuery);
@@ -40,6 +49,12 @@ export default function Home() {
       router.push(`/custom-order?${params.toString()}`);
     }
   };
+
+  const handleFocus = () => {
+    if (isLoggedIn) {
+      setShowExtraFields(true);
+    }
+  }
 
   return (
     <>
@@ -62,11 +77,11 @@ export default function Home() {
                 className="h-12 text-base"
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
-                onFocus={() => setShowExtraFields(true)}
+                onFocus={handleFocus}
               />
             </div>
             
-            {showExtraFields && (
+            {showExtraFields && isLoggedIn && (
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-left animate-in fade-in-0 duration-500">
                     <div className="space-y-2">
                         <Label htmlFor="budget" className="flex items-center gap-2"><Wallet className="w-4 h-4" /> Your Budget (Optional)</Label>
@@ -91,9 +106,9 @@ export default function Home() {
                 </div>
             )}
 
-            {showExtraFields && (
+            {(showExtraFields || !isLoggedIn) && (
                 <Button type="submit" size="lg" className="w-full">
-                    Submit Custom Order
+                    {isLoggedIn ? 'Submit Custom Order' : 'Place an Order'}
                     <Send className="ml-2 h-4 w-4" />
                 </Button>
             )}

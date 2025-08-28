@@ -12,7 +12,7 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from '../ui/dropdown-menu';
-import { LogOut, Package, User, ShoppingBag, Shield } from 'lucide-react';
+import { LogOut, Package, User, ShoppingBag, Shield, LogIn, UserPlus } from 'lucide-react';
 import Logo from '../icons/Logo';
 import { usePathname, useRouter } from 'next/navigation';
 import { useEffect, useState } from 'react';
@@ -120,7 +120,16 @@ export default function Header() {
             </DropdownMenu>
           ) : (
             <div className="space-x-2">
-             {/* Login and signup buttons removed as requested */}
+              <Button asChild variant="ghost">
+                <Link href="/login">
+                  <LogIn className="mr-2 h-4 w-4" /> Login
+                </Link>
+              </Button>
+              <Button asChild>
+                <Link href="/signup">
+                  <UserPlus className="mr-2 h-4 w-4" /> Sign Up
+                </Link>
+              </Button>
             </div>
           )}
         </div>
