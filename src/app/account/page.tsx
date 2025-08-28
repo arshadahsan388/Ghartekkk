@@ -12,7 +12,7 @@ export default function AccountPage() {
   const [address, setAddress] = useState('');
 
   useEffect(() => {
-    const savedAddress = localStorage.getItem('deliveryAddress') || 'House 123, Street 4, Vehari';
+    const savedAddress = localStorage.getItem('deliveryAddress') || 'Vehari, Pakistan';
     setAddress(savedAddress);
   }, []);
 
