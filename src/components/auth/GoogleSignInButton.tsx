@@ -28,7 +28,18 @@ export default function GoogleSignInButton() {
       // Check if user exists in the database
       const userRef = ref(db);
       const snapshot = await get(child(userRef, `users/${user.uid}`));
-      if (!snapshot.exists()) {
+      if (snapshot.exists()) {
+        const userData = snapshot.val();
+        if (userData.isBanned) {
+            toast({
+                variant: 'destructive',
+                title: 'Account Banned',
+                description: 'Your account has been banned. Please contact support.',
+            });
+            await auth.signOut();
+            return;
+        }
+      } else {
         // New user, save their data
          await set(ref(db, 'users/' + user.uid), {
             id: user.uid,

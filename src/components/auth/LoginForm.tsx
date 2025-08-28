@@ -1,3 +1,4 @@
+
 'use client';
 
 import { zodResolver } from '@hookform/resolvers/zod';
@@ -49,6 +50,15 @@ export default function LoginForm() {
       const snapshot = await get(child(userRef, `users/${user.uid}`));
       if (snapshot.exists()) {
         const userData = snapshot.val();
+        if (userData.isBanned) {
+            toast({
+                variant: 'destructive',
+                title: 'Account Banned',
+                description: 'Your account has been banned. Please contact support.',
+            });
+            await auth.signOut();
+            return;
+        }
         if (userData.role === 'admin') {
           toast({
             title: 'Admin Login Successful',
@@ -74,11 +84,19 @@ export default function LoginForm() {
 
     } catch (error: any) {
        console.error("Login error:", error);
-       toast({
-        variant: 'destructive',
-        title: 'Login Failed',
-        description: error.message || 'Incorrect email or password.',
-      });
+       if (error.code === 'auth/invalid-credential' || error.code === 'auth/wrong-password' || error.code === 'auth/user-not-found') {
+            toast({
+                variant: 'destructive',
+                title: 'Login Failed',
+                description: 'Incorrect email or password. Please try again.',
+            });
+       } else {
+            toast({
+                variant: 'destructive',
+                title: 'Login Failed',
+                description: error.message || 'An unexpected error occurred.',
+            });
+       }
     }
   }
 
