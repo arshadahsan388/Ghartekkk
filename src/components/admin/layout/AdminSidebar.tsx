@@ -78,13 +78,13 @@ export function AdminSidebar() {
         }
     });
 
-    // Listen for unread orders
+    // Listen for active orders
     const ordersRef = ref(db, 'orders');
-    const unreadOrdersQuery = query(ordersRef, orderByChild('isRead'), equalTo(false));
-    const unsubscribeOrders = onValue(unreadOrdersQuery, (snapshot) => {
+    const unsubscribeOrders = onValue(ordersRef, (snapshot) => {
         let count = 0;
         snapshot.forEach(childSnapshot => {
-            if (childSnapshot.val().status !== 'Delivered') {
+            const order = childSnapshot.val();
+            if (order.status !== 'Delivered' && order.status !== 'Cancelled' && order.status !== 'Rejected') {
                 count++;
             }
         });

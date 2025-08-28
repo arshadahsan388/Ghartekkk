@@ -14,6 +14,7 @@ import {
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
+import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import { WandSparkles, Send, ShoppingCart, Store } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import {
@@ -28,6 +29,10 @@ import { ref, push, get, child, update, set } from "firebase/database";
 import { onAuthStateChanged } from 'firebase/auth';
 import { getNextOrderId } from '@/lib/order-helpers';
 
+const NORMAL_DELIVERY_FEE = 50;
+const FAST_DELIVERY_FEE = 70;
+
+
 export default function CustomOrderPage() {
   const { toast } = useToast();
   const searchParams = useSearchParams();
@@ -37,6 +42,7 @@ export default function CustomOrderPage() {
   const [budget, setBudget] = useState('');
   const [address, setAddress] = useState('');
   const [additionalNote, setAdditionalNote] = useState('');
+  const [deliverySpeed, setDeliverySpeed] = useState('normal');
   const [isLoading, setIsLoading] = useState(false);
   const [result, setResult] = useState<CustomOrderOutput | null>(null);
   const [isMounted, setIsMounted] = useState(false);
@@ -93,18 +99,23 @@ export default function CustomOrderPage() {
     // Save order
     const ordersRef = ref(db, 'orders');
     const newOrderRef = push(ordersRef); // Still use push for unique key
+
+    const deliveryFee = deliverySpeed === 'fast' ? FAST_DELIVERY_FEE : NORMAL_DELIVERY_FEE;
+    const total = response.estimatedCost + deliveryFee;
+
     const newOrder = {
         id: newOrderRef.key,
         displayId: displayId,
         customer: user.displayName || user.email.split('@')[0], 
         shop: shopName || "Custom Order",
         status: 'Pending',
-        total: response.estimatedCost,
+        total: total,
         email: user.email,
         description: description,
         address: address,
         budget: Number(budget),
         additionalNote: additionalNote,
+        deliverySpeed: deliverySpeed,
         userId: user.uid,
         isRead: false,
         date: new Date().toISOString(),
@@ -264,12 +275,35 @@ export default function CustomOrderPage() {
                   />
                 </div>
               </div>
+               <div className="space-y-2">
+                <Label>Delivery Speed</Label>
+                <RadioGroup
+                    defaultValue="normal"
+                    className="flex flex-col space-y-2 pt-1"
+                    value={deliverySpeed}
+                    onValueChange={setDeliverySpeed}
+                >
+                    <div className="flex items-center space-x-2">
+                        <RadioGroupItem value="normal" id="normal" />
+                        <Label htmlFor="normal" className="flex flex-col gap-0.5 w-full cursor-pointer">
+                            <span>Normal</span>
+                            <span className="text-xs text-muted-foreground">
+                                Rs. {NORMAL_DELIVERY_FEE} &bull; ~40 mins
+                            </span>
+                        </Label>
+                    </div>
+                    <div className="flex items-center space-x-2">
+                        <RadioGroupItem value="fast" id="fast" />
+                        <Label htmlFor="fast" className="flex flex-col gap-0.5 w-full cursor-pointer">
+                            <span>Fast</span>
+                            <span className="text-xs text-muted-foreground">Rs. {FAST_DELIVERY_FEE} &bull; ~20 mins</span>
+                        </Label>
+                    </div>
+                </RadioGroup>
+              </div>
             </CardContent>
-            <CardFooter className="flex justify-between items-center bg-muted/50 p-4 rounded-b-lg">
-                <div>
-                    <span className="text-xs text-muted-foreground flex items-center gap-1"><WandSparkles className="w-3 h-3" /> Powered by AI</span>
-                </div>
-              <Button type="submit" disabled={isLoading}>
+            <CardFooter className="bg-muted/50 p-4 rounded-b-lg">
+              <Button type="submit" disabled={isLoading} className="w-full">
                 {isLoading ? 'Processing...' : 'Submit Order'}
                 <Send className="ml-2 h-4 w-4" />
               </Button>
