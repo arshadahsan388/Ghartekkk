@@ -142,7 +142,7 @@ export default function AccountPage() {
         <Card>
             <CardHeader>
                 <CardTitle>Personal Information</CardTitle>
-                <CardDescription>Update your display name and email address.</CardDescription>
+                <CardDescription>Update your display name, email, and default address.</CardDescription>
             </CardHeader>
             <CardContent className="space-y-4">
                 <div className="space-y-2">
@@ -178,6 +178,23 @@ export default function AccountPage() {
                     </div>
                      <p className="text-xs text-muted-foreground">Email address cannot be changed.</p>
                 </div>
+                <Separator />
+                <div className="space-y-2 pt-2">
+                    <Label htmlFor="address">Default Delivery Address</Label>
+                    <div className="flex gap-2">
+                        <div className="relative w-full">
+                        <Home className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+                            <Input 
+                                id="address" 
+                                placeholder="e.g., House 123, Street 4, Vehari" 
+                                value={address}
+                                onChange={(e) => setAddress(e.target.value)}
+                                className="pl-9"
+                            />
+                        </div>
+                        <Button onClick={handleSaveAddress}><Save className="mr-2 h-4 w-4" /> Save</Button>
+                    </div>
+                </div>
             </CardContent>
         </Card>
         
@@ -202,10 +219,9 @@ export default function AccountPage() {
         <Card>
           <CardHeader>
             <CardTitle>App Settings</CardTitle>
-            <CardDescription>Navigate to other parts of the app or manage your address.</CardDescription>
+            <CardDescription>Navigate to other parts of the app.</CardDescription>
           </CardHeader>
-          <CardContent className="space-y-4">
-              <div className="space-y-2">
+          <CardContent className="space-y-2">
                 <Link href="/orders" className="flex items-center gap-2 p-3 rounded-lg hover:bg-muted transition-colors">
                     <Package className="w-5 h-5 text-muted-foreground" />
                     <span>My Orders</span>
@@ -214,24 +230,6 @@ export default function AccountPage() {
                     <LifeBuoy className="w-5 h-5 text-muted-foreground" />
                     <span>Support Chat</span>
                 </Link>
-              </div>
-              <Separator />
-               <div className="space-y-2 pt-2">
-                <Label htmlFor="address">Default Delivery Address</Label>
-                 <div className="flex gap-2">
-                    <div className="relative w-full">
-                       <Home className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-                        <Input 
-                            id="address" 
-                            placeholder="e.g., House 123, Street 4, Vehari" 
-                            value={address}
-                            onChange={(e) => setAddress(e.target.value)}
-                            className="pl-9"
-                        />
-                    </div>
-                    <Button onClick={handleSaveAddress}><Save className="mr-2 h-4 w-4" /> Save</Button>
-                </div>
-              </div>
           </CardContent>
         </Card>
         

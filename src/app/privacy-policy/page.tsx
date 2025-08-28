@@ -1,10 +1,11 @@
+
 export default function PrivacyPolicyPage() {
   return (
     <div className="container mx-auto px-4 py-12">
       <div className="max-w-3xl mx-auto bg-card p-8 rounded-lg shadow-lg">
         <h1 className="text-4xl font-bold mb-6 font-headline text-primary">Privacy Policy</h1>
         <div className="prose dark:prose-invert max-w-none space-y-4">
-          <p>Last updated: July 29, 2024</p>
+          <p>Last updated: July 30, 2024</p>
 
           <p>
             This Privacy Policy describes Our policies and procedures on the
@@ -32,7 +33,7 @@ export default function PrivacyPolicyPage() {
             </li>
             <li>
               <strong>Company</strong> (referred to as either "the Company",
-              "We", "Us" or "Our" in this Agreement) refers to Pak Delivers.
+              "We", "Us" or "Our" in this Agreement) refers to GharTek.
             </li>
             <li>
               <strong>Cookies</strong> are small files that are placed on Your
@@ -47,6 +48,9 @@ export default function PrivacyPolicyPage() {
               <strong>Personal Data</strong> is any information that relates to
               an identified or identifiable individual.
             </li>
+             <li>
+              <strong>Service</strong> refers to the GharTek application.
+            </li>
           </ul>
 
           <h2 className="text-2xl font-semibold mt-6">Collecting and Using Your Personal Data</h2>
@@ -54,7 +58,7 @@ export default function PrivacyPolicyPage() {
             While using Our Service, We may ask You to provide Us with certain
             personally identifiable information that can be used to contact or
             identify You. Personally identifiable information may include, but is
-            not limited to, your name, email address, and delivery address.
+            not limited to, your name, email address, and delivery address. This information is used solely for the purpose of fulfilling your orders and improving our service.
           </p>
 
            <h2 className="text-2xl font-semibold mt-6">Changes to this Privacy Policy</h2>
@@ -71,7 +75,7 @@ export default function PrivacyPolicyPage() {
             us:
           </p>
           <ul>
-            <li>By email: contact@pakdelivers.com</li>
+            <li>By email: contact@ghartek.com</li>
           </ul>
         </div>
       </div>

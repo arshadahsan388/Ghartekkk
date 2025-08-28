@@ -5,6 +5,9 @@ import { db } from '@/lib/firebase';
 import { ref, onValue } from 'firebase/database';
 import { useEffect, useState } from 'react';
 import { Skeleton } from '../ui/skeleton';
+import { Input } from '../ui/input';
+import { Search } from 'lucide-react';
+import CategoryNav from './CategoryNav';
 
 type Shop = {
   id: string;
@@ -17,9 +20,11 @@ type Shop = {
 };
 
 export default function ShopList() {
-  const [shops, setShops] = useState<Shop[]>([]);
+  const [allShops, setAllShops] = useState<Shop[]>([]);
+  const [filteredShops, setFilteredShops] = useState<Shop[]>([]);
   const [categories, setCategories] = useState<string[]>([]);
   const [isLoading, setIsLoading] = useState(true);
+  const [searchQuery, setSearchQuery] = useState('');
 
   useEffect(() => {
     const shopsRef = ref(db, 'shops');
@@ -28,7 +33,9 @@ export default function ShopList() {
     const unsubscribeShops = onValue(shopsRef, (snapshot) => {
         const data = snapshot.val();
         if (data) {
-            setShops(Object.values(data));
+            const shopList = Object.values(data);
+            setAllShops(shopList);
+            setFilteredShops(shopList);
         }
         setIsLoading(false);
     });
@@ -46,9 +53,18 @@ export default function ShopList() {
     }
   }, []);
 
+  useEffect(() => {
+    const lowercasedQuery = searchQuery.toLowerCase();
+    const filtered = allShops.filter(shop => 
+        shop.name.toLowerCase().includes(lowercasedQuery)
+    );
+    setFilteredShops(filtered);
+  }, [searchQuery, allShops]);
+
   if (isLoading) {
     return (
         <div className="space-y-12">
+            <Skeleton className="h-12 w-full mb-6" />
             {[...Array(2)].map((_, i) => (
                 <div key={i}>
                     <Skeleton className="h-10 w-1/4 mb-6" />
@@ -63,27 +79,58 @@ export default function ShopList() {
     );
   }
 
+  const shopsByCategory = categories.map(category => ({
+      category,
+      shops: filteredShops
+        .filter(shop => shop.category === category)
+        .sort((a,b) => b.rating - a.rating) // Sort by rating
+        .slice(0, searchQuery ? undefined : 3) // Show top 3 unless searching
+  })).filter(group => group.shops.length > 0);
+
 
   return (
-    <div className="space-y-12">
-      {categories.map(category => (
-        <div key={category} id={category.replace(/\s+/g, '-')}>
-          <div className="mb-6">
-            <h2 className="text-3xl sm:text-4xl font-bold font-headline">{category}</h2>
-            <p className="text-muted-foreground mt-1">Find the best {category.toLowerCase()} options in town.</p>
-          </div>
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-            {shops
-              .filter(shop => shop.category === category)
-              .map((shop) => (
-                <ShopCard
-                  key={shop.id}
-                  shop={shop}
+    <div className="space-y-8">
+        <div className="space-y-4">
+            <CategoryNav />
+             <div className="relative">
+                <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-muted-foreground" />
+                <Input
+                    type="search"
+                    placeholder="Search all shops..."
+                    className="pl-10 h-12"
+                    value={searchQuery}
+                    onChange={(e) => setSearchQuery(e.target.value)}
                 />
-              ))}
-          </div>
+            </div>
         </div>
-      ))}
+
+        <div className="space-y-12">
+        {shopsByCategory.map(({ category, shops }) => (
+            <div key={category} id={category.replace(/\s+/g, '-')}>
+            <div className="mb-6">
+                <h2 className="text-3xl sm:text-4xl font-bold font-headline">{category}</h2>
+                 {searchQuery ? (
+                    <p className="text-muted-foreground mt-1">Showing search results for "{searchQuery}" in {category}.</p>
+                 ) : (
+                    <p className="text-muted-foreground mt-1">Top-rated {category.toLowerCase()} options in town.</p>
+                 )}
+            </div>
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+                {shops.map((shop) => (
+                    <ShopCard
+                    key={shop.id}
+                    shop={shop}
+                    />
+                ))}
+            </div>
+            </div>
+        ))}
+         {shopsByCategory.length === 0 && !isLoading && (
+            <div className="text-center py-16">
+                <p className="text-lg text-muted-foreground">No shops found matching your search.</p>
+            </div>
+        )}
+        </div>
     </div>
   );
 }
