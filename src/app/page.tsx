@@ -36,7 +36,6 @@ export default function Home() {
   const [searchQuery, setSearchQuery] = useState('');
   const [budget, setBudget] = useState('');
   const [address, setAddress] = useState('');
-  const [showExtraFields, setShowExtraFields] = useState(false);
   const [user, setUser] = useState<any>(null);
   const router = useRouter();
   const { toast } = useToast();
@@ -122,7 +121,6 @@ export default function Home() {
   };
 
   const handleFocus = () => {
-    setShowExtraFields(true);
     if(suggestions.length > 0) {
         setShowSuggestions(true);
     }
@@ -182,36 +180,34 @@ export default function Home() {
               )}
             </div>
             
-            {showExtraFields && (
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-4 text-left animate-in fade-in-0 duration-500">
-                    <div className="space-y-2">
-                        <Label htmlFor="budget" className="flex items-center gap-2"><Wallet className="w-4 h-4" /> Budget (Optional)</Label>
-                        <Input 
-                            id="budget"
-                            type="number"
-                            placeholder="e.g., 1000"
-                            value={budget}
-                            onChange={(e) => setBudget(e.target.value)}
-                        />
-                    </div>
-                     <div className="space-y-2">
-                        <Label htmlFor="address" className="flex items-center gap-2"><HomeIcon className="w-4 h-4" /> Address</Label>
-                        <Input 
-                            id="address"
-                            placeholder="e.g., Vehari"
-                            value={address}
-                            onChange={(e) => setAddress(e.target.value)}
-                            required
-                        />
-                    </div>
-                    <div className="space-y-2 self-end">
-                        <Button type="submit" size="lg" className="w-full h-10">
-                            Submit
-                            <Send className="ml-2 h-4 w-4" />
-                        </Button>
-                    </div>
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-4 text-left">
+                <div className="space-y-2">
+                    <Label htmlFor="budget" className="flex items-center gap-2"><Wallet className="w-4 h-4" /> Budget (Optional)</Label>
+                    <Input 
+                        id="budget"
+                        type="number"
+                        placeholder="e.g., 1000"
+                        value={budget}
+                        onChange={(e) => setBudget(e.target.value)}
+                    />
                 </div>
-            )}
+                 <div className="space-y-2">
+                    <Label htmlFor="address" className="flex items-center gap-2"><HomeIcon className="w-4 h-4" /> Address</Label>
+                    <Input 
+                        id="address"
+                        placeholder="e.g., Vehari"
+                        value={address}
+                        onChange={(e) => setAddress(e.target.value)}
+                        required
+                    />
+                </div>
+                <div className="space-y-2 self-end">
+                    <Button type="submit" size="lg" className="w-full h-10">
+                        Submit
+                        <Send className="ml-2 h-4 w-4" />
+                    </Button>
+                </div>
+            </div>
 
           </form>
         </div>
