@@ -15,6 +15,7 @@ import {
   LayoutGrid,
   PackageCheck,
   Signal,
+  MessageSquare,
 } from 'lucide-react';
 import { Sheet, SheetContent, SheetTrigger } from '@/components/ui/sheet';
 import { Button } from '@/components/ui/button';
@@ -48,6 +49,7 @@ const mainNavItems = [
     { href: "/admin/shops", label: "Shops", icon: Store },
     { href: "/admin/shop-categories", label: "Categories", icon: LayoutGrid },
     { href: "/admin/reviews", label: "Reviews", icon: Star },
+    { href: "/admin/support", label: "Support Chat", icon: MessageSquare },
     { href: "/admin/announcements", label: "Announcements", icon: Megaphone },
     { href: "/admin/alerts", label: "Alerts", icon: Siren },
 ];

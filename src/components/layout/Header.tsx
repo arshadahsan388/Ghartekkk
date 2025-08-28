@@ -12,7 +12,7 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from '../ui/dropdown-menu';
-import { LogOut, Package, User, ShoppingBag, LogIn, UserPlus } from 'lucide-react';
+import { LogOut, Package, User, ShoppingBag, LogIn, UserPlus, LifeBuoy } from 'lucide-react';
 import Logo from '../icons/Logo';
 import { usePathname, useRouter } from 'next/navigation';
 import { useEffect, useState } from 'react';
@@ -72,6 +72,10 @@ export default function Header() {
              <Link href="/orders" className="flex items-center gap-1 text-muted-foreground hover:text-primary transition-colors">
                 <ShoppingBag className="h-4 w-4"/>
                 My Orders
+            </Link>
+             <Link href="/support" className="flex items-center gap-1 text-muted-foreground hover:text-primary transition-colors">
+                <LifeBuoy className="h-4 w-4"/>
+                Support
             </Link>
         </nav>
 
