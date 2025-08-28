@@ -4,7 +4,7 @@
 import { Button } from '@/components/ui/button';
 import ShopList from '@/components/shops/ShopList';
 import Link from 'next/link';
-import { ArrowRight, Home as HomeIcon, Send, Wallet, Loader2 } from 'lucide-react';
+import { ArrowRight, Home as HomeIcon, Send, Wallet, Loader2, Store } from 'lucide-react';
 import { Input } from '@/components/ui/input';
 import { useRouter } from 'next/navigation';
 import { useState, useEffect, useCallback, useRef } from 'react';
@@ -34,6 +34,7 @@ const debounce = <F extends (...args: any[]) => any>(func: F, waitFor: number) =
 
 export default function Home() {
   const [searchQuery, setSearchQuery] = useState('');
+  const [shopName, setShopName] = useState('');
   const [budget, setBudget] = useState('');
   const [address, setAddress] = useState('');
   const [user, setUser] = useState<any>(null);
@@ -110,6 +111,9 @@ export default function Home() {
     if (searchQuery.trim()) {
       const params = new URLSearchParams();
       params.set('description', searchQuery);
+      if (shopName) {
+        params.set('shopName', shopName);
+      }
       if (budget) {
         params.set('budget', budget);
       }
@@ -151,7 +155,7 @@ export default function Home() {
             Grocery, dawai, ya aap ka pasandeeda khana. Bas humain batain aap ko
             kya chahiye.
           </p>
-          <form onSubmit={handleSearchSubmit} className="mt-8 max-w-xl mx-auto space-y-4">
+          <form onSubmit={handleSearchSubmit} className="mt-8 max-w-2xl mx-auto space-y-4">
              <div className="relative w-full" ref={suggestionsRef}>
               <Input
                 type="text"
@@ -161,6 +165,7 @@ export default function Home() {
                 onChange={handleSearchChange}
                 onFocus={handleFocus}
                 autoComplete="off"
+                required
               />
                {isSuggesting && <Loader2 className="animate-spin absolute right-3 top-3.5 text-muted-foreground" />}
               {showSuggestions && suggestions.length > 0 && (
@@ -180,7 +185,17 @@ export default function Home() {
               )}
             </div>
             
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-4 text-left">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-left">
+                <div className="space-y-2">
+                    <Label htmlFor="shopName" className="flex items-center gap-2"><Store className="w-4 h-4" /> Shop (Optional)</Label>
+                    <Input 
+                        id="shopName"
+                        type="text"
+                        placeholder="e.g., Al-Madina Restaurant"
+                        value={shopName}
+                        onChange={(e) => setShopName(e.target.value)}
+                    />
+                </div>
                 <div className="space-y-2">
                     <Label htmlFor="budget" className="flex items-center gap-2"><Wallet className="w-4 h-4" /> Budget (Optional)</Label>
                     <Input 

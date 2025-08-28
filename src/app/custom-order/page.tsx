@@ -60,11 +60,15 @@ export default function CustomOrderPage() {
   
   useEffect(() => {
     const descriptionFromParams = searchParams.get('description');
+    const shopNameFromParams = searchParams.get('shopName');
     const budgetFromParams = searchParams.get('budget');
     const addressFromParams = searchParams.get('address');
     
     if (descriptionFromParams) {
         setDescription(descriptionFromParams);
+    }
+    if (shopNameFromParams) {
+      setShopName(shopNameFromParams);
     }
     if (budgetFromParams) {
         setBudget(budgetFromParams);
