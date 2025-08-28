@@ -3,49 +3,21 @@
 
 import { Button } from '@/components/ui/button';
 import ShopList from '@/components/shops/ShopList';
-import Link from 'next/link';
-import { ArrowRight, Home as HomeIcon, Wallet, Loader2, Store } from 'lucide-react';
+import { ArrowRight, Home as HomeIcon, Store } from 'lucide-react';
 import { Input } from '@/components/ui/input';
 import { useRouter } from 'next/navigation';
-import { useState, useEffect, useCallback, useRef } from 'react';
+import { useState, useEffect } from 'react';
 import { Label } from '@/components/ui/label';
 import { auth } from '@/lib/firebase';
 import { onAuthStateChanged } from 'firebase/auth';
 import AnnouncementBar from '@/components/layout/AnnouncementBar';
-import { getSearchSuggestions } from '@/ai/flows/get-search-suggestions';
-import { useToast } from '@/hooks/use-toast';
-import { Card } from '@/components/ui/card';
-import CategoryNav from '@/components/shops/CategoryNav';
-
-// Debounce function
-const debounce = <F extends (...args: any[]) => any>(func: F, waitFor: number) => {
-  let timeout: ReturnType<typeof setTimeout> | null = null;
-
-  return (...args: Parameters<F>): Promise<ReturnType<F>> =>
-    new Promise(resolve => {
-      if (timeout) {
-        clearTimeout(timeout);
-      }
-
-      timeout = setTimeout(() => resolve(func(...args)), waitFor);
-    });
-};
-
 
 export default function Home() {
   const [searchQuery, setSearchQuery] = useState('');
   const [shopName, setShopName] = useState('');
-  const [budget, setBudget] = useState('');
   const [address, setAddress] = useState('');
   const [user, setUser] = useState<any>(null);
   const router = useRouter();
-  const { toast } = useToast();
-  const [suggestions, setSuggestions] = useState<string[]>([]);
-  const [isSuggesting, setIsSuggesting] = useState(false);
-  const [showSuggestions, setShowSuggestions] = useState(false);
-  const suggestionsRef = useRef<HTMLDivElement>(null);
-  const isTyping = useRef(false);
-
 
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, (currentUser) => {
@@ -57,50 +29,8 @@ export default function Home() {
         }
       }
     });
-
-    // Hide suggestions when clicking outside
-    const handleClickOutside = (event: MouseEvent) => {
-      if (suggestionsRef.current && !suggestionsRef.current.contains(event.target as Node)) {
-        setShowSuggestions(false);
-      }
-    };
-    document.addEventListener('mousedown', handleClickOutside);
-
-    return () => {
-        unsubscribe();
-        document.removeEventListener('mousedown', handleClickOutside);
-    };
+    return () => unsubscribe();
   }, []);
-
-  const debouncedGetSuggestions = useCallback(
-    debounce(async (query: string) => {
-      if (query.length < 3) {
-        setSuggestions([]);
-        return;
-      }
-      setIsSuggesting(true);
-      try {
-        const result = await getSearchSuggestions({ query });
-        setSuggestions(result.suggestions);
-        setShowSuggestions(true);
-      } catch (error) {
-        console.error("Failed to get suggestions", error);
-        toast({ variant: 'destructive', title: 'Could not fetch suggestions' });
-      } finally {
-        setIsSuggesting(false);
-      }
-    }, 500),
-    [toast]
-  );
-  
-   useEffect(() => {
-    if (searchQuery && isTyping.current) {
-      debouncedGetSuggestions(searchQuery);
-    } else {
-      setSuggestions([]);
-      setShowSuggestions(false);
-    }
-  }, [searchQuery, debouncedGetSuggestions]);
 
   const handleSearchSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -114,33 +44,12 @@ export default function Home() {
       if (shopName) {
         params.set('shopName', shopName);
       }
-      if (budget) {
-        params.set('budget', budget);
-      }
       if (address) {
         params.set('address', address);
       }
       router.push(`/custom-order?${params.toString()}`);
     }
   };
-
-  const handleFocus = () => {
-    if(suggestions.length > 0) {
-        setShowSuggestions(true);
-    }
-  }
-  
-  const handleSuggestionClick = (suggestion: string) => {
-    isTyping.current = false;
-    setSearchQuery(suggestion);
-    setSuggestions([]);
-    setShowSuggestions(false);
-  }
-  
-  const handleSearchChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    isTyping.current = true;
-    setSearchQuery(e.target.value);
-  }
 
   return (
     <>
@@ -155,33 +64,16 @@ export default function Home() {
             kya chahiye.
           </p>
           <form onSubmit={handleSearchSubmit} className="mt-8 max-w-2xl mx-auto space-y-4">
-             <div className="relative w-full" ref={suggestionsRef}>
+             <div className="relative w-full">
               <Input
                 type="text"
                 placeholder="e.g., 'A box of Panadol and some fresh bread'"
                 className="h-12 text-base"
                 value={searchQuery}
-                onChange={handleSearchChange}
-                onFocus={handleFocus}
+                onChange={(e) => setSearchQuery(e.target.value)}
                 autoComplete="off"
                 required
               />
-               {isSuggesting && <Loader2 className="animate-spin absolute right-3 top-3.5 text-muted-foreground" />}
-              {showSuggestions && suggestions.length > 0 && (
-                <Card className="absolute top-full mt-2 w-full z-10 shadow-lg text-left">
-                  <ul className="p-2">
-                    {suggestions.map((suggestion, index) => (
-                      <li
-                        key={index}
-                        onClick={() => handleSuggestionClick(suggestion)}
-                        className="px-3 py-2 rounded-md hover:bg-muted cursor-pointer"
-                      >
-                        {suggestion}
-                      </li>
-                    ))}
-                  </ul>
-                </Card>
-              )}
             </div>
             
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-left">
@@ -195,16 +87,6 @@ export default function Home() {
                         onChange={(e) => setShopName(e.target.value)}
                     />
                 </div>
-                <div className="space-y-2">
-                    <Label htmlFor="budget" className="flex items-center gap-2"><Wallet className="w-4 h-4" /> Budget (Optional)</Label>
-                    <Input 
-                        id="budget"
-                        type="number"
-                        placeholder="e.g., 1000"
-                        value={budget}
-                        onChange={(e) => setBudget(e.target.value)}
-                    />
-                </div>
                  <div className="space-y-2">
                     <Label htmlFor="address" className="flex items-center gap-2"><HomeIcon className="w-4 h-4" /> Address</Label>
                     <Input 
@@ -215,7 +97,7 @@ export default function Home() {
                         required
                     />
                 </div>
-                <div className="space-y-2 self-end">
+                <div className="space-y-2 self-end md:col-span-2">
                     <Button type="submit" size="lg" className="w-full h-10">
                         Next
                         <ArrowRight className="ml-2 h-4 w-4" />
