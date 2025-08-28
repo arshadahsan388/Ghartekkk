@@ -35,14 +35,23 @@ export default function CustomOrderPage() {
   const [result, setResult] = useState<CustomOrderOutput | null>(null);
 
   useEffect(() => {
-    const savedAddress = localStorage.getItem('deliveryAddress');
-    if (savedAddress) {
-      setAddress(savedAddress);
-    }
-    
     const descriptionFromParams = searchParams.get('description');
+    const budgetFromParams = searchParams.get('budget');
+    const addressFromParams = searchParams.get('address');
+    
     if (descriptionFromParams) {
         setDescription(descriptionFromParams);
+    }
+    if (budgetFromParams) {
+        setBudget(budgetFromParams);
+    }
+     if (addressFromParams) {
+      setAddress(addressFromParams);
+    } else {
+      const savedAddress = localStorage.getItem('deliveryAddress');
+      if (savedAddress) {
+        setAddress(savedAddress);
+      }
     }
   }, [searchParams]);
 
