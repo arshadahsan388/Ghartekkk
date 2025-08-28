@@ -1,4 +1,6 @@
 
+'use client';
+
 import { Button } from "@/components/ui/button";
 import { auth, db } from "@/lib/firebase";
 import { GoogleAuthProvider, signInWithPopup, fetchSignInMethodsForEmail } from "firebase/auth";
@@ -30,16 +32,14 @@ export default function GoogleSignInButton() {
           throw new Error("Could not retrieve email from Google account.");
       }
 
-      // Check if the user is banned
-      const usersRef = ref(db, 'users');
-      const q = query(usersRef, orderByChild('email'), equalTo(user.email));
-      const snapshot = await get(q);
-
-      if (snapshot.exists()) {
-        const usersData = snapshot.val();
-        const existingUser = Object.values(usersData)[0] as any;
-        if (existingUser.isBanned) {
-          toast({
+      const userRef = ref(db, `users/${user.uid}`);
+      const userSnapshot = await get(userRef);
+      
+      let userData;
+      if (userSnapshot.exists()) {
+        userData = userSnapshot.val();
+        if (userData.isBanned) {
+            toast({
               variant: 'destructive',
               title: 'Account Banned',
               description: 'This account has been banned. Please contact support.',
@@ -47,15 +47,6 @@ export default function GoogleSignInButton() {
           await auth.signOut();
           return;
         }
-      }
-
-      // Check if user exists in Auth, if so, just proceed
-      const userAuthRef = ref(db, `users/${user.uid}`);
-      const userAuthSnapshot = await get(userAuthRef);
-      
-      let userData;
-      if (userAuthSnapshot.exists()) {
-        userData = userAuthSnapshot.val();
       } else {
         // New user, save their data
         userData = {

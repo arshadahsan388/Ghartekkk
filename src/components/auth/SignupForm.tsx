@@ -48,29 +48,14 @@ export default function SignupForm() {
 
   async function onSubmit(values: z.infer<typeof formSchema>) {
     try {
-      // Check if a user with this email is banned
-      const usersRef = ref(db, 'users');
-      const q = query(usersRef, orderByChild('email'), equalTo(values.email));
-      const snapshot = await get(q);
-
-      if (snapshot.exists()) {
-        const usersData = snapshot.val();
-        const user = Object.values(usersData)[0] as any;
-        if (user.isBanned) {
-          toast({
-            variant: 'destructive',
-            title: 'Signup Failed',
-            description: 'This email is associated with a banned account.',
-          });
-          return;
-        }
-      }
-
-
       const userCredential = await createUserWithEmailAndPassword(auth, values.email, values.password);
       const user = userCredential.user;
       
-      await sendEmailVerification(user);
+      try {
+        await sendEmailVerification(user);
+      } catch (e) {
+        console.warn("Could not send verification email", e);
+      }
 
       // Save user data to Realtime Database
       await set(ref(db, 'users/' + user.uid), {
