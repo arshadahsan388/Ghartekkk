@@ -1,18 +1,18 @@
 
-
 'use client';
 
 import { useEffect, useState, useRef } from 'react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
-import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Avatar, AvatarFallback } from '@/components/ui/avatar';
 import { Send, User } from 'lucide-react';
 import { auth, db } from '@/lib/firebase';
 import { ref, onValue, push, set, serverTimestamp, update } from 'firebase/database';
 import { cn } from '@/lib/utils';
 import AdminHeader from '@/components/admin/layout/AdminHeader';
 import { Badge } from '@/components/ui/badge';
+import type { User as FirebaseUser } from 'firebase/auth';
 
 type Message = {
   id: string;
@@ -36,7 +36,7 @@ export default function AdminSupportPage() {
   const [messages, setMessages] = useState<Message[]>([]);
   const [newMessage, setNewMessage] = useState('');
   const messagesEndRef = useRef<HTMLDivElement | null>(null);
-  const [adminUser, setAdminUser] = useState<any | null>(null);
+  const [adminUser, setAdminUser] = useState<FirebaseUser | null>(null);
 
   useEffect(() => {
     const unsubscribeAuth = auth.onAuthStateChanged(user => {
@@ -105,6 +105,7 @@ export default function AdminSupportPage() {
     await update(metadataRef, {
         lastMessage: newMessage,
         timestamp: serverTimestamp(),
+        unreadByAdmin: false, // Admin sent a message, so it's read by admin
     })
 
     setNewMessage('');
@@ -113,42 +114,49 @@ export default function AdminSupportPage() {
   const handleSelectChat = (chat: ChatMetadata) => {
     setSelectedChat(chat);
     // Optimistically mark as read in the UI
+    const updatedChats = chats.map(c => 
+        c.id === chat.id ? { ...c, unreadByAdmin: false } : c
+    );
+    setChats(updatedChats);
     const metadataRef = ref(db, `chats/${chat.id}/metadata`);
     update(metadataRef, { unreadByAdmin: false });
   };
 
   return (
-    <main className="grid flex-1 items-start gap-4 p-4 sm:px-6 sm:py-0 md:gap-8">
+    <main className="grid flex-1 items-start gap-4 p-4 sm:px-6 sm:py-0 md:gap-8 h-[calc(100vh-80px)]">
         <AdminHeader title="Support Chat" description="Respond to live customer queries." />
-        <div className="grid md:grid-cols-3 gap-8">
-            <Card className="md:col-span-1">
+        <div className="grid md:grid-cols-[300px_1fr] gap-8 h-full">
+            <Card className="flex flex-col">
                 <CardHeader>
                     <CardTitle>Conversations</CardTitle>
                 </CardHeader>
-                <CardContent className="p-2">
+                <CardContent className="flex-1 overflow-y-auto p-2">
                     <div className="flex flex-col gap-2">
                         {chats.map(chat => (
                             <button
                                 key={chat.id}
                                 onClick={() => handleSelectChat(chat)}
                                 className={cn(
-                                    "w-full text-left p-3 rounded-lg hover:bg-muted transition-colors",
+                                    "w-full text-left p-3 rounded-lg hover:bg-muted transition-colors flex flex-col gap-1",
                                     selectedChat?.id === chat.id && "bg-muted"
                                 )}
                             >
                                <div className="flex justify-between items-center">
-                                    <p className="font-semibold">{chat.customerName}</p>
-                                    {chat.unreadByAdmin && <Badge className="bg-primary h-2 w-2 p-0" />}
+                                    <p className="font-semibold text-sm">{chat.customerName}</p>
+                                    {chat.unreadByAdmin && <Badge className="bg-primary h-2.5 w-2.5 p-0" />}
                                </div>
-                               <p className="text-sm text-muted-foreground truncate">{chat.lastMessage}</p>
+                               <p className="text-xs text-muted-foreground truncate">{chat.lastMessage}</p>
                             </button>
                         ))}
+                         {chats.length === 0 && (
+                            <p className="text-sm text-muted-foreground text-center p-4">No conversations yet.</p>
+                        )}
                     </div>
                 </CardContent>
             </Card>
 
-            <div className="md:col-span-2">
-                <Card className="flex flex-col h-full">
+            <div className="flex flex-col h-full">
+                <Card className="flex flex-col flex-1">
                     {!selectedChat ? (
                          <div className="flex flex-1 items-center justify-center h-full">
                             <p className="text-muted-foreground">Select a conversation to start chatting.</p>
@@ -162,9 +170,9 @@ export default function AdminSupportPage() {
                              {messages.map((message) => (
                                 <div
                                     key={message.id}
-                                    className={`flex items-end gap-2 ${
-                                    message.sender === 'user' ? 'justify-end' : 'justify-start'
-                                    }`}
+                                    className={cn('flex items-end gap-2', 
+                                        message.sender === 'user' ? 'justify-end' : 'justify-start'
+                                    )}
                                 >
                                     {message.sender === 'admin' && (
                                     <Avatar className="h-8 w-8">
@@ -172,11 +180,11 @@ export default function AdminSupportPage() {
                                     </Avatar>
                                     )}
                                     <div
-                                    className={`max-w-xs md:max-w-md rounded-lg px-4 py-2 ${
+                                    className={cn('max-w-xs md:max-w-md rounded-lg px-4 py-2',
                                         message.sender === 'user'
                                         ? 'bg-primary text-primary-foreground'
                                         : 'bg-muted'
-                                    }`}
+                                    )}
                                     >
                                     <p className="text-sm">{message.text}</p>
                                     </div>
@@ -212,3 +220,5 @@ export default function AdminSupportPage() {
     </main>
   );
 }
+
+    
