@@ -13,7 +13,8 @@ import {
   Star,
   Store,
   LayoutGrid,
-  PackageCheck
+  PackageCheck,
+  Signal,
 } from 'lucide-react';
 import { Sheet, SheetContent, SheetTrigger } from '@/components/ui/sheet';
 import { Button } from '@/components/ui/button';
@@ -29,12 +30,15 @@ import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { useToast } from '@/hooks/use-toast';
 import { useRouter } from 'next/navigation';
 import { signOut, onAuthStateChanged, type User } from 'firebase/auth';
-import { auth } from '@/lib/firebase';
+import { auth, db } from '@/lib/firebase';
 import { useEffect, useState } from 'react';
+import { ref, onValue } from 'firebase/database';
 import AdminNav from './AdminNav';
 import Logo from '@/components/icons/Logo';
 import { ThemeSwitcher } from '@/components/theme/ThemeSwitcher';
 import { TooltipProvider } from '@/components/ui/tooltip';
+import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
+import { ScrollArea } from '@/components/ui/scroll-area';
 
 const mainNavItems = [
     { href: "/admin", label: "Dashboard", icon: Home },
@@ -50,16 +54,39 @@ const mainNavItems = [
 
 const settingsNavItem = { href: "/admin/settings", label: "Settings", icon: Settings };
 
+type OnlineUser = {
+    id: string;
+    isOnline: boolean;
+};
+
 export function AdminSidebar() {
   const [user, setUser] = useState<User | null>(null);
   const router = useRouter();
   const { toast } = useToast();
+  const [onlineUsers, setOnlineUsers] = useState<OnlineUser[]>([]);
 
-   useEffect(() => {
-    const unsubscribe = onAuthStateChanged(auth, (currentUser) => {
+  useEffect(() => {
+    const unsubscribeAuth = onAuthStateChanged(auth, (currentUser) => {
         setUser(currentUser);
     });
-    return () => unsubscribe();
+
+    const statusRef = ref(db, 'status');
+    const unsubscribePresence = onValue(statusRef, (snapshot) => {
+        const data = snapshot.val();
+        if (data) {
+            const users = Object.keys(data)
+                .map(key => ({ id: key, ...data[key] }))
+                .filter(user => user.isOnline);
+            setOnlineUsers(users);
+        } else {
+            setOnlineUsers([]);
+        }
+    });
+
+    return () => {
+        unsubscribeAuth();
+        unsubscribePresence();
+    };
   }, []);
 
   const handleLogout = async () => {
@@ -139,7 +166,39 @@ export function AdminSidebar() {
           </SheetContent>
         </Sheet>
         
-        <div className="ml-auto">
+        <div className="ml-auto flex items-center gap-4">
+          <Popover>
+            <PopoverTrigger asChild>
+                <Button variant="outline" size="sm" className="flex items-center gap-2">
+                    <Signal className="w-4 h-4 text-green-500" />
+                    <span>{onlineUsers.length} Live</span>
+                </Button>
+            </PopoverTrigger>
+            <PopoverContent className="w-80">
+                <div className="grid gap-4">
+                    <div className="space-y-2">
+                        <h4 className="font-medium leading-none">Online Users</h4>
+                        <p className="text-sm text-muted-foreground">
+                            A list of users currently active on the app.
+                        </p>
+                    </div>
+                    <ScrollArea className="h-48">
+                        <div className="grid gap-2">
+                            {onlineUsers.length > 0 ? (
+                                onlineUsers.map((onlineUser) => (
+                                    <div key={onlineUser.id} className="text-sm p-2 bg-muted rounded-md break-all">
+                                        {onlineUser.id}
+                                    </div>
+                                ))
+                            ) : (
+                                <p className="text-sm text-muted-foreground text-center py-4">No users online.</p>
+                            )}
+                        </div>
+                    </ScrollArea>
+                </div>
+            </PopoverContent>
+          </Popover>
+
          {user && (
             <DropdownMenu>
             <DropdownMenuTrigger asChild>

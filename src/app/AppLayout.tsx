@@ -9,7 +9,7 @@ import GlobalAlert from '@/components/layout/GlobalAlert';
 import { useEffect } from 'react';
 import { onAuthStateChanged, signOut } from 'firebase/auth';
 import { auth, db } from '@/lib/firebase';
-import { ref, onValue } from 'firebase/database';
+import { ref, onValue, set, onDisconnect, serverTimestamp } from 'firebase/database';
 import { useToast } from '@/hooks/use-toast';
 import { useRouter } from 'next/navigation';
 
@@ -20,11 +20,12 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
   useEffect(() => {
     const unsubscribeAuth = onAuthStateChanged(auth, (user) => {
       if (user) {
-        // User is signed in, set up a listener for their banned status.
-        const userRef = ref(db, `users/${user.uid}`);
-        const unsubscribeDb = onValue(userRef, (snapshot) => {
+        // User is signed in, set up listeners.
+        
+        // Listener for banned status.
+        const userDbRef = ref(db, `users/${user.uid}`);
+        const unsubscribeDb = onValue(userDbRef, (snapshot) => {
           if (snapshot.exists() && snapshot.val().isBanned) {
-            // User is banned, sign them out immediately.
             signOut(auth).then(() => {
               toast({
                 variant: 'destructive',
@@ -35,6 +36,11 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
             });
           }
         });
+
+        // Presence system logic
+        const presenceRef = ref(db, `/status/${user.uid}`);
+        set(presenceRef, { isOnline: true, last_changed: serverTimestamp() });
+        onDisconnect(presenceRef).set({ isOnline: false, last_changed: serverTimestamp() });
 
         // Cleanup the database listener when the component unmounts or user changes
         return () => unsubscribeDb();
