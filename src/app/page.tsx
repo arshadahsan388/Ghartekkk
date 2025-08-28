@@ -3,7 +3,7 @@
 
 import { Button } from '@/components/ui/button';
 import ShopList from '@/components/shops/ShopList';
-import { ArrowRight, Home as HomeIcon, Store } from 'lucide-react';
+import { ArrowRight, Home as HomeIcon, Store, ShoppingBag } from 'lucide-react';
 import { Input } from '@/components/ui/input';
 import { useRouter } from 'next/navigation';
 import { useState, useEffect } from 'react';
@@ -11,6 +11,8 @@ import { Label } from '@/components/ui/label';
 import { auth } from '@/lib/firebase';
 import { onAuthStateChanged } from 'firebase/auth';
 import AnnouncementBar from '@/components/layout/AnnouncementBar';
+import { Textarea } from '@/components/ui/textarea';
+import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter } from '@/components/ui/card';
 
 export default function Home() {
   const [searchQuery, setSearchQuery] = useState('');
@@ -63,48 +65,52 @@ export default function Home() {
             Grocery, dawai, ya aap ka pasandeeda khana. Bas humain batain aap ko
             kya chahiye.
           </p>
-          <form onSubmit={handleSearchSubmit} className="mt-8 max-w-2xl mx-auto space-y-4">
-             <div className="relative w-full">
-              <Input
-                type="text"
-                placeholder="e.g., 'A box of Panadol and some fresh bread'"
-                className="h-12 text-base"
-                value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
-                autoComplete="off"
-                required
-              />
-            </div>
-            
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-left">
-                <div className="space-y-2">
-                    <Label htmlFor="shopName" className="flex items-center gap-2"><Store className="w-4 h-4" /> Shop (Optional)</Label>
-                    <Input 
-                        id="shopName"
-                        type="text"
-                        placeholder="e.g., Al-Madina Restaurant"
-                        value={shopName}
-                        onChange={(e) => setShopName(e.target.value)}
-                    />
-                </div>
-                 <div className="space-y-2">
-                    <Label htmlFor="address" className="flex items-center gap-2"><HomeIcon className="w-4 h-4" /> Address</Label>
-                    <Input 
-                        id="address"
-                        placeholder="e.g., Vehari"
-                        value={address}
-                        onChange={(e) => setAddress(e.target.value)}
-                        required
-                    />
-                </div>
-                <div className="space-y-2 self-end md:col-span-2">
-                    <Button type="submit" size="lg" className="w-full h-10">
+          <form onSubmit={handleSearchSubmit} className="mt-8 max-w-2xl mx-auto">
+            <Card>
+                <CardContent className="space-y-4 pt-6">
+                    <div className="space-y-2 text-left">
+                        <Label htmlFor="searchQuery" className="flex items-center gap-2 text-lg font-semibold"><ShoppingBag className="w-5 h-5" /> What do you need?</Label>
+                        <Textarea
+                            id="searchQuery"
+                            placeholder="e.g., 'A box of Panadol and some fresh bread'"
+                            className="h-24 text-base"
+                            value={searchQuery}
+                            onChange={(e) => setSearchQuery(e.target.value)}
+                            autoComplete="off"
+                            required
+                        />
+                    </div>
+                    
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-left">
+                        <div className="space-y-2">
+                            <Label htmlFor="shopName" className="flex items-center gap-2"><Store className="w-4 h-4" /> Shop (Optional)</Label>
+                            <Input 
+                                id="shopName"
+                                type="text"
+                                placeholder="e.g., Al-Madina Restaurant"
+                                value={shopName}
+                                onChange={(e) => setShopName(e.target.value)}
+                            />
+                        </div>
+                         <div className="space-y-2">
+                            <Label htmlFor="address" className="flex items-center gap-2"><HomeIcon className="w-4 h-4" /> Address</Label>
+                            <Input 
+                                id="address"
+                                placeholder="e.g., Vehari"
+                                value={address}
+                                onChange={(e) => setAddress(e.target.value)}
+                                required
+                            />
+                        </div>
+                    </div>
+                </CardContent>
+                <CardFooter>
+                    <Button type="submit" size="lg" className="w-full h-12 text-lg">
                         Next
                         <ArrowRight className="ml-2 h-4 w-4" />
                     </Button>
-                </div>
-            </div>
-
+                </CardFooter>
+            </Card>
           </form>
         </div>
       </div>
