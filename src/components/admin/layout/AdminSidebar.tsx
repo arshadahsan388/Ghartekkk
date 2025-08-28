@@ -10,6 +10,9 @@ import {
   Siren,
   PanelLeft,
   Settings,
+  Star,
+  Store,
+  LayoutGrid
 } from 'lucide-react';
 import { Sheet, SheetContent, SheetTrigger } from '@/components/ui/sheet';
 import { Button } from '@/components/ui/button';
@@ -36,6 +39,9 @@ const mainNavItems = [
     { href: "/admin", label: "Dashboard", icon: Home },
     { href: "/admin/orders", label: "Orders", icon: Package },
     { href: "/admin/users", label: "Users", icon: Users2 },
+    { href: "/admin/shops", label: "Shops", icon: Store },
+    { href: "/admin/shop-categories", label: "Categories", icon: LayoutGrid },
+    { href: "/admin/reviews", label: "Reviews", icon: Star },
     { href: "/admin/announcements", label: "Announcements", icon: Megaphone },
     { href: "/admin/alerts", label: "Alerts", icon: Siren },
 ];
