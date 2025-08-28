@@ -17,6 +17,7 @@ const CustomOrderInputSchema = z.object({
     .describe('A detailed description of the items the user wants to order.'),
   budget: z.number().describe('The maximum amount the user is willing to pay.'),
   address: z.string().describe('The delivery address for the order.'),
+  shopName: z.string().optional().describe('The specific shop the user wants to order from.'),
   additionalNote: z.string().optional().describe('Any additional notes or special instructions from the user.')
 });
 export type CustomOrderInput = z.infer<typeof CustomOrderInputSchema>;
@@ -26,7 +27,7 @@ const CustomOrderOutputSchema = z.object({
   suggestedShop: z
     .string()
     .describe(
-      'A suggested shop type (e.g., Grocery Store, Pharmacy, Restaurant) based on the order description.'
+      'A suggested shop type (e.g., Grocery Store, Pharmacy, Restaurant) based on the order description, or the user-provided shop name.'
     ),
   isFeasible: z
     .boolean()
@@ -54,11 +55,12 @@ const processCustomOrderPrompt = ai.definePrompt({
   - Description: {{{description}}}
   - Budget: Rs. {{{budget}}}
   - Delivery Address: {{{address}}}
+  {{#if shopName}}- Shop: {{{shopName}}}{{/if}}
   {{#if additionalNote}}- Additional Note: {{{additionalNote}}}{{/if}}
 
   Your tasks:
-  1.  **Summarize the order**: Create a concise summary of what the user is asking for.
-  2.  **Suggest a Shop Type**: Based on the items, classify the order into "Grocery", "Medical", "Restaurant", or "General Store".
+  1.  **Summarize the order**: Create a concise summary of what the user is asking for. If they specified a shop, mention it.
+  2.  **Suggest a Shop Type**: If the user provided a 'Shop', use that value directly. Otherwise, based on the items, classify the order into "Grocery", "Medical", "Restaurant", or "General Store".
   3.  **Estimate Cost**: Based on common prices in a city like Vehari, estimate the total cost of the items.
   4.  **Assess Feasibility**: Compare your estimated cost with the user's budget. If the budget is sufficient, mark 'isFeasible' as true. Otherwise, mark it as false.
 

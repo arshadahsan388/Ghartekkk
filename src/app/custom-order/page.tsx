@@ -14,7 +14,7 @@ import {
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
-import { WandSparkles, Send, ShoppingCart } from 'lucide-react';
+import { WandSparkles, Send, ShoppingCart, Store } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import {
   processCustomOrder,
@@ -32,6 +32,7 @@ export default function CustomOrderPage() {
   const searchParams = useSearchParams();
   const router = useRouter();
   const [description, setDescription] = useState('');
+  const [shopName, setShopName] = useState('');
   const [budget, setBudget] = useState('');
   const [address, setAddress] = useState('');
   const [additionalNote, setAdditionalNote] = useState('');
@@ -87,7 +88,7 @@ export default function CustomOrderPage() {
     const newOrder = {
         id: newOrderRef.key,
         customer: user.displayName || user.email.split('@')[0], 
-        shop: "Custom Order",
+        shop: shopName || "Custom Order",
         status: 'Pending',
         total: response.estimatedCost,
         email: user.email,
@@ -133,7 +134,8 @@ export default function CustomOrderPage() {
         description,
         budget: Number(budget),
         address,
-        additionalNote,
+        shopName: shopName,
+        additionalNote: additionalNote,
       });
       setResult(response);
       await handleOrderSuccess(response);
@@ -206,6 +208,19 @@ export default function CustomOrderPage() {
                   required
                   rows={4}
                 />
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="shopName">Specific Shop Name (Optional)</Label>
+                 <div className="relative">
+                    <Store className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+                    <Input
+                      id="shopName"
+                      placeholder="e.g., Al-Madina Restaurant"
+                      value={shopName}
+                      onChange={(e) => setShopName(e.target.value)}
+                      className="pl-9"
+                    />
+                </div>
               </div>
                <div className="space-y-2">
                 <Label htmlFor="additionalNote">Additional Note (Optional)</Label>
