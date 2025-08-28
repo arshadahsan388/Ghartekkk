@@ -83,15 +83,14 @@ export default function ShopPage({ params }: { params: { shopId: string } }) {
         const ordersRef = ref(db, 'orders');
         const userShopOrdersQuery = query(
             ordersRef,
-            orderByChild('userId'),
-            equalTo(user.uid)
+            orderByChild('userIdShopId'),
+            equalTo(`${user.uid}_${shop.id}`)
         );
 
         onValue(userShopOrdersQuery, (snapshot) => {
             const orders = snapshot.val();
             if (orders) {
                 const eligibleOrder = Object.values(orders).find((order: any) => 
-                    order.shopId === shop.id &&
                     order.status === 'Delivered' &&
                     !order.reviewed
                 );
@@ -113,6 +112,18 @@ export default function ShopPage({ params }: { params: { shopId: string } }) {
     if (!user || !shop) return;
     setIsOrdering(true);
 
+    const savedAddress = localStorage.getItem('deliveryAddress');
+    if (!savedAddress) {
+        toast({
+            variant: 'destructive',
+            title: 'No Address Found',
+            description: 'Please set a delivery address in your account page first.',
+        });
+        setIsOrdering(false);
+        router.push('/account');
+        return;
+    }
+
     try {
         const deliveryFee = isFreeDelivery ? 0 : (deliverySpeed === 'fast' ? FAST_DELIVERY_FEE : NORMAL_DELIVERY_FEE);
         const total = (Number(orderPrice) || 0) + deliveryFee;
@@ -130,11 +141,12 @@ export default function ShopPage({ params }: { params: { shopId: string } }) {
             note: orderNote,
             deliverySpeed: deliverySpeed,
             email: user.email,
-            address: localStorage.getItem('deliveryAddress') || 'Vehari, Pakistan',
+            address: savedAddress,
             userId: user.uid,
             date: new Date().toISOString(),
             reviewed: false,
             isRead: false,
+            userIdShopId: `${user.uid}_${shop.id}`,
         };
         await set(newOrderRef, newOrder);
 

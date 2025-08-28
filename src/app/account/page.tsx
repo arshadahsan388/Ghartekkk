@@ -1,4 +1,5 @@
 
+
 'use client';
 
 import { Button } from '@/components/ui/button';
@@ -11,12 +12,14 @@ import { useRouter } from 'next/navigation';
 import { auth } from '@/lib/firebase';
 import { onAuthStateChanged } from 'firebase/auth';
 import { Skeleton } from '@/components/ui/skeleton';
+import { useToast } from '@/hooks/use-toast';
 
 export default function AccountPage() {
   const [address, setAddress] = useState('');
   const router = useRouter();
   const [isMounted, setIsMounted] = useState(false);
   const [user, setUser] = useState<any>(null);
+  const { toast } = useToast();
 
   useEffect(() => {
     setIsMounted(true);
@@ -25,7 +28,7 @@ export default function AccountPage() {
         router.push('/login');
       } else {
         setUser(currentUser);
-        const savedAddress = localStorage.getItem('deliveryAddress') || 'Vehari, Pakistan';
+        const savedAddress = localStorage.getItem('deliveryAddress') || '';
         setAddress(savedAddress);
       }
     });
@@ -35,7 +38,10 @@ export default function AccountPage() {
 
   const handleSave = () => {
     localStorage.setItem('deliveryAddress', address);
-    alert('Address saved!');
+    toast({
+      title: 'Address Saved',
+      description: 'Your delivery address has been updated.',
+    });
   }
 
   if (!isMounted || !user) {

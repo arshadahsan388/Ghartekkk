@@ -123,7 +123,7 @@ export default function ReviewPrompt({
           </CardTitle>
           <CardDescription>
             {disabled 
-              ? 'You must have a delivered order to leave a review.'
+              ? 'You must have a delivered order from this shop to leave a review.'
               : 'Your feedback helps us improve our service.'
             }
           </CardDescription>

@@ -87,16 +87,17 @@ export default function CustomOrderPage() {
     const newOrder = {
         id: newOrderRef.key,
         customer: user.displayName || user.email.split('@')[0], 
-        shop: response.suggestedShop,
+        shop: "Custom Order",
         status: 'Pending',
         total: response.estimatedCost,
         email: user.email,
         description: description,
         address: address,
-        budget: budget,
+        budget: Number(budget),
         additionalNote: additionalNote,
         userId: user.uid,
         isRead: false,
+        date: new Date().toISOString(),
     };
     await set(newOrderRef, newOrder);
 
@@ -310,9 +311,9 @@ export default function CustomOrderPage() {
                 </p>
               </div>
             </CardContent>
-            <CardFooter>
-              <Button className="w-full" size="lg">
-                Proceed to Find a Rider
+             <CardFooter>
+              <Button className="w-full" size="lg" onClick={() => router.push('/orders')}>
+                Track Your Order
               </Button>
             </CardFooter>
           </Card>
