@@ -8,16 +8,15 @@ import { Star, Clock, MapPin, Send, MessageSquareWarning, ShoppingBag, Radio } f
 import { Button } from '@/components/ui/button';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { useEffect, useState } from 'react';
 import { useToast } from '@/hooks/use-toast';
 import { auth, db } from '@/lib/firebase';
 import { onAuthStateChanged, type User } from 'firebase/auth';
-import { ref, push, set, get, update } from 'firebase/database';
-import { processComplaint } from '@/ai/flows/process-complaint';
+import { ref, push, set, get, update, query, orderByChild, equalTo, onValue } from 'firebase/database';
 import { Skeleton } from '@/components/ui/skeleton';
 import { Input } from '@/components/ui/input';
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
+import ReviewPrompt from '@/components/reviews/ReviewPrompt';
 
 type Shop = {
   id: string;
@@ -48,10 +47,8 @@ export default function ShopPage({ params }: { params: { shopId: string } }) {
   const [deliverySpeed, setDeliverySpeed] = useState('normal');
   const [isOrdering, setIsOrdering] = useState(false);
 
-  const [rating, setRating] = useState(0);
-  const [complaintType, setComplaintType] = useState('');
-  const [complaintDetails, setComplaintDetails] = useState('');
-  const [isSubmittingReview, setIsSubmittingReview] = useState(false);
+  const [isReviewEligible, setIsReviewEligible] = useState(false);
+  const [orderToReviewId, setOrderToReviewId] = useState<string | null>(null);
 
   useEffect(() => {
     setIsMounted(true);
@@ -65,6 +62,36 @@ export default function ShopPage({ params }: { params: { shopId: string } }) {
 
     return () => unsubscribe();
   }, [router]);
+
+  useEffect(() => {
+    if (user && shop) {
+        const ordersRef = ref(db, 'orders');
+        const userShopOrdersQuery = query(
+            ordersRef,
+            orderByChild('userId'),
+            equalTo(user.uid)
+        );
+
+        onValue(userShopOrdersQuery, (snapshot) => {
+            const orders = snapshot.val();
+            if (orders) {
+                const eligibleOrder = Object.values(orders).find((order: any) => 
+                    order.shopId === shop.id &&
+                    order.status === 'Delivered' &&
+                    !order.reviewed
+                );
+
+                if (eligibleOrder) {
+                    setIsReviewEligible(true);
+                    setOrderToReviewId((eligibleOrder as any).id);
+                } else {
+                    setIsReviewEligible(false);
+                    setOrderToReviewId(null);
+                }
+            }
+        });
+    }
+  }, [user, shop]);
   
   const handleOrderSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -91,6 +118,7 @@ export default function ShopPage({ params }: { params: { shopId: string } }) {
             address: localStorage.getItem('deliveryAddress') || 'Vehari, Pakistan',
             userId: user.uid,
             date: new Date().toISOString(),
+            reviewed: false
         };
         await set(newOrderRef, newOrder);
 
@@ -122,61 +150,6 @@ export default function ShopPage({ params }: { params: { shopId: string } }) {
     }
   }
 
-  const handleReviewSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!user || !shop) return;
-    setIsSubmittingReview(true);
-
-    try {
-        const reviewsRef = ref(db, 'reviews');
-        const newReviewRef = push(reviewsRef);
-
-        const reviewData: any = {
-            id: newReviewRef.key,
-            shopId: shop.id,
-            shopName: shop.name,
-            userId: user.uid,
-            rating: rating,
-            date: new Date().toISOString(),
-        }
-
-        if (complaintType && complaintDetails) {
-            reviewData.complaintType = complaintType;
-            reviewData.complaintDetails = complaintDetails;
-            
-            // Process with AI
-            const complaintResult = await processComplaint({
-                shopName: shop.name,
-                complaintDetails,
-                complaintType
-            });
-            reviewData.aiSummary = complaintResult.summary;
-            reviewData.aiCategory = complaintResult.category;
-            reviewData.aiUrgency = complaintResult.urgency;
-        }
-
-        await set(newReviewRef, reviewData);
-        
-        toast({
-            title: 'Feedback Submitted!',
-            description: `Thank you for your feedback on ${shop.name}.`,
-        });
-        setRating(0);
-        setComplaintType('');
-        setComplaintDetails('');
-
-    } catch (error) {
-         console.error(error);
-        toast({
-            variant: 'destructive',
-            title: 'Submission Failed',
-            description: 'There was an issue submitting your feedback.',
-        });
-    } finally {
-        setIsSubmittingReview(false);
-    }
-
-  }
 
   if (!isMounted || !user || !shop) {
     return (
@@ -307,64 +280,12 @@ export default function ShopPage({ params }: { params: { shopId: string } }) {
             </Card>
         </div>
         <div>
-           <form onSubmit={handleReviewSubmit}>
-            <Card>
-                <CardHeader>
-                    <CardTitle className="flex items-center gap-2"><MessageSquareWarning className="w-6 h-6"/> Leave a Review or Complaint</CardTitle>
-                    <CardDescription>Your feedback helps us improve our service.</CardDescription>
-                </CardHeader>
-                <CardContent className="space-y-4">
-                    <div className="space-y-2">
-                        <Label>Your Rating</Label>
-                        <div className="flex items-center gap-1">
-                            {[1, 2, 3, 4, 5].map((star) => (
-                                <Star
-                                key={star}
-                                className={`w-8 h-8 cursor-pointer transition-colors ${
-                                    rating >= star
-                                    ? 'text-primary fill-primary'
-                                    : 'text-muted-foreground/50'
-                                }`}
-                                onClick={() => setRating(star)}
-                                />
-                            ))}
-                        </div>
-                    </div>
-
-                    <div className="space-y-2">
-                        <Label htmlFor="complaint-type">Reason for Complaint (Optional)</Label>
-                        <Select onValueChange={setComplaintType} value={complaintType}>
-                            <SelectTrigger id="complaint-type">
-                                <SelectValue placeholder="Select a reason" />
-                            </SelectTrigger>
-                            <SelectContent>
-                                <SelectItem value="Late Delivery">Late Delivery</SelectItem>
-                                <SelectItem value="Bad Food">Bad Food</SelectItem>
-                                <SelectItem value="Product Damage">Product Damage</SelectItem>
-                                <SelectItem value="Rider/Staff Misbehavior">Rider/Staff Misbehavior</SelectItem>
-                                <SelectItem value="Other">Other</SelectItem>
-                            </SelectContent>
-                        </Select>
-                    </div>
-
-                     <div className="space-y-2">
-                        <Label htmlFor="complaint-details">Details (Optional)</Label>
-                         <Textarea
-                            id="complaint-details"
-                            placeholder="Please provide more details about your experience."
-                            rows={3}
-                            value={complaintDetails}
-                            onChange={(e) => setComplaintDetails(e.target.value)}
-                        />
-                    </div>
-                </CardContent>
-                <CardFooter>
-                    <Button type="submit" className="w-full" disabled={isSubmittingReview}>
-                       {isSubmittingReview ? 'Submitting...' : 'Submit Feedback'}
-                    </Button>
-                </CardFooter>
-            </Card>
-           </form>
+           <ReviewPrompt 
+             shop={shop}
+             user={user}
+             orderId={orderToReviewId}
+             disabled={!isReviewEligible}
+           />
         </div>
        </div>
     </div>
