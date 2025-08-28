@@ -20,49 +20,56 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '../ui
 import { Badge } from '../ui/badge';
 import { useToast } from '@/hooks/use-toast';
 import { useEffect, useState } from 'react';
+import { db } from '@/lib/firebase';
+import { ref, onValue, update, remove } from 'firebase/database';
 
-const initialUsers = [
-  { id: 'USR001', name: 'Ali Khan', email: 'ali.khan@email.com', orders: 5, role: 'customer' as const, isBanned: false },
-  { id: 'USR002', name: 'Fatima Ahmed', email: 'fatima.ahmed@email.com', orders: 12, role: 'customer' as const, isBanned: false },
-  { id: 'USR003', name: 'Admin', email: 'admin@example.com', orders: 0, role: 'admin' as const, isBanned: false },
-  { id: 'USR004', name: 'Zainab Bibi', email: 'zainab.bibi@email.com', orders: 2, role: 'customer' as const, isBanned: true },
-  { id: 'USR005', name: 'Hassan Raza', email: 'hassan.raza@email.com', orders: 8, role: 'customer' as const, isBanned: false },
-];
+type User = {
+    id: string;
+    name: string;
+    email: string;
+    orders: number;
+    role: 'customer' | 'admin';
+    isBanned: boolean;
+};
 
 export default function UserManagement() {
   const { toast } = useToast();
-  const [users, setUsers] = useState(initialUsers);
+  const [users, setUsers] = useState<User[]>([]);
 
   useEffect(() => {
-    const storedUsers = localStorage.getItem('users');
-    if (storedUsers) {
-      setUsers(JSON.parse(storedUsers));
-    } else {
-        localStorage.setItem('users', JSON.stringify(initialUsers));
-    }
+    const usersRef = ref(db, 'users');
+    onValue(usersRef, (snapshot) => {
+        const data = snapshot.val();
+        if (data) {
+            const usersList = Object.keys(data).map(key => ({
+                id: key,
+                ...data[key]
+            }));
+            setUsers(usersList);
+        } else {
+            setUsers([]);
+        }
+    });
   }, []);
 
   const handleMakeAdmin = (userId: string) => {
-    setUsers(users.map(user => user.id === userId ? { ...user, role: 'admin' } : user));
+    const userRef = ref(db, `users/${userId}`);
+    update(userRef, { role: 'admin' });
     toast({ title: 'User Promoted', description: 'The user has been promoted to admin.' });
   };
 
-  const handleToggleBan = (userId: string) => {
-    setUsers(users.map(user => {
-      if (user.id === userId) {
-        const isBanned = !user.isBanned;
-        toast({
-          title: `User ${isBanned ? 'Banned' : 'Unbanned'}`,
-          description: `The user has been successfully ${isBanned ? 'banned' : 'unbanned'}.`,
-        });
-        return { ...user, isBanned };
-      }
-      return user;
-    }));
+  const handleToggleBan = (userId: string, isBanned: boolean) => {
+    const userRef = ref(db, `users/${userId}`);
+    update(userRef, { isBanned: !isBanned });
+    toast({
+      title: `User ${!isBanned ? 'Banned' : 'Unbanned'}`,
+      description: `The user has been successfully ${!isBanned ? 'banned' : 'unbanned'}.`,
+    });
   };
 
   const handleDelete = (userId: string) => {
-    setUsers(users.filter(user => user.id !== userId));
+    const userRef = ref(db, `users/${userId}`);
+    remove(userRef);
     toast({ variant: 'destructive', title: 'User Deleted', description: 'The user has been permanently deleted.' });
   };
 
@@ -89,7 +96,7 @@ export default function UserManagement() {
                 <TableBody>
                     {users.map((user) => (
                     <TableRow key={user.id} className={user.isBanned ? 'bg-destructive/10' : ''}>
-                        <TableCell className="font-medium">{user.id}</TableCell>
+                        <TableCell className="font-medium">{user.id.substring(user.id.length-6).toUpperCase()}</TableCell>
                         <TableCell>{user.name}</TableCell>
                         <TableCell>{user.email}</TableCell>
                         <TableCell>{user.orders}</TableCell>
@@ -114,7 +121,7 @@ export default function UserManagement() {
                                 <ShieldCheck className="mr-2 h-4 w-4" />
                                 Make Admin
                             </DropdownMenuItem>
-                            <DropdownMenuItem onClick={() => handleToggleBan(user.id)}>
+                            <DropdownMenuItem onClick={() => handleToggleBan(user.id, user.isBanned)}>
                                 <UserX className="mr-2 h-4 w-4" />
                                 {user.isBanned ? 'Unban Account' : 'Ban Account'}
                             </DropdownMenuItem>

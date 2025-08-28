@@ -21,55 +21,46 @@ import { CheckCircle, MoreHorizontal, Pencil, XCircle } from 'lucide-react';
 import { Card, CardHeader, CardTitle, CardContent, CardDescription } from '../ui/card';
 import RejectOrderDialog from './RejectOrderDialog';
 import { useEffect, useState } from 'react';
+import { db } from '@/lib/firebase';
+import { ref, onValue, update } from "firebase/database";
 
-const initialOrders = [
-  {
-    id: 'ORD001',
-    customer: 'Ali Khan',
-    shop: 'KFC',
-    status: 'Pending',
-    total: 550.0,
-  },
-  {
-    id: 'ORD002',
-    customer: 'Fatima Ahmed',
-    shop: 'Butt Karahi',
-    status: 'Confirmed',
-    total: 1200.0,
-  },
-  {
-    id: 'ORD003',
-    customer: 'Zainab Bibi',
-    shop: 'Pizza Hut',
-    status: 'Delivered',
-    total: 2500.0,
-  },
-  {
-    id: 'ORD004',
-    customer: 'Hassan Raza',
-    shop: 'Haveli Restaurant',
-    status: 'Rejected',
-    total: 3500.0,
-  },
-];
+type Order = {
+  id: string;
+  customer: string;
+  shop: string;
+  status: string;
+  total: number;
+};
 
 export default function OrderManagement() {
   const [dialogOpen, setDialogOpen] = useState(false);
-  const [selectedOrder, setSelectedOrder] = useState<any>(null);
-  const [orders, setOrders] = useState(initialOrders);
+  const [selectedOrder, setSelectedOrder] = useState<Order | null>(null);
+  const [orders, setOrders] = useState<Order[]>([]);
 
    useEffect(() => {
-    const storedOrders = localStorage.getItem('orders');
-    if (storedOrders) {
-      setOrders(JSON.parse(storedOrders));
-    } else {
-      localStorage.setItem('orders', JSON.stringify(initialOrders));
-    }
+    const ordersRef = ref(db, 'orders');
+    onValue(ordersRef, (snapshot) => {
+        const data = snapshot.val();
+        if (data) {
+            const ordersList = Object.keys(data).map(key => ({
+                id: key,
+                ...data[key]
+            })).reverse(); // show latest orders first
+            setOrders(ordersList);
+        } else {
+            setOrders([]);
+        }
+    });
   }, []);
 
-  const handleRejectClick = (order: any) => {
+  const handleRejectClick = (order: Order) => {
     setSelectedOrder(order);
     setDialogOpen(true);
+  }
+
+  const handleStatusChange = (orderId: string, status: string) => {
+    const orderRef = ref(db, `orders/${orderId}`);
+    update(orderRef, { status });
   }
 
   return (
@@ -93,7 +84,7 @@ export default function OrderManagement() {
           <TableBody>
             {orders.map((order) => (
               <TableRow key={order.id}>
-                <TableCell className="font-medium">{order.id}</TableCell>
+                <TableCell className="font-medium">{order.id.substring(order.id.length-6).toUpperCase()}</TableCell>
                 <TableCell>{order.customer}</TableCell>
                 <TableCell>{order.shop}</TableCell>
                 <TableCell>
@@ -118,7 +109,7 @@ export default function OrderManagement() {
                       </Button>
                     </DropdownMenuTrigger>
                     <DropdownMenuContent align="end">
-                      <DropdownMenuItem>
+                      <DropdownMenuItem onClick={() => handleStatusChange(order.id, 'Confirmed')}>
                         <CheckCircle className="mr-2 h-4 w-4 text-green-500" />
                         Confirm Order
                       </DropdownMenuItem>

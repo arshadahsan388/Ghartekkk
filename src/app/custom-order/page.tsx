@@ -23,6 +23,8 @@ import {
 import { Skeleton } from '@/components/ui/skeleton';
 import { Badge } from '@/components/ui/badge';
 import { useSearchParams, useRouter } from 'next/navigation';
+import { db } from '@/lib/firebase';
+import { ref, push, get, child, update, set } from "firebase/database";
 
 export default function CustomOrderPage() {
   const { toast } = useToast();
@@ -66,38 +68,51 @@ export default function CustomOrderPage() {
     }
   }, [searchParams]);
 
-  const handleOrderSuccess = (response: CustomOrderOutput) => {
+  const handleOrderSuccess = async (response: CustomOrderOutput) => {
     // Save order
-    const orders = JSON.parse(localStorage.getItem('orders') || '[]');
+    const ordersRef = ref(db, 'orders');
+    const newOrderRef = push(ordersRef);
     const newOrder = {
-        id: `ORD${(orders.length + 1).toString().padStart(3, '0')}`,
+        id: newOrderRef.key,
         customer: email.split('@')[0], // Simple name from email
         shop: response.suggestedShop,
         status: 'Pending',
         total: response.estimatedCost,
+        email: email,
+        description: description,
+        address: address,
+        budget: budget,
+        additionalNote: additionalNote,
     };
-    const updatedOrders = [...orders, newOrder];
-    localStorage.setItem('orders', JSON.stringify(updatedOrders));
+    await set(newOrderRef, newOrder);
 
-    // Save user
-    const users = JSON.parse(localStorage.getItem('users') || '[]');
-    const existingUser = users.find((u: any) => u.email === email);
-    if (existingUser) {
-        existingUser.orders += 1;
+    // Save or update user
+    const usersRef = ref(db, 'users');
+    const snapshot = await get(usersRef);
+    const users = snapshot.val() || {};
+    
+    let userId = Object.keys(users).find(key => users[key].email === email);
+    
+    if (userId) {
+        // User exists, update their order count
+        const userRef = child(usersRef, userId);
+        const user = users[userId];
+        await update(userRef, { orders: (user.orders || 0) + 1 });
     } else {
+        // New user
+        const newUserRef = push(usersRef);
         const newUser = {
-            id: `USR${(users.length + 1).toString().padStart(3, '0')}`,
+            id: newUserRef.key,
             name: email.split('@')[0],
             email: email,
             orders: 1,
             role: 'customer' as const,
             isBanned: false,
         };
-        users.push(newUser);
+        await set(newUserRef, newUser);
     }
-    localStorage.setItem('users', JSON.stringify(users));
 
-    // Save address
+    // Save address in local storage for convenience
     localStorage.setItem('deliveryAddress', address);
   }
 
@@ -124,11 +139,11 @@ export default function CustomOrderPage() {
         additionalNote,
       });
       setResult(response);
-      handleOrderSuccess(response);
+      await handleOrderSuccess(response);
       
       toast({
         title: 'Order Processed',
-        description: 'Your custom order has been analyzed by our AI.',
+        description: 'Your custom order has been analyzed by our AI and saved.',
       });
     } catch (error) {
       console.error(error);
