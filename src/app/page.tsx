@@ -5,14 +5,31 @@
 import { Button } from '@/components/ui/button';
 import ShopList from '@/components/shops/ShopList';
 import Link from 'next/link';
-import { ArrowRight, Home as HomeIcon, Send, Wallet } from 'lucide-react';
+import { ArrowRight, Home as HomeIcon, Send, Wallet, Loader2 } from 'lucide-react';
 import { Input } from '@/components/ui/input';
 import { useRouter } from 'next/navigation';
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback, useRef } from 'react';
 import { Label } from '@/components/ui/label';
 import { auth } from '@/lib/firebase';
 import { onAuthStateChanged } from 'firebase/auth';
 import AnnouncementBar from '@/components/layout/AnnouncementBar';
+import { getSearchSuggestions } from '@/ai/flows/get-search-suggestions';
+import { useToast } from '@/hooks/use-toast';
+
+// Debounce function
+const debounce = <F extends (...args: any[]) => any>(func: F, waitFor: number) => {
+  let timeout: ReturnType<typeof setTimeout> | null = null;
+
+  return (...args: Parameters<F>): Promise<ReturnType<F>> =>
+    new Promise(resolve => {
+      if (timeout) {
+        clearTimeout(timeout);
+      }
+
+      timeout = setTimeout(() => resolve(func(...args)), waitFor);
+    });
+};
+
 
 export default function Home() {
   const [searchQuery, setSearchQuery] = useState('');
@@ -21,6 +38,12 @@ export default function Home() {
   const [showExtraFields, setShowExtraFields] = useState(false);
   const [user, setUser] = useState<any>(null);
   const router = useRouter();
+  const { toast } = useToast();
+  const [suggestions, setSuggestions] = useState<string[]>([]);
+  const [isSuggesting, setIsSuggesting] = useState(false);
+  const [showSuggestions, setShowSuggestions] = useState(false);
+  const suggestionsRef = useRef<HTMLDivElement>(null);
+
 
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, (currentUser) => {
@@ -33,8 +56,49 @@ export default function Home() {
       }
     });
 
-    return () => unsubscribe();
+    // Hide suggestions when clicking outside
+    const handleClickOutside = (event: MouseEvent) => {
+      if (suggestionsRef.current && !suggestionsRef.current.contains(event.target as Node)) {
+        setShowSuggestions(false);
+      }
+    };
+    document.addEventListener('mousedown', handleClickOutside);
+
+    return () => {
+        unsubscribe();
+        document.removeEventListener('mousedown', handleClickOutside);
+    };
   }, []);
+
+  const debouncedGetSuggestions = useCallback(
+    debounce(async (query: string) => {
+      if (query.length < 3) {
+        setSuggestions([]);
+        return;
+      }
+      setIsSuggesting(true);
+      try {
+        const result = await getSearchSuggestions({ query });
+        setSuggestions(result.suggestions);
+        setShowSuggestions(true);
+      } catch (error) {
+        console.error("Failed to get suggestions", error);
+        toast({ variant: 'destructive', title: 'Could not fetch suggestions' });
+      } finally {
+        setIsSuggesting(false);
+      }
+    }, 500),
+    [toast]
+  );
+  
+   useEffect(() => {
+    if (searchQuery) {
+      debouncedGetSuggestions(searchQuery);
+    } else {
+      setSuggestions([]);
+      setShowSuggestions(false);
+    }
+  }, [searchQuery, debouncedGetSuggestions]);
 
   const handleSearchSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -59,6 +123,15 @@ export default function Home() {
     if (user) {
       setShowExtraFields(true);
     }
+    if(suggestions.length > 0) {
+        setShowSuggestions(true);
+    }
+  }
+  
+  const handleSuggestionClick = (suggestion: string) => {
+    setSearchQuery(suggestion);
+    setSuggestions([]);
+    setShowSuggestions(false);
   }
 
   return (
@@ -75,7 +148,7 @@ export default function Home() {
             kya chahiye.
           </p>
           <form onSubmit={handleSearchSubmit} className="mt-8 max-w-xl mx-auto space-y-4">
-            <div className="w-full">
+             <div className="relative w-full" ref={suggestionsRef}>
               <Input
                 type="text"
                 placeholder="e.g., 'A box of Panadol and some fresh bread'"
@@ -83,7 +156,24 @@ export default function Home() {
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
                 onFocus={handleFocus}
+                autoComplete="off"
               />
+               {isSuggesting && <Loader2 className="animate-spin absolute right-3 top-3.5 text-muted-foreground" />}
+              {showSuggestions && suggestions.length > 0 && (
+                <Card className="absolute top-full mt-2 w-full z-10 shadow-lg text-left">
+                  <ul className="p-2">
+                    {suggestions.map((suggestion, index) => (
+                      <li
+                        key={index}
+                        onClick={() => handleSuggestionClick(suggestion)}
+                        className="px-3 py-2 rounded-md hover:bg-muted cursor-pointer"
+                      >
+                        {suggestion}
+                      </li>
+                    ))}
+                  </ul>
+                </Card>
+              )}
             </div>
             
             {showExtraFields && user && (
