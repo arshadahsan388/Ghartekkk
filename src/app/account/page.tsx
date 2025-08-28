@@ -5,7 +5,7 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { Home, LogOut, LifeBuoy, Package, User as UserIcon, KeyRound, Save, AtSign } from 'lucide-react';
+import { Home, LogOut, LifeBuoy, Package, User as UserIcon, KeyRound, Save, AtSign, FileText, Shield, FileQuestion } from 'lucide-react';
 import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { auth } from '@/lib/firebase';
@@ -218,18 +218,34 @@ export default function AccountPage() {
 
         <Card>
           <CardHeader>
-            <CardTitle>App Settings</CardTitle>
-            <CardDescription>Navigate to other parts of the app.</CardDescription>
+            <CardTitle>App Settings & Legal</CardTitle>
+            <CardDescription>Navigate to other parts of the app and view our policies.</CardDescription>
           </CardHeader>
-          <CardContent className="space-y-2">
-                <Link href="/orders" className="flex items-center gap-2 p-3 rounded-lg hover:bg-muted transition-colors">
-                    <Package className="w-5 h-5 text-muted-foreground" />
-                    <span>My Orders</span>
-                </Link>
-                <Link href="/support" className="flex items-center gap-2 p-3 rounded-lg hover:bg-muted transition-colors">
-                    <LifeBuoy className="w-5 h-5 text-muted-foreground" />
-                    <span>Support Chat</span>
-                </Link>
+          <CardContent className="divide-y">
+                <div className="py-2">
+                    <Link href="/orders" className="flex items-center gap-3 p-3 rounded-lg hover:bg-muted transition-colors">
+                        <Package className="w-5 h-5 text-muted-foreground" />
+                        <span>My Orders</span>
+                    </Link>
+                    <Link href="/support" className="flex items-center gap-3 p-3 rounded-lg hover:bg-muted transition-colors">
+                        <LifeBuoy className="w-5 h-5 text-muted-foreground" />
+                        <span>Support Chat</span>
+                    </Link>
+                </div>
+                <div className="py-2">
+                    <Link href="/privacy-policy" className="flex items-center gap-3 p-3 rounded-lg hover:bg-muted transition-colors">
+                        <Shield className="w-5 h-5 text-muted-foreground" />
+                        <span>Privacy Policy</span>
+                    </Link>
+                     <Link href="/terms-and-conditions" className="flex items-center gap-3 p-3 rounded-lg hover:bg-muted transition-colors">
+                        <FileText className="w-5 h-5 text-muted-foreground" />
+                        <span>Terms & Conditions</span>
+                    </Link>
+                     <Link href="/refund-policy" className="flex items-center gap-3 p-3 rounded-lg hover:bg-muted transition-colors">
+                        <FileQuestion className="w-5 h-5 text-muted-foreground" />
+                        <span>Refund Policy</span>
+                    </Link>
+                </div>
           </CardContent>
         </Card>
         
