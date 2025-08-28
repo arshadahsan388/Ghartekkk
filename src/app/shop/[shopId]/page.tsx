@@ -4,7 +4,7 @@
 import { useSearchParams, useRouter } from 'next/navigation';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
-import { Star, Clock, MapPin, Send, MessageSquareWarning, ShoppingBag } from 'lucide-react';
+import { Star, Clock, MapPin, Send, MessageSquareWarning, ShoppingBag, Radio } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
@@ -16,6 +16,8 @@ import { onAuthStateChanged, type User } from 'firebase/auth';
 import { ref, push, set, get, update } from 'firebase/database';
 import { processComplaint } from '@/ai/flows/process-complaint';
 import { Skeleton } from '@/components/ui/skeleton';
+import { Input } from '@/components/ui/input';
+import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 
 type Shop = {
   id: string;
@@ -38,6 +40,9 @@ export default function ShopPage({ params }: { params: { shopId: string } }) {
   const [user, setUser] = useState<User | null>(null);
   
   const [orderDescription, setOrderDescription] = useState('');
+  const [orderPrice, setOrderPrice] = useState('');
+  const [orderNote, setOrderNote] = useState('');
+  const [deliverySpeed, setDeliverySpeed] = useState('normal');
   const [isOrdering, setIsOrdering] = useState(false);
 
   const [rating, setRating] = useState(0);
@@ -73,7 +78,9 @@ export default function ShopPage({ params }: { params: { shopId: string } }) {
             shopId: shop.id,
             status: 'Pending',
             description: orderDescription,
-            total: 0, // Placeholder for total, can be updated later
+            total: Number(orderPrice) || 0,
+            note: orderNote,
+            deliverySpeed: deliverySpeed,
             email: user.email,
             address: localStorage.getItem('deliveryAddress') || 'Vehari, Pakistan',
             userId: user.uid,
@@ -93,6 +100,9 @@ export default function ShopPage({ params }: { params: { shopId: string } }) {
             description: `Your order from ${shop.name} has been placed.`,
         });
         setOrderDescription('');
+        setOrderPrice('');
+        setOrderNote('');
+        setDeliverySpeed('normal');
 
     } catch(error) {
         console.error(error);
@@ -222,16 +232,59 @@ export default function ShopPage({ params }: { params: { shopId: string } }) {
                     <CardHeader>
                         <CardTitle className="flex items-center gap-2"><ShoppingBag className="w-6 h-6"/> Order from this Shop</CardTitle>
                     </CardHeader>
-                    <CardContent>
-                        <Label htmlFor="order-description">What would you like to order?</Label>
-                         <Textarea
-                            id="order-description"
-                            placeholder={`e.g., "One Zinger Burger with extra cheese and a large fries."`}
-                            rows={4}
-                            value={orderDescription}
-                            onChange={(e) => setOrderDescription(e.target.value)}
-                            required
-                        />
+                    <CardContent className="space-y-4">
+                        <div>
+                            <Label htmlFor="order-description">What would you like to order?</Label>
+                            <Textarea
+                                id="order-description"
+                                placeholder={`e.g., "One Zinger Burger with extra cheese and a large fries."`}
+                                rows={3}
+                                value={orderDescription}
+                                onChange={(e) => setOrderDescription(e.target.value)}
+                                required
+                            />
+                        </div>
+                        <div>
+                            <Label htmlFor="order-note">Additional Note (optional)</Label>
+                            <Textarea
+                                id="order-note"
+                                placeholder="e.g., 'Please make it less spicy.'"
+                                rows={2}
+                                value={orderNote}
+                                onChange={(e) => setOrderNote(e.target.value)}
+                            />
+                        </div>
+                        <div className="grid grid-cols-2 gap-4">
+                            <div>
+                                <Label htmlFor="order-price">Price / Budget (PKR)</Label>
+                                <Input 
+                                    id="order-price"
+                                    type="number"
+                                    placeholder="e.g., 500"
+                                    value={orderPrice}
+                                    onChange={(e) => setOrderPrice(e.target.value)}
+                                    required
+                                />
+                            </div>
+                            <div>
+                                <Label>Delivery Speed</Label>
+                                <RadioGroup
+                                    defaultValue="normal"
+                                    className="flex items-center space-x-4 pt-2"
+                                    value={deliverySpeed}
+                                    onValueChange={setDeliverySpeed}
+                                >
+                                    <div className="flex items-center space-x-2">
+                                        <RadioGroupItem value="normal" id="normal" />
+                                        <Label htmlFor="normal">Normal</Label>
+                                    </div>
+                                    <div className="flex items-center space-x-2">
+                                        <RadioGroupItem value="fast" id="fast" />
+                                        <Label htmlFor="fast">Fast</Label>
+                                    </div>
+                                </RadioGroup>
+                            </div>
+                        </div>
                     </CardContent>
                     <CardFooter>
                         <Button type="submit" className="w-full" disabled={isOrdering}>
