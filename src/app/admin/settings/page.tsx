@@ -13,7 +13,7 @@ import { Loader2 } from 'lucide-react';
 
 export default function SettingsPage() {
     const { toast } = useToast();
-    const [announcement, setAnnouncement] = useState('');
+    const [alert, setAlert] = useState('');
     const [isLoading, setIsLoading] = useState(true);
     const [isSaving, setIsSaving] = useState(false);
 
@@ -21,10 +21,10 @@ export default function SettingsPage() {
         const fetchSettings = async () => {
             setIsLoading(true);
             try {
-                const settingsRef = ref(db, 'settings/announcement');
+                const settingsRef = ref(db, 'settings/alert');
                 const snapshot = await get(settingsRef);
                 if (snapshot.exists()) {
-                    setAnnouncement(snapshot.val());
+                    setAlert(snapshot.val());
                 }
             } catch (error) {
                 console.error("Error fetching settings:", error);
@@ -43,11 +43,11 @@ export default function SettingsPage() {
     const handleSave = async () => {
         setIsSaving(true);
         try {
-            const settingsRef = ref(db, 'settings/announcement');
-            await set(settingsRef, announcement);
+            const settingsRef = ref(db, 'settings/alert');
+            await set(settingsRef, alert);
             toast({
                 title: 'Settings Saved',
-                description: 'The announcement has been updated.',
+                description: 'The pop-up alert has been updated.',
             });
         } catch (error) {
             console.error("Error saving settings:", error);
@@ -62,10 +62,10 @@ export default function SettingsPage() {
     
   return (
     <main className="grid flex-1 items-start gap-4 p-4 sm:px-6 sm:py-0 md:gap-8">
-        <AdminHeader title="Settings" description="Manage your application settings." />
+        <AdminHeader title="Alerts" description="Manage the pop-up alert for all users." />
         <Card>
             <CardHeader>
-                <CardTitle>App Announcement</CardTitle>
+                <CardTitle>Global App Alert</CardTitle>
                 <CardDescription>This message will be displayed in a pop-up to all users when they open the app.</CardDescription>
             </CardHeader>
             <CardContent>
@@ -73,11 +73,11 @@ export default function SettingsPage() {
                     <Loader2 className="animate-spin" />
                 ) : (
                     <div className="grid gap-2">
-                        <Label htmlFor="announcement">Announcement Message</Label>
+                        <Label htmlFor="alert">Alert Message</Label>
                         <Textarea 
-                            id="announcement"
-                            value={announcement}
-                            onChange={(e) => setAnnouncement(e.target.value)}
+                            id="alert"
+                            value={alert}
+                            onChange={(e) => setAlert(e.target.value)}
                             placeholder="e.g., Special discount this weekend!"
                             rows={4}
                         />
@@ -87,7 +87,7 @@ export default function SettingsPage() {
             <CardFooter className="border-t px-6 py-4">
                 <Button onClick={handleSave} disabled={isSaving || isLoading}>
                     {isSaving && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
-                    Save
+                    Save & Publish Alert
                 </Button>
             </CardFooter>
         </Card>

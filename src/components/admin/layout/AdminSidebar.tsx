@@ -6,6 +6,7 @@ import {
   Home,
   Package,
   Users2,
+  Megaphone,
   Siren,
   PanelLeft,
 } from 'lucide-react';
@@ -34,9 +35,10 @@ const mainNavItems = [
     { href: "/admin", label: "Dashboard", icon: Home },
     { href: "/admin/orders", label: "Orders", icon: Package },
     { href: "/admin/users", label: "Users", icon: Users2 },
+    { href: "/admin/announcements", label: "Announcements", icon: Megaphone },
 ];
 
-const settingsNavItem = { href: "/admin/announcements", label: "Alerts", icon: Siren };
+const settingsNavItem = { href: "/admin/settings", label: "Alerts", icon: Siren };
 
 export function AdminSidebar() {
   const [user, setUser] = useState<User | null>(null);
@@ -146,7 +148,7 @@ export function AdminSidebar() {
                 <DropdownMenuLabel>My Account</DropdownMenuLabel>
                 <DropdownMenuSeparator />
                 <DropdownMenuItem asChild>
-                    <Link href="/admin/announcements">Alerts</Link>
+                    <Link href="/admin/settings">Alerts</Link>
                 </DropdownMenuItem>
                 <DropdownMenuItem>Support</DropdownMenuItem>
                 <DropdownMenuSeparator />
