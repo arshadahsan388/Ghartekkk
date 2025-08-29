@@ -18,7 +18,7 @@ import {
   Signal,
   MessageSquare,
 } from 'lucide-react';
-import { Sheet, SheetContent, SheetTrigger } from '@/components/ui/sheet';
+import { Sheet, SheetContent, SheetTitle, SheetTrigger } from '@/components/ui/sheet';
 import { Button } from '@/components/ui/button';
 import {
   DropdownMenu,
@@ -180,6 +180,7 @@ const settingsNavItem = { href: "/admin/settings", label: "Settings", icon: Sett
             </Button>
           </SheetTrigger>
           <SheetContent side="left" className="sm:max-w-xs">
+             <SheetTitle className="sr-only">Admin Menu</SheetTitle>
             <nav className="grid gap-6 text-lg font-medium">
               <Link
                 href="/"
@@ -275,3 +276,5 @@ const settingsNavItem = { href: "/admin/settings", label: "Settings", icon: Sett
     </>
   );
 }
+
+    
