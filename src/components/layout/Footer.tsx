@@ -23,15 +23,17 @@ export default function Footer() {
   const [isMounted, setIsMounted] = useState(false);
   const [activeOrdersCount, setActiveOrdersCount] = useState(0);
   const [unreadSupportMessages, setUnreadSupportMessages] = useState(0);
+  const [user, setUser] = useState(null);
 
   useEffect(() => {
     setIsMounted(true);
 
-    const unsubscribeAuth = onAuthStateChanged(auth, (user) => {
-        if(user) {
+    const unsubscribeAuth = onAuthStateChanged(auth, (currentUser) => {
+        setUser(currentUser as any);
+        if(currentUser) {
              // Listener for active orders
              const ordersRef = ref(db, 'orders');
-             const userOrdersQuery = query(ordersRef, orderByChild('userId'), equalTo(user.uid));
+             const userOrdersQuery = query(ordersRef, orderByChild('userId'), equalTo(currentUser.uid));
              const unsubscribeOrders = onValue(userOrdersQuery, (snapshot) => {
                 let count = 0;
                 snapshot.forEach(childSnapshot => {
@@ -44,7 +46,7 @@ export default function Footer() {
              });
 
             // Listener for unread support messages
-            const chatMetadataRef = ref(db, `chats/${user.uid}/metadata`);
+            const chatMetadataRef = ref(db, `chats/${currentUser.uid}/metadata`);
             const unsubscribeSupport = onValue(chatMetadataRef, (snapshot) => {
                 if (snapshot.exists() && snapshot.val().unreadByUser) {
                     setUnreadSupportMessages(1); // For now, just show a badge if there are any unread.
@@ -106,7 +108,7 @@ export default function Footer() {
                 )}
                  {label === 'Support' && unreadSupportMessages > 0 && (
                     <Badge variant="destructive" className="absolute top-1 right-5 h-2.5 w-2.5 justify-center p-0" />
-                )}
+                 )}
                <Icon className={cn("h-6 w-6", isActive && "fill-current")} />
                <span>{label}</span>
              </Link>
@@ -126,6 +128,7 @@ export default function Footer() {
                     <ul className="space-y-2 text-sm">
                         <li><Link href="/" className="text-muted-foreground hover:text-primary">Home</Link></li>
                         <li><Link href="/orders" className="text-muted-foreground hover:text-primary">My Orders</Link></li>
+                        <li><Link href="/about" className="text-muted-foreground hover:text-primary">About Us</Link></li>
                     </ul>
                 </div>
                  <div>
