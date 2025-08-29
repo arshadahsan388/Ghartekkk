@@ -94,7 +94,7 @@ export default function AccountPage() {
    const handleLogout = async () => {
     try {
         await signOut(auth);
-        router.push('/login');
+        router.push('/signup');
         router.refresh();
         toast({
             title: 'Logged Out',

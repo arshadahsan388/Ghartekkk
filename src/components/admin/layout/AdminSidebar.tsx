@@ -118,8 +118,8 @@ export function AdminSidebar() {
 
   const handleLogout = async () => {
     try {
-      router.push('/login');
       await signOut(auth);
+      router.push('/signup');
       router.refresh();
       toast({
         title: 'Logged Out',
