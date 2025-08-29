@@ -80,11 +80,12 @@ export function AdminSidebar() {
 
     // Listen for active orders
     const ordersRef = ref(db, 'orders');
-    const unsubscribeOrders = onValue(ordersRef, (snapshot) => {
+    const unreadQuery = query(ordersRef, orderByChild('isRead'), equalTo(false));
+    const unsubscribeOrders = onValue(unreadQuery, (snapshot) => {
         let count = 0;
         snapshot.forEach(childSnapshot => {
             const order = childSnapshot.val();
-            if (order.status !== 'Delivered' && order.status !== 'Cancelled' && order.status !== 'Rejected') {
+             if (order.status !== 'Delivered' && order.status !== 'Cancelled' && order.status !== 'Rejected') {
                 count++;
             }
         });
@@ -118,11 +119,12 @@ export function AdminSidebar() {
   const handleLogout = async () => {
     try {
       await signOut(auth);
+      router.push('/login');
+      router.refresh();
       toast({
         title: 'Logged Out',
         description: 'You have been successfully logged out.',
       });
-      router.push('/login');
     } catch (error) {
       toast({
         variant: 'destructive',

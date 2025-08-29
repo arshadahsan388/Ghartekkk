@@ -94,12 +94,12 @@ export default function AccountPage() {
    const handleLogout = async () => {
     try {
         await signOut(auth);
+        router.push('/login');
+        router.refresh();
         toast({
             title: 'Logged Out',
             description: 'You have been successfully logged out.',
         });
-        router.push('/login');
-        router.refresh();
     } catch (error) {
         toast({
             variant: 'destructive',
