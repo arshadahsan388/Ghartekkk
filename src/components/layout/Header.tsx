@@ -4,7 +4,7 @@
 import Link from 'next/link';
 import { Avatar, AvatarFallback, AvatarImage } from '../ui/avatar';
 import { Button } from '../ui/button';
-import { LogIn, UserPlus, LifeBuoy, ShoppingBag, ArrowLeft } from 'lucide-react';
+import { LogIn, UserPlus, LifeBuoy, ShoppingBag, ArrowLeft, Home, User, Package } from 'lucide-react';
 import Logo from '../icons/Logo';
 import { usePathname, useRouter } from 'next/navigation';
 import { useEffect, useState } from 'react';
@@ -59,13 +59,25 @@ export default function Header() {
         </Link>
         
         <nav className="hidden md:flex items-center space-x-6 text-sm font-medium flex-1">
+             <Link href="/" className="flex items-center gap-1 text-muted-foreground hover:text-primary transition-colors">
+                <Home className="h-4 w-4"/>
+                Home
+            </Link>
              <Link href="/orders" className="flex items-center gap-1 text-muted-foreground hover:text-primary transition-colors">
-                <ShoppingBag className="h-4 w-4"/>
+                <Package className="h-4 w-4"/>
                 My Orders
+            </Link>
+             <Link href="/custom-order" className="flex items-center gap-1 text-muted-foreground hover:text-primary transition-colors">
+                <ShoppingBag className="h-4 w-4"/>
+                Custom Order
             </Link>
              <Link href="/support" className="flex items-center gap-1 text-muted-foreground hover:text-primary transition-colors">
                 <LifeBuoy className="h-4 w-4"/>
                 Support
+            </Link>
+             <Link href="/account" className="flex items-center gap-1 text-muted-foreground hover:text-primary transition-colors">
+                <User className="h-4 w-4"/>
+                Profile
             </Link>
         </nav>
 
