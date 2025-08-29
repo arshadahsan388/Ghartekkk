@@ -18,7 +18,7 @@ import {
   MessageSquare,
   FileText,
 } from 'lucide-react';
-import { Sheet, SheetContent, SheetTitle, SheetClose } from '@/components/ui/sheet';
+import { Sheet, SheetContent, SheetTitle, SheetClose, SheetTrigger } from '@/components/ui/sheet';
 import { Button } from '@/components/ui/button';
 import {
   DropdownMenu,
