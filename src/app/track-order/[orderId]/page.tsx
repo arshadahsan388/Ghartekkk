@@ -2,7 +2,7 @@
 
 'use client';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
-import { Phone, CheckCircle2, Home, Loader2, ServerCrash } from 'lucide-react';
+import { Phone, CheckCircle2, Home, Loader2, ServerCrash, Timer } from 'lucide-react';
 import { useEffect, useState } from 'react';
 import { db } from '@/lib/firebase';
 import { ref, onValue } from 'firebase/database';
@@ -10,6 +10,7 @@ import { Badge } from '@/components/ui/badge';
 import { cn } from '@/lib/utils';
 import { Skeleton } from '@/components/ui/skeleton';
 import { useParams } from 'next/navigation';
+import { Progress } from '@/components/ui/progress';
 
 type Order = {
   id: string;
@@ -17,6 +18,7 @@ type Order = {
   shop: string;
   status: 'Pending' | 'Confirmed' | 'Delivered' | 'Rejected' | 'Cancelled';
   date: string; // ISO String
+  deliverySpeed?: 'normal' | 'fast';
 };
 
 const statusSteps = [
@@ -37,6 +39,8 @@ export default function TrackOrderPage() {
   const [order, setOrder] = useState<Order | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [progress, setProgress] = useState(0);
+  const [timeLeft, setTimeLeft] = useState(0);
 
   useEffect(() => {
     const orderId = params.orderId;
@@ -62,7 +66,30 @@ export default function TrackOrderPage() {
 
     return () => unsubscribe();
   }, [params.orderId]);
+  
+  useEffect(() => {
+    if (order?.status === 'Confirmed' && order.date) {
+      const deliveryDuration = order.deliverySpeed === 'fast' ? 20 * 60 : 40 * 60; // in seconds
+      const startTime = new Date(order.date).getTime();
 
+      const interval = setInterval(() => {
+        const now = new Date().getTime();
+        const elapsedTime = (now - startTime) / 1000; // in seconds
+        
+        if (elapsedTime >= deliveryDuration) {
+          setProgress(100);
+          setTimeLeft(0);
+          clearInterval(interval);
+        } else {
+          const currentProgress = (elapsedTime / deliveryDuration) * 100;
+          setProgress(currentProgress);
+          setTimeLeft(deliveryDuration - elapsedTime);
+        }
+      }, 1000);
+
+      return () => clearInterval(interval);
+    }
+  }, [order]);
 
   if (isLoading) {
     return (
@@ -98,6 +125,13 @@ export default function TrackOrderPage() {
   const isOrderActive = order.status !== 'Rejected' && order.status !== 'Cancelled';
   const currentStatusIndex = statusToIndex[order.status];
 
+  const formatTime = (seconds: number) => {
+    const mins = Math.floor(seconds / 60);
+    const secs = Math.floor(seconds % 60);
+    return `${String(mins).padStart(2, '0')}:${String(secs).padStart(2, '0')}`;
+  };
+
+
   return (
     <div className="container mx-auto py-8">
       <div className="max-w-2xl mx-auto">
@@ -108,6 +142,23 @@ export default function TrackOrderPage() {
                 <Badge variant={isOrderActive ? 'default' : 'destructive'} className="text-base">{order.status}</Badge>
             </div>
         </div>
+
+        {order.status === 'Confirmed' && (
+            <Card className="mb-8">
+                <CardHeader>
+                    <CardTitle className="flex items-center gap-2">
+                        <Timer />
+                        Estimated Arrival
+                    </CardTitle>
+                </CardHeader>
+                <CardContent className="space-y-2">
+                    <Progress value={progress} />
+                    <p className="text-sm text-muted-foreground text-center">
+                       {timeLeft > 0 ? `${formatTime(timeLeft)} remaining` : "Arriving soon!"}
+                    </p>
+                </CardContent>
+            </Card>
+        )}
 
         {!isOrderActive && (
              <Card className="shadow-lg bg-destructive/10 border-destructive">
