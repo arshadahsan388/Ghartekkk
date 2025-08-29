@@ -5,7 +5,7 @@
 import { useSearchParams, useRouter } from 'next/navigation';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
-import { Star, Clock, MapPin, Send, MessageSquareWarning, ShoppingBag, Radio, Sparkles } from 'lucide-react';
+import { Star, MapPin, Send, MessageSquareWarning, ShoppingBag, Radio, Sparkles, Phone } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
@@ -50,6 +50,7 @@ export default function ShopPage({ params }: { params: { shopId: string } }) {
   
   const [orderDescription, setOrderDescription] = useState('');
   const [orderPrice, setOrderPrice] = useState('');
+  const [phoneNumber, setPhoneNumber] = useState('');
   const [orderNote, setOrderNote] = useState('');
   const [deliverySpeed, setDeliverySpeed] = useState('normal');
   const [isOrdering, setIsOrdering] = useState(false);
@@ -143,6 +144,7 @@ export default function ShopPage({ params }: { params: { shopId: string } }) {
             deliverySpeed: deliverySpeed,
             email: user.email,
             address: savedAddress,
+            phoneNumber: phoneNumber,
             userId: user.uid,
             date: new Date().toISOString(),
             reviewed: false,
@@ -166,6 +168,7 @@ export default function ShopPage({ params }: { params: { shopId: string } }) {
         setOrderDescription('');
         setOrderPrice('');
         setOrderNote('');
+        setPhoneNumber('');
         setDeliverySpeed('normal');
         router.push(`/track-order/${newOrder.id}`);
 
@@ -262,16 +265,33 @@ export default function ShopPage({ params }: { params: { shopId: string } }) {
                                 onChange={(e) => setOrderNote(e.target.value)}
                             />
                         </div>
-                        <div className="space-y-2">
-                            <Label htmlFor="order-price">Price / Budget (PKR)</Label>
-                            <Input 
-                                id="order-price"
-                                type="number"
-                                placeholder="e.g., 500"
-                                value={orderPrice}
-                                onChange={(e) => setOrderPrice(e.target.value)}
-                                required
-                            />
+                         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                            <div className="space-y-2">
+                                <Label htmlFor="order-price">Price / Budget (PKR)</Label>
+                                <Input 
+                                    id="order-price"
+                                    type="number"
+                                    placeholder="e.g., 500"
+                                    value={orderPrice}
+                                    onChange={(e) => setOrderPrice(e.target.value)}
+                                    required
+                                />
+                            </div>
+                            <div className="space-y-2">
+                                <Label htmlFor="phoneNumber">Phone Number</Label>
+                                <div className="relative">
+                                    <Phone className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+                                    <Input
+                                        id="phoneNumber"
+                                        type="tel"
+                                        placeholder="e.g., 0300-1234567"
+                                        value={phoneNumber}
+                                        onChange={(e) => setPhoneNumber(e.target.value)}
+                                        required
+                                        className="pl-9"
+                                    />
+                                </div>
+                            </div>
                         </div>
                         <div className="space-y-2">
                             <Label>Delivery Speed</Label>

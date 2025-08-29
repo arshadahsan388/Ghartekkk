@@ -15,7 +15,7 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
-import { WandSparkles, Send, ShoppingCart, Store } from 'lucide-react';
+import { WandSparkles, Send, ShoppingCart, Store, Phone } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import {
   processCustomOrder,
@@ -41,6 +41,7 @@ export default function CustomOrderPage() {
   const [shopName, setShopName] = useState('');
   const [budget, setBudget] = useState('');
   const [address, setAddress] = useState('');
+  const [phoneNumber, setPhoneNumber] = useState('');
   const [additionalNote, setAdditionalNote] = useState('');
   const [deliverySpeed, setDeliverySpeed] = useState('normal');
   const [isLoading, setIsLoading] = useState(false);
@@ -113,6 +114,7 @@ export default function CustomOrderPage() {
         email: user.email,
         description: description,
         address: address,
+        phoneNumber: phoneNumber,
         budget: Number(budget),
         additionalNote: additionalNote,
         deliverySpeed: deliverySpeed,
@@ -156,6 +158,7 @@ export default function CustomOrderPage() {
         address,
         shopName: shopName,
         additionalNote: additionalNote,
+        phoneNumber: phoneNumber,
       });
       setResult(response);
       await handleOrderSuccess(response);
@@ -275,6 +278,21 @@ export default function CustomOrderPage() {
                   />
                 </div>
               </div>
+                <div className="space-y-2">
+                  <Label htmlFor="phoneNumber">Phone Number</Label>
+                    <div className="relative">
+                        <Phone className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+                        <Input
+                            id="phoneNumber"
+                            type="tel"
+                            placeholder="e.g., 0300-1234567"
+                            value={phoneNumber}
+                            onChange={(e) => setPhoneNumber(e.target.value)}
+                            required
+                            className="pl-9"
+                        />
+                    </div>
+                </div>
                <div className="space-y-2">
                 <Label>Delivery Speed</Label>
                 <RadioGroup
