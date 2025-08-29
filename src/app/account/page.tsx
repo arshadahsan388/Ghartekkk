@@ -5,7 +5,7 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { Home, LogOut, LifeBuoy, Package, User as UserIcon, KeyRound, Save, AtSign, FileText, Shield, FileQuestion } from 'lucide-react';
+import { Home, LogOut, LifeBuoy, Package, User as UserIcon, KeyRound, Save, AtSign, FileText, Shield, FileQuestion, Info } from 'lucide-react';
 import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { auth } from '@/lib/firebase';
@@ -213,7 +213,7 @@ export default function AccountPage() {
 
         <Card>
           <CardHeader>
-            <CardTitle>App Settings & Legal</CardTitle>
+            <CardTitle>App Settings &amp; Legal</CardTitle>
             <CardDescription>Navigate to other parts of the app and view our policies.</CardDescription>
           </CardHeader>
           <CardContent className="divide-y">
@@ -226,6 +226,10 @@ export default function AccountPage() {
                         <LifeBuoy className="w-5 h-5 text-muted-foreground" />
                         <span>Support Chat</span>
                     </Link>
+                     <Link href="/about" className="flex items-center gap-3 p-3 rounded-lg hover:bg-muted transition-colors">
+                        <Info className="w-5 h-5 text-muted-foreground" />
+                        <span>About Us</span>
+                    </Link>
                 </div>
                 <div className="py-2">
                     <Link href="/privacy-policy" className="flex items-center gap-3 p-3 rounded-lg hover:bg-muted transition-colors">
@@ -234,7 +238,7 @@ export default function AccountPage() {
                     </Link>
                      <Link href="/terms-and-conditions" className="flex items-center gap-3 p-3 rounded-lg hover:bg-muted transition-colors">
                         <FileText className="w-5 h-5 text-muted-foreground" />
-                        <span>Terms & Conditions</span>
+                        <span>Terms &amp; Conditions</span>
                     </Link>
                      <Link href="/refund-policy" className="flex items-center gap-3 p-3 rounded-lg hover:bg-muted transition-colors">
                         <FileQuestion className="w-5 h-5 text-muted-foreground" />

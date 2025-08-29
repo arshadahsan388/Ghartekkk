@@ -2,7 +2,7 @@
 'use client';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import { Home, Package, Info, LifeBuoy, User } from 'lucide-react';
+import { Home, Package, ShoppingBag, LifeBuoy, User } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { useEffect, useState } from 'react';
 import { onAuthStateChanged } from 'firebase/auth';
@@ -13,7 +13,7 @@ import { Badge } from '@/components/ui/badge';
 const navItems = [
   { href: '/', icon: Home, label: 'Home' },
   { href: '/orders', icon: Package, label: 'Orders' },
-  { href: '/about', icon: Info, label: 'About' },
+  { href: '/custom-order', icon: ShoppingBag, label: 'Custom' },
   { href: '/support', icon: LifeBuoy, label: 'Support' },
   { href: '/account', icon: User, label: 'Profile' },
 ];
@@ -135,7 +135,7 @@ export default function Footer() {
                     <h3 className="font-semibold mb-2">Legal</h3>
                     <ul className="space-y-2 text-sm">
                         <li><Link href="/privacy-policy" className="text-muted-foreground hover:text-primary">Privacy Policy</Link></li>
-                        <li><Link href="/terms-and-conditions" className="text-muted-foreground hover:text-primary">Terms & Conditions</Link></li>
+                        <li><Link href="/terms-and-conditions" className="text-muted-foreground hover:text-primary">Terms &amp; Conditions</Link></li>
                         <li><Link href="/refund-policy" className="text-muted-foreground hover:text-primary">Refund Policy</Link></li>
                     </ul>
                 </div>
