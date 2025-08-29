@@ -19,7 +19,7 @@ import {
   } from '@/components/ui/table';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
-import { MoreHorizontal, Loader2, FileText, User, MapPin, DollarSign, StickyNote, Rabbit, Turtle, Eye } from 'lucide-react';
+import { MoreHorizontal, Loader2, FileText, User, MapPin, DollarSign, StickyNote, Rabbit, Turtle, Eye, Phone } from 'lucide-react';
 import { useEffect, useState } from 'react';
 import { db } from '@/lib/firebase';
 import { ref, onValue } from 'firebase/database';
@@ -35,6 +35,7 @@ type Order = {
     date: string;
     description: string;
     address: string;
+    phoneNumber?: string;
     budget?: number;
     note?: string;
     additionalNote?: string;
@@ -174,6 +175,12 @@ export default function DeliveredOrdersPage() {
                                     <MapPin className="w-4 h-4 mt-1 text-muted-foreground" />
                                     <span><strong>Address:</strong> {selectedOrder.address}</span>
                                 </p>
+                                {selectedOrder.phoneNumber && (
+                                     <p className="flex items-start gap-2">
+                                        <Phone className="w-4 h-4 mt-1 text-muted-foreground" />
+                                        <span><strong>Phone:</strong> {selectedOrder.phoneNumber}</span>
+                                    </p>
+                                )}
                             </div>
 
                              <div className="p-4 border rounded-lg space-y-2">

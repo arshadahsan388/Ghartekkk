@@ -20,12 +20,12 @@ import {
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { DropdownMenu, DropdownMenuTrigger, DropdownMenuContent, DropdownMenuItem, DropdownMenuLabel } from '@/components/ui/dropdown-menu';
-import { MoreHorizontal, Loader2, FileText, User, MapPin, DollarSign, StickyNote, Rabbit, Turtle } from 'lucide-react';
+import { MoreHorizontal, Loader2, FileText, User, MapPin, DollarSign, StickyNote, Rabbit, Turtle, Phone } from 'lucide-react';
 import { useEffect, useState, useRef } from 'react';
 import { db } from '@/lib/firebase';
 import { ref, onValue, update, query, orderByChild, equalTo, serverTimestamp } from 'firebase/database';
 import { useToast } from '@/hooks/use-toast';
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from '@/components/ui/dialog';
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter } from '@/components/ui/dialog';
 
 type Order = {
     id: string;
@@ -37,6 +37,7 @@ type Order = {
     date: string;
     description: string;
     address: string;
+    phoneNumber?: string;
     budget?: number;
     note?: string;
     additionalNote?: string;
@@ -256,6 +257,12 @@ export default function OrdersPage() {
                                     <MapPin className="w-4 h-4 mt-1 text-muted-foreground" />
                                     <span><strong>Address:</strong> {selectedOrder.address}</span>
                                 </p>
+                                {selectedOrder.phoneNumber && (
+                                     <p className="flex items-start gap-2">
+                                        <Phone className="w-4 h-4 mt-1 text-muted-foreground" />
+                                        <span><strong>Phone:</strong> {selectedOrder.phoneNumber}</span>
+                                    </p>
+                                )}
                             </div>
 
                              <div className="p-4 border rounded-lg space-y-2">
@@ -288,10 +295,12 @@ export default function OrdersPage() {
                         </div>
                      </div>
                 )}
+                 <DialogFooter>
+                    <Button variant="outline" onClick={() => setIsDetailsOpen(false)}>Close</Button>
+                </DialogFooter>
             </DialogContent>
         </Dialog>
     </main>
   );
 }
-
     
