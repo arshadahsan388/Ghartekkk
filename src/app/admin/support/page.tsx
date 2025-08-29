@@ -6,7 +6,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Card, CardContent, CardHeader, CardTitle, CardFooter } from '@/components/ui/card';
 import { Avatar, AvatarFallback } from '@/components/ui/avatar';
-import { Send, User, Image as ImageIcon } from 'lucide-react';
+import { Send, User, Image as ImageIcon, Paperclip, X } from 'lucide-react';
 import { auth, db } from '@/lib/firebase';
 import { ref, onValue, push, set, serverTimestamp, update } from 'firebase/database';
 import { cn } from '@/lib/utils';
@@ -17,6 +17,7 @@ import Image from 'next/image';
 import { Label } from '@/components/ui/label';
 import { Switch } from '@/components/ui/switch';
 import { useToast } from '@/hooks/use-toast';
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 
 type Message = {
   id: string;
@@ -43,9 +44,14 @@ export default function AdminSupportPage() {
   const [messages, setMessages] = useState<Message[]>([]);
   const [newMessage, setNewMessage] = useState('');
   const messagesEndRef = useRef<HTMLDivElement | null>(null);
+  const fileInputRef = useRef<HTMLInputElement>(null);
   const [adminUser, setAdminUser] = useState<FirebaseUser | null>(null);
   const [isAiSupportActive, setIsAiSupportActive] = useState(false);
   const { toast } = useToast();
+  const [imageToSend, setImageToSend] = useState<string | null>(null);
+  const [isSending, setIsSending] = useState(false);
+  const [viewedImageUrl, setViewedImageUrl] = useState<string | null>(null);
+  const [isImageViewerOpen, setIsImageViewerOpen] = useState(false);
 
   useEffect(() => {
     const unsubscribeAuth = auth.onAuthStateChanged(user => {
@@ -108,27 +114,57 @@ export default function AdminSupportPage() {
 
   const handleSendMessage = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!adminUser || !selectedChat || newMessage.trim() === '') return;
+    if (!adminUser || !selectedChat || (newMessage.trim() === '' && !imageToSend)) return;
+
+    setIsSending(true);
 
     const chatRef = ref(db, `chats/${selectedChat.id}/messages`);
     const newMsgRef = push(chatRef);
-    await set(newMsgRef, {
-      text: newMessage,
-      type: 'text',
+    const metadataRef = ref(db, `chats/${selectedChat.id}/metadata`);
+    
+    const messageData = {
       sender: 'admin',
       timestamp: serverTimestamp(),
       userName: 'Admin',
-    });
-
-    const metadataRef = ref(db, `chats/${selectedChat.id}/metadata`);
-    await update(metadataRef, {
-        lastMessage: newMessage,
-        lastMessageType: 'text',
+    };
+    
+    const metadataUpdate = {
         timestamp: serverTimestamp(),
-        unreadByAdmin: false, // Admin sent a message, so it's read by admin
-    })
+        unreadByAdmin: false,
+        unreadByUser: true,
+    };
+    
+    if(imageToSend) {
+        await set(newMsgRef, { ...messageData, imageUrl: imageToSend, type: 'image' });
+        await update(metadataRef, { ...metadataUpdate, lastMessage: 'Image', lastMessageType: 'image' });
+    } else {
+        await set(newMsgRef, { ...messageData, text: newMessage, type: 'text' });
+        await update(metadataRef, { ...metadataUpdate, lastMessage: newMessage, lastMessageType: 'text' });
+    }
 
     setNewMessage('');
+    setImageToSend(null);
+    if(fileInputRef.current) fileInputRef.current.value = '';
+    setIsSending(false);
+  };
+  
+  const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0];
+    if (file) {
+      if (file.size > 2 * 1024 * 1024) { // 2MB limit
+        toast({
+            variant: 'destructive',
+            title: 'File too large',
+            description: 'Please select an image smaller than 2MB.',
+        });
+        return;
+      }
+      const reader = new FileReader();
+      reader.onload = (e) => {
+        setImageToSend(e.target?.result as string);
+      };
+      reader.readAsDataURL(file);
+    }
   };
 
   const handleSelectChat = (chat: ChatMetadata) => {
@@ -172,8 +208,14 @@ export default function AdminSupportPage() {
     return <p className="text-xs text-muted-foreground truncate">{chat.lastMessage}</p>;
   }
 
+  const handleViewImage = (url: string) => {
+    setViewedImageUrl(url);
+    setIsImageViewerOpen(true);
+  }
+
 
   return (
+    <>
     <main className="grid flex-1 items-start gap-4 p-4 sm:px-6 sm:py-0 md:gap-8 h-[calc(100vh-80px)]">
         <div className="flex items-center justify-between">
             <AdminHeader title="Support Chat" description="Respond to live customer queries." />
@@ -244,7 +286,9 @@ export default function AdminSupportPage() {
                                     )}
                                     >
                                      {message.type === 'image' && message.imageUrl ? (
-                                        <Image src={message.imageUrl} alt="User upload" width={200} height={200} className="rounded-md" />
+                                        <button onClick={() => handleViewImage(message.imageUrl!)}>
+                                            <Image src={message.imageUrl} alt="User upload" width={200} height={200} className="rounded-md cursor-pointer" />
+                                        </button>
                                     ) : (
                                         <p className="text-sm">{message.text}</p>
                                     )}
@@ -258,18 +302,52 @@ export default function AdminSupportPage() {
                                 ))}
                                 <div ref={messagesEndRef} />
                         </CardContent>
-                         <CardFooter className="p-4 border-t">
+                         <CardFooter className="p-4 border-t flex flex-col items-start gap-2">
+                             {imageToSend && (
+                                <div className="relative">
+                                    <Image src={imageToSend} alt="Preview" width={80} height={80} className="rounded-md" />
+                                    <Button
+                                        variant="destructive"
+                                        size="icon"
+                                        className="absolute -top-2 -right-2 h-6 w-6 rounded-full"
+                                        onClick={() => {
+                                            setImageToSend(null)
+                                            if(fileInputRef.current) fileInputRef.current.value = '';
+                                        }}
+                                    >
+                                        <X className="h-4 w-4" />
+                                    </Button>
+                                </div>
+                            )}
                             <form onSubmit={handleSendMessage} className="flex w-full items-center space-x-2">
-                            <Input
-                                type="text"
-                                placeholder="Type your message..."
-                                value={newMessage}
-                                onChange={(e) => setNewMessage(e.target.value)}
-                            />
-                            <Button type="submit">
-                                <Send className="h-4 w-4" />
-                                <span className="sr-only">Send</span>
-                            </Button>
+                                <input
+                                    type="file"
+                                    ref={fileInputRef}
+                                    onChange={handleFileChange}
+                                    accept="image/*"
+                                    className="hidden"
+                                />
+                                <Button
+                                    type="button"
+                                    variant="ghost"
+                                    size="icon"
+                                    onClick={() => fileInputRef.current?.click()}
+                                    disabled={isSending}
+                                >
+                                    <Paperclip className="h-5 w-5" />
+                                    <span className="sr-only">Attach file</span>
+                                </Button>
+                                <Input
+                                    type="text"
+                                    placeholder="Type your message..."
+                                    value={newMessage}
+                                    onChange={(e) => setNewMessage(e.target.value)}
+                                    disabled={!!imageToSend || isSending}
+                                />
+                                <Button type="submit" disabled={isSending}>
+                                    <Send className="h-4 w-4" />
+                                    <span className="sr-only">Send</span>
+                                </Button>
                             </form>
                         </CardFooter>
                         </>
@@ -279,5 +357,19 @@ export default function AdminSupportPage() {
             </div>
         </div>
     </main>
+
+    <Dialog open={isImageViewerOpen} onOpenChange={setIsImageViewerOpen}>
+        <DialogContent className="max-w-3xl">
+            <DialogHeader>
+                <DialogTitle>Image Preview</DialogTitle>
+            </DialogHeader>
+            {viewedImageUrl && (
+                <div className="flex justify-center items-center">
+                    <Image src={viewedImageUrl} alt="Full size preview" width={800} height={600} style={{ objectFit: 'contain', maxHeight: '80vh', width: 'auto' }} />
+                </div>
+            )}
+        </DialogContent>
+    </Dialog>
+    </>
   );
 }
