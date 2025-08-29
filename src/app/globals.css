@@ -80,4 +80,7 @@
       transform: translateX(-100%);
     }
   }
+  .admin-active footer {
+      @apply hidden;
+  }
 }

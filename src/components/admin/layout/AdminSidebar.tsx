@@ -17,7 +17,7 @@ import {
   Signal,
   MessageSquare,
 } from 'lucide-react';
-import { Sheet, SheetContent, SheetTitle, SheetTrigger } from '@/components/ui/sheet';
+import { Sheet, SheetContent, SheetTitle, SheetTrigger, SheetClose } from '@/components/ui/sheet';
 import { Button } from '@/components/ui/button';
 import {
   DropdownMenu,
@@ -117,8 +117,8 @@ export function AdminSidebar() {
 
   const handleLogout = async () => {
     try {
-      await signOut(auth);
       router.push('/login');
+      await signOut(auth);
       router.refresh();
       toast({
         title: 'Logged Out',
@@ -192,23 +192,26 @@ const settingsNavItem = { href: "/admin/settings", label: "Settings", icon: Sett
              <ScrollArea className="flex-1">
                 <nav className="grid gap-2 text-lg font-medium p-4">
                   {mainNavItems.map(({ href, label, icon: Icon, notificationCount }) => (
-                    <Link
-                      key={href}
-                      href={href}
-                      className="flex items-center gap-4 rounded-lg border p-3 text-muted-foreground hover:text-foreground transition-colors"
-                    >
-                      <Icon className="h-5 w-5" />
-                      {label}
-                      {notificationCount && notificationCount > 0 && <Badge className="ml-auto">{notificationCount}</Badge>}
-                    </Link>
+                    <SheetClose asChild key={href}>
+                        <Link
+                          href={href}
+                          className="flex items-center gap-4 rounded-lg border p-3 text-muted-foreground hover:text-foreground transition-colors"
+                        >
+                          <Icon className="h-5 w-5" />
+                          {label}
+                          {notificationCount && notificationCount > 0 && <Badge className="ml-auto">{notificationCount}</Badge>}
+                        </Link>
+                    </SheetClose>
                   ))}
-                   <Link
-                      href={settingsNavItem.href}
-                      className="flex items-center gap-4 rounded-lg border p-3 text-muted-foreground hover:text-foreground transition-colors"
-                    >
-                      <settingsNavItem.icon className="h-5 w-5" />
-                      {settingsNavItem.label}
-                    </Link>
+                   <SheetClose asChild>
+                        <Link
+                          href={settingsNavItem.href}
+                          className="flex items-center gap-4 rounded-lg border p-3 text-muted-foreground hover:text-foreground transition-colors"
+                        >
+                          <settingsNavItem.icon className="h-5 w-5" />
+                          {settingsNavItem.label}
+                        </Link>
+                   </SheetClose>
                 </nav>
              </ScrollArea>
           </SheetContent>

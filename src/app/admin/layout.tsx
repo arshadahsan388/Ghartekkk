@@ -49,6 +49,14 @@ export default function AdminLayout({
 
     return () => unsubscribe();
   }, [router]);
+  
+  useEffect(() => {
+    // Add a class to the body to hide the main footer
+    document.body.classList.add('admin-active');
+    return () => {
+      document.body.classList.remove('admin-active');
+    };
+  }, []);
 
   if (isLoading) {
     return (
