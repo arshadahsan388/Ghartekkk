@@ -2,7 +2,7 @@
 'use client';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import { Home, Package, ShoppingBag, LifeBuoy, User } from 'lucide-react';
+import { Home, Package, Info, LifeBuoy, User } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { useEffect, useState } from 'react';
 import { onAuthStateChanged } from 'firebase/auth';
@@ -13,7 +13,7 @@ import { Badge } from '@/components/ui/badge';
 const navItems = [
   { href: '/', icon: Home, label: 'Home' },
   { href: '/orders', icon: Package, label: 'Orders' },
-  { href: '/custom-order', icon: ShoppingBag, label: 'Custom' },
+  { href: '/about', icon: Info, label: 'About' },
   { href: '/support', icon: LifeBuoy, label: 'Support' },
   { href: '/account', icon: User, label: 'Profile' },
 ];

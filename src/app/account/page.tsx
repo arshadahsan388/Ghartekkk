@@ -141,8 +141,8 @@ export default function AccountPage() {
 
         <Card>
             <CardHeader>
-                <CardTitle>Personal Information</CardTitle>
-                <CardDescription>Update your display name, email, and default address.</CardDescription>
+                <CardTitle>Account Information</CardTitle>
+                <CardDescription>Update your personal details and security settings.</CardDescription>
             </CardHeader>
             <CardContent className="space-y-4">
                 <div className="space-y-2">
@@ -195,23 +195,18 @@ export default function AccountPage() {
                         <Button onClick={handleSaveAddress}><Save className="mr-2 h-4 w-4" /> Save</Button>
                     </div>
                 </div>
-            </CardContent>
-        </Card>
-        
-        <Card>
-            <CardHeader>
-                <CardTitle>Security</CardTitle>
-                <CardDescription>Manage your account security settings.</CardDescription>
-            </CardHeader>
-            <CardContent>
-                <div className="flex items-center justify-between p-4 border rounded-lg">
-                    <div>
-                        <p className="font-medium flex items-center gap-2"><KeyRound className="w-4 h-4"/> Change Password</p>
-                        <p className="text-sm text-muted-foreground">Click to send a password reset link to your email.</p>
+                <Separator />
+                 <div className="space-y-2 pt-2">
+                    <Label>Password</Label>
+                    <div className="flex items-center justify-between p-4 border rounded-lg">
+                        <div>
+                            <p className="font-medium flex items-center gap-2"><KeyRound className="w-4 h-4"/> Change Password</p>
+                            <p className="text-sm text-muted-foreground">Click to send a password reset link to your email.</p>
+                        </div>
+                        <Button variant="outline" size="sm" onClick={handlePasswordReset} disabled={isSaving}>
+                            Send Reset Link
+                        </Button>
                     </div>
-                    <Button variant="outline" size="sm" onClick={handlePasswordReset} disabled={isSaving}>
-                        Send Reset Link
-                    </Button>
                 </div>
             </CardContent>
         </Card>
