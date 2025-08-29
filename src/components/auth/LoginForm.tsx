@@ -85,10 +85,14 @@ export default function LoginForm() {
     } catch (error: any) {
        console.error("Login error:", error);
        if (error.code === 'auth/invalid-credential' || error.code === 'auth/wrong-password' || error.code === 'auth/user-not-found') {
+            form.setError('password', {
+                type: 'manual',
+                message: 'Incorrect email or password. Please try again.',
+            });
             toast({
                 variant: 'destructive',
                 title: 'Login Failed',
-                description: 'Incorrect email or password. Please try again.',
+                description: 'The email or password you entered is incorrect.',
             });
        } else {
             toast({
