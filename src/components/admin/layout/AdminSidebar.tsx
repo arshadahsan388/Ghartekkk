@@ -16,8 +16,9 @@ import {
   PackageCheck,
   Signal,
   MessageSquare,
+  FileText,
 } from 'lucide-react';
-import { Sheet, SheetContent, SheetTitle, SheetTrigger, SheetClose } from '@/components/ui/sheet';
+import { Sheet, SheetContent, SheetTitle, SheetClose } from '@/components/ui/sheet';
 import { Button } from '@/components/ui/button';
 import {
   DropdownMenu,
@@ -144,6 +145,7 @@ export function AdminSidebar() {
     { href: "/admin/support", label: "Support Chat", icon: MessageSquare, notificationCount: notificationCounts.support },
     { href: "/admin/announcements", label: "Announcements", icon: Megaphone },
     { href: "/admin/alerts", label: "Alerts", icon: Siren },
+    { href: "/admin/content", label: "Content", icon: FileText },
 ];
 
 const settingsNavItem = { href: "/admin/settings", label: "Settings", icon: Settings };
@@ -282,5 +284,3 @@ const settingsNavItem = { href: "/admin/settings", label: "Settings", icon: Sett
     </>
   );
 }
-
-    
