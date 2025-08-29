@@ -10,6 +10,7 @@ import { Badge } from '@/components/ui/badge';
 import { cn } from '@/lib/utils';
 import { Skeleton } from '@/components/ui/skeleton';
 import { Progress } from '@/components/ui/progress';
+import { useParams } from 'next/navigation';
 
 type Order = {
   id: string;
@@ -39,7 +40,8 @@ const statusToIndex: Record<Order['status'], number> = {
 const DELIVERY_TIME_NORMAL_MINS = 40;
 const DELIVERY_TIME_FAST_MINS = 20;
 
-export default function TrackOrderPage({ params }: { params: { orderId: string } }) {
+export default function TrackOrderPage() {
+  const params = useParams<{ orderId: string }>();
   const [order, setOrder] = useState<Order | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -47,13 +49,14 @@ export default function TrackOrderPage({ params }: { params: { orderId: string }
   const [timeLeft, setTimeLeft] = useState(0);
 
   useEffect(() => {
-    if (!params.orderId) {
+    const orderId = params.orderId;
+    if (!orderId) {
       setError("No order ID provided.");
       setIsLoading(false);
       return;
     }
     
-    const orderRef = ref(db, `orders/${params.orderId}`);
+    const orderRef = ref(db, `orders/${orderId}`);
     const unsubscribe = onValue(orderRef, (snapshot) => {
       if (snapshot.exists()) {
         setOrder({ id: snapshot.key, ...snapshot.val() });
