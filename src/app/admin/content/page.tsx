@@ -11,6 +11,7 @@ import { ref, set, get } from 'firebase/database';
 import { useToast } from '@/hooks/use-toast';
 import { Loader2 } from 'lucide-react';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { defaultContent } from '@/lib/default-content';
 
 type PageContent = {
   title: string;
@@ -39,20 +40,24 @@ export default function ContentPage() {
                 const contentRef = ref(db, 'content');
                 const snapshot = await get(contentRef);
                 if (snapshot.exists()) {
-                    setContent(snapshot.val());
-                } else {
-                    // Initialize with empty strings if no content exists
-                    const initialContent = pageKeys.reduce((acc, key) => {
-                        acc[key] = { title: pageTitles[key], body: '' };
+                    const dbContent = snapshot.val();
+                    // Ensure all keys are present, falling back to default if not
+                    const fullContent = pageKeys.reduce((acc, key) => {
+                        acc[key] = dbContent[key] || defaultContent[key as keyof typeof defaultContent];
                         return acc;
                     }, {} as { [key: string]: PageContent });
-                    setContent(initialContent);
+                    setContent(fullContent);
+                } else {
+                    // Initialize with default content if no content exists at all
+                    setContent(defaultContent);
                 }
             } catch (error) {
                 console.error("Error fetching content:", error);
+                 setContent(defaultContent);
                 toast({
                     variant: 'destructive',
                     title: 'Failed to load content',
+                    description: 'Loading default content instead.',
                 });
             } finally {
                 setIsLoading(false);

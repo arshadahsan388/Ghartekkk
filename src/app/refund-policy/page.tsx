@@ -5,6 +5,7 @@ import { useEffect, useState } from 'react';
 import { db } from '@/lib/firebase';
 import { ref, onValue } from 'firebase/database';
 import { Skeleton } from '@/components/ui/skeleton';
+import { defaultContent } from '@/lib/default-content';
 
 export default function RefundPolicyPage() {
   const [content, setContent] = useState<{ title: string, body: string } | null>(null);
@@ -15,6 +16,8 @@ export default function RefundPolicyPage() {
     const unsubscribe = onValue(contentRef, (snapshot) => {
       if (snapshot.exists()) {
         setContent(snapshot.val());
+      } else {
+        setContent(defaultContent.refund);
       }
       setIsLoading(false);
     });
