@@ -40,9 +40,10 @@ export default function RefundPolicyPage() {
       <div className="max-w-3xl mx-auto bg-card p-8 rounded-lg shadow-lg">
         <h1 className="text-4xl font-bold mb-6 font-headline text-primary">{content?.title || 'Refund Policy'}</h1>
         <div
-          className="prose dark:prose-invert max-w-none space-y-4"
-          dangerouslySetInnerHTML={{ __html: content?.body || '<p>No content available.</p>' }}
-        />
+          className="prose dark:prose-invert max-w-none space-y-4 whitespace-pre-wrap"
+        >
+          {content?.body || 'No content available.'}
+        </div>
       </div>
     </div>
   );

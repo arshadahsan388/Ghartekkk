@@ -125,7 +125,7 @@ export default function ContentPage() {
                                     />
                                 </div>
                                  <div className="grid gap-2">
-                                    <Label htmlFor={`${key}-body`}>Page Body (HTML allowed)</Label>
+                                    <Label htmlFor={`${key}-body`}>Page Body</Label>
                                     <Textarea 
                                         id={`${key}-body`}
                                         value={content[key]?.body || ''}
