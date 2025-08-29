@@ -83,4 +83,17 @@
   .admin-active footer {
       @apply hidden;
   }
+
+  .page-loader-progress {
+    animation: page-loader-indeterminate 1.5s infinite cubic-bezier(0.65, 0, 0.35, 1);
+  }
+
+  @keyframes page-loader-indeterminate {
+    0% {
+      transform: translateX(-100%);
+    }
+    100% {
+      transform: translateX(100%);
+    }
+  }
 }

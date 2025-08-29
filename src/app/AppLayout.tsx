@@ -12,6 +12,7 @@ import { auth, db } from '@/lib/firebase';
 import { ref, onValue, set, onDisconnect, serverTimestamp } from 'firebase/database';
 import { useToast } from '@/hooks/use-toast';
 import { useRouter } from 'next/navigation';
+import PageLoader from '@/components/layout/PageLoader';
 
 export default function AppLayout({ children }: { children: React.ReactNode }) {
   const { toast } = useToast();
@@ -60,6 +61,7 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
             disableTransitionOnChange
         >
             <Header />
+            <PageLoader />
             <main className="flex-grow pb-16">{children}</main>
             <Footer />
             <Toaster />
