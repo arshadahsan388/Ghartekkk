@@ -79,8 +79,6 @@ export default function OrdersPage() {
 
   const getStatusBadge = (status: string) => {
     switch (status?.toLowerCase()) {
-      case 'out for delivery':
-        return 'bg-blue-500 hover:bg-blue-600';
        case 'confirmed':
         return 'bg-blue-500 hover:bg-blue-600';
       case 'delivered':

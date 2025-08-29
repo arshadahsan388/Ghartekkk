@@ -2,51 +2,41 @@
 
 'use client';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
-import { Phone, Bike, PackageCheck, Hourglass, Loader2, ServerCrash, CheckCircle2, Home } from 'lucide-react';
+import { Phone, CheckCircle2, Home, Loader2, ServerCrash } from 'lucide-react';
 import { useEffect, useState } from 'react';
 import { db } from '@/lib/firebase';
-import { ref, onValue, update } from 'firebase/database';
+import { ref, onValue } from 'firebase/database';
 import { Badge } from '@/components/ui/badge';
 import { cn } from '@/lib/utils';
 import { Skeleton } from '@/components/ui/skeleton';
-import { Progress } from '@/components/ui/progress';
 import { useParams } from 'next/navigation';
 
 type Order = {
   id: string;
   displayId: string;
   shop: string;
-  status: 'Pending' | 'Confirmed' | 'Out for Delivery' | 'Delivered' | 'Rejected' | 'Cancelled';
+  status: 'Pending' | 'Confirmed' | 'Delivered' | 'Rejected' | 'Cancelled';
   date: string; // ISO String
-  deliverySpeed?: 'normal' | 'fast';
-  outForDeliveryTimestamp?: number;
 };
 
 const statusSteps = [
   { status: 'Confirmed', icon: Phone, title: 'Order Confirmed', description: 'The shop is preparing your order.' },
-  { status: 'Out for Delivery', icon: Bike, title: 'Out for Delivery', description: 'A rider has picked up your order.' },
   { status: 'Delivered', icon: Home, title: 'Delivered', description: 'Your order has arrived. Enjoy!' },
 ];
 
 const statusToIndex: Record<Order['status'], number> = {
   Pending: 0,
   Confirmed: 1,
-  'Out for Delivery': 2,
-  Delivered: 3,
+  Delivered: 2,
   Rejected: -1,
   Cancelled: -1,
 };
-
-const DELIVERY_TIME_NORMAL_MINS = 40;
-const DELIVERY_TIME_FAST_MINS = 20;
 
 export default function TrackOrderPage() {
   const params = useParams<{ orderId: string }>();
   const [order, setOrder] = useState<Order | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  const [progress, setProgress] = useState(0);
-  const [timeLeft, setTimeLeft] = useState(0);
 
   useEffect(() => {
     const orderId = params.orderId;
@@ -72,33 +62,6 @@ export default function TrackOrderPage() {
 
     return () => unsubscribe();
   }, [params.orderId]);
-
-  useEffect(() => {
-    if (order?.status === 'Out for Delivery' && order.outForDeliveryTimestamp) {
-        const totalDuration = (order.deliverySpeed === 'fast' ? DELIVERY_TIME_FAST_MINS : DELIVERY_TIME_NORMAL_MINS) * 60; // in seconds
-        const startTime = order.outForDeliveryTimestamp;
-        
-        const interval = setInterval(() => {
-            const now = Date.now();
-            const timeElapsed = (now - startTime) / 1000;
-            const newProgress = Math.min((timeElapsed / totalDuration) * 100, 100);
-            
-            setProgress(newProgress);
-            setTimeLeft(Math.max(0, totalDuration - timeElapsed));
-
-            if (newProgress >= 100 && order.status !== 'Delivered') {
-                clearInterval(interval);
-                const orderRef = ref(db, `orders/${order.id}`);
-                update(orderRef, { status: 'Delivered' });
-            }
-        }, 1000);
-
-        return () => clearInterval(interval);
-    } else if (order?.status === 'Delivered') {
-        setProgress(100);
-        setTimeLeft(0);
-    }
-  }, [order]);
 
 
   if (isLoading) {
@@ -146,29 +109,7 @@ export default function TrackOrderPage() {
             </div>
         </div>
 
-        {isOrderActive ? (
-            <Card className="shadow-lg">
-                <CardHeader>
-                    <CardTitle>Delivery Progress</CardTitle>
-                    <CardDescription>
-                        {progress < 100 && order.status === 'Out for Delivery' ? `Estimated arrival in ${Math.ceil(timeLeft / 60)} minutes.` : order.status === 'Delivered' ? 'Your order has arrived!' : 'Waiting for rider to pick up your order...'}
-                    </CardDescription>
-                </CardHeader>
-                <CardContent className="p-6 space-y-4">
-                    <div className="relative h-4 mb-8">
-                        <Progress value={progress} className="h-2 absolute top-1/2 -translate-y-1/2"/>
-                        <Bike 
-                            className="w-8 h-8 p-1.5 bg-primary text-primary-foreground rounded-full absolute top-1/2 -translate-y-1/2 transition-all duration-1000 ease-linear"
-                            style={{ left: `calc(${progress}% - 16px)` }}
-                        />
-                    </div>
-                     <div className="flex justify-between text-xs text-muted-foreground">
-                        <span>Shop</span>
-                        <span>Your Location</span>
-                    </div>
-                </CardContent>
-            </Card>
-        ) : (
+        {!isOrderActive && (
              <Card className="shadow-lg bg-destructive/10 border-destructive">
                 <CardHeader className="text-center">
                     <CardTitle className="text-destructive">Order {order.status}</CardTitle>

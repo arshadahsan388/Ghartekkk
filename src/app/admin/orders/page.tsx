@@ -117,11 +117,7 @@ export default function OrdersPage() {
     const handleStatusChange = async (orderId: string, newStatus: string) => {
         const orderRef = ref(db, `orders/${orderId}`);
         try {
-            const updates: { [key: string]: any } = { status: newStatus };
-            if (newStatus === 'Out for Delivery') {
-                updates.outForDeliveryTimestamp = serverTimestamp();
-            }
-            await update(orderRef, updates);
+            await update(orderRef, { status: newStatus });
             toast({
                 title: 'Order Status Updated',
                 description: `Order #${orderId.substring(orderId.length - 6).toUpperCase()} is now ${newStatus}.`,
@@ -142,8 +138,6 @@ export default function OrdersPage() {
 
     const getStatusBadge = (status: string) => {
         switch (status?.toLowerCase()) {
-        case 'out for delivery':
-            return 'bg-blue-500 hover:bg-blue-600';
         case 'confirmed':
             return 'bg-blue-500 hover:bg-blue-600';
         case 'delivered':
@@ -223,7 +217,6 @@ export default function OrdersPage() {
                                             <DropdownMenuLabel>Change Status</DropdownMenuLabel>
                                             <DropdownMenuItem onClick={(e) => {e.stopPropagation(); handleStatusChange(order.id, 'Pending')}}>Pending</DropdownMenuItem>
                                             <DropdownMenuItem onClick={(e) => {e.stopPropagation(); handleStatusChange(order.id, 'Confirmed')}}>Confirmed</DropdownMenuItem>
-                                            <DropdownMenuItem onClick={(e) => {e.stopPropagation(); handleStatusChange(order.id, 'Out for Delivery')}}>Out for Delivery</DropdownMenuItem>
                                             <DropdownMenuItem onClick={(e) => {e.stopPropagation(); handleStatusChange(order.id, 'Delivered')}}>Delivered</DropdownMenuItem>
                                             <DropdownMenuItem onClick={(e) => {e.stopPropagation(); handleStatusChange(order.id, 'Rejected')}} className="text-destructive">Rejected</DropdownMenuItem>
                                             <DropdownMenuItem onClick={(e) => {e.stopPropagation(); handleStatusChange(order.id, 'Cancelled')}} className="text-destructive">Cancelled</DropdownMenuItem>
