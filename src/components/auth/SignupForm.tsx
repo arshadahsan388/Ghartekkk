@@ -85,6 +85,10 @@ export default function SignupForm() {
     } catch (error: any) {
       console.error("Signup error:", error);
        if (error.code === 'auth/email-already-in-use') {
+        form.setError('email', {
+          type: 'manual',
+          message: 'This email is already in use. Please try another.',
+        });
         toast({
           variant: 'destructive',
           title: 'Signup Failed',
