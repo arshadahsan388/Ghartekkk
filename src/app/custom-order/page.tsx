@@ -21,7 +21,7 @@ import { Skeleton } from '@/components/ui/skeleton';
 import { useSearchParams, useRouter } from 'next/navigation';
 import { db, auth } from '@/lib/firebase';
 import { ref, push, get, update, set } from "firebase/database";
-import { onAuthStateChanged } from 'firebase/auth';
+import { onAuthStateChanged, type User } from 'firebase/auth';
 import { getNextOrderId } from '@/lib/order-helpers';
 
 const NORMAL_DELIVERY_FEE = 50;
@@ -41,7 +41,7 @@ export default function CustomOrderPage() {
   const [deliverySpeed, setDeliverySpeed] = useState('normal');
   const [isLoading, setIsLoading] = useState(false);
   const [isMounted, setIsMounted] = useState(false);
-  const [user, setUser] = useState<any | null>(null);
+  const [user, setUser] = useState<User | null>(null);
 
    useEffect(() => {
     setIsMounted(true);
@@ -50,10 +50,20 @@ export default function CustomOrderPage() {
         router.push('/login');
       } else {
         setUser(currentUser);
+        // Pre-fill address and phone number
         const savedAddress = localStorage.getItem('deliveryAddress');
         if (savedAddress) {
           setAddress(savedAddress);
         }
+        const userRef = ref(db, `users/${currentUser.uid}`);
+        get(userRef).then((snapshot) => {
+            if (snapshot.exists()) {
+                const userData = snapshot.val();
+                if(userData.phoneNumber) {
+                    setPhoneNumber(userData.phoneNumber);
+                }
+            }
+        });
       }
     });
 
@@ -113,7 +123,7 @@ export default function CustomOrderPage() {
       const newOrder = {
           id: newOrderRef.key,
           displayId: displayId,
-          customer: user.displayName || user.email.split('@')[0], 
+          customer: user.displayName || user.email?.split('@')[0], 
           shop: shopName || "Custom Order",
           status: 'Pending',
           total: total,
@@ -272,6 +282,7 @@ export default function CustomOrderPage() {
                             onChange={(e) => setPhoneNumber(e.target.value)}
                             required
                             className="pl-9"
+                            maxLength={11}
                         />
                     </div>
                 </div>

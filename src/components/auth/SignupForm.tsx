@@ -6,7 +6,7 @@ import { useForm } from 'react-hook-form';
 import { z } from 'zod';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
-import { createUserWithEmailAndPassword, sendEmailVerification } from 'firebase/auth';
+import { createUserWithEmailAndPassword, updateProfile, sendEmailVerification } from 'firebase/auth';
 import { ref, set } from 'firebase/database';
 
 import { Button } from '@/components/ui/button';
@@ -55,6 +55,9 @@ export default function SignupForm() {
     try {
       const userCredential = await createUserWithEmailAndPassword(auth, values.email, values.password);
       const user = userCredential.user;
+      
+      // Update profile with display name
+      await updateProfile(user, { displayName: values.fullName });
       
       try {
         await sendEmailVerification(user);
@@ -140,6 +143,7 @@ export default function SignupForm() {
                             type="tel"
                             placeholder="03001234567"
                             className="pl-9"
+                            maxLength={11}
                             {...field}
                         />
                     </div>

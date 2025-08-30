@@ -32,6 +32,7 @@ type Shop = {
 
 type UserData = {
     hasUsedFreeDelivery?: boolean;
+    phoneNumber?: string;
 }
 
 const NORMAL_DELIVERY_FEE = 50;
@@ -65,11 +66,15 @@ export default function ShopPage({ params }: { params: { shopId: string } }) {
         router.push('/login');
       } else {
         setUser(currentUser);
-        // Fetch user data
+        // Fetch user data including phone number
         const userRef = ref(db, `users/${currentUser.uid}`);
         onValue(userRef, (snapshot) => {
             if (snapshot.exists()) {
-                setUserData(snapshot.val());
+                const fetchedUserData = snapshot.val();
+                setUserData(fetchedUserData);
+                if (fetchedUserData.phoneNumber) {
+                    setPhoneNumber(fetchedUserData.phoneNumber);
+                }
             }
         });
       }
@@ -168,7 +173,7 @@ export default function ShopPage({ params }: { params: { shopId: string } }) {
         setOrderDescription('');
         setOrderPrice('');
         setOrderNote('');
-        setPhoneNumber('');
+        setPhoneNumber(userData?.phoneNumber || ''); // Reset to profile phone number
         setDeliverySpeed('normal');
         router.push(`/track-order/${newOrder.id}`);
 
@@ -289,6 +294,7 @@ export default function ShopPage({ params }: { params: { shopId: string } }) {
                                         onChange={(e) => setPhoneNumber(e.target.value)}
                                         required
                                         className="pl-9"
+                                        maxLength={11}
                                     />
                                 </div>
                             </div>

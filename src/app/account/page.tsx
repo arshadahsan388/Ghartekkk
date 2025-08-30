@@ -6,7 +6,7 @@ import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle }
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Home, LogOut, LifeBuoy, Package, User as UserIcon, KeyRound, Save, AtSign, FileText, Shield, FileQuestion, Info, Phone } from 'lucide-react';
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useCallback } from 'react';
 import { useRouter } from 'next/navigation';
 import { auth, db } from '@/lib/firebase';
 import { onAuthStateChanged, signOut, updateProfile, sendPasswordResetEmail, type User } from 'firebase/auth';
@@ -20,6 +20,21 @@ type UserData = {
     phoneNumber?: string;
     // Add other fields as they exist in your DB
 }
+
+// Debounce function
+function debounce<F extends (...args: any[]) => any>(func: F, waitFor: number) {
+  let timeout: ReturnType<typeof setTimeout>;
+
+  return (...args: Parameters<F>): Promise<ReturnType<F>> =>
+    new Promise(resolve => {
+      if (timeout) {
+        clearTimeout(timeout);
+      }
+
+      timeout = setTimeout(() => resolve(func(...args)), waitFor);
+    });
+}
+
 
 export default function AccountPage() {
   const [address, setAddress] = useState('');
@@ -69,23 +84,23 @@ export default function AccountPage() {
     if (!user) return;
     setIsSaving(true);
     try {
-      // Update profile in Firebase Auth
+      // Update profile in Firebase Auth for display name only
       await updateProfile(user, { displayName });
       
-      // Update profile in Realtime Database
+      // Update display name in Realtime Database
       const userRef = ref(db, `users/${user.uid}`);
-      await update(userRef, { name: displayName, phoneNumber: phoneNumber });
+      await update(userRef, { name: displayName });
 
       toast({
-        title: 'Profile Updated',
-        description: 'Your profile has been successfully updated.',
+        title: 'Display Name Updated',
+        description: 'Your display name has been successfully updated.',
       });
     } catch (error) {
       console.error("Error updating profile:", error);
       toast({
         variant: 'destructive',
         title: 'Update Failed',
-        description: 'Could not update your profile.',
+        description: 'Could not update your display name.',
       });
     } finally {
       setIsSaving(false);
@@ -132,6 +147,35 @@ export default function AccountPage() {
     }
   };
 
+  // Debounced save function for phone number
+  const savePhoneNumber = useCallback(debounce(async (newPhoneNumber: string) => {
+    if (!user) return;
+    try {
+        const userRef = ref(db, `users/${user.uid}`);
+        await update(userRef, { phoneNumber: newPhoneNumber });
+        toast({
+            title: 'Phone Number Updated',
+            description: 'Your phone number has been saved.',
+        });
+    } catch (error) {
+        console.error("Error updating phone number:", error);
+        toast({
+            variant: 'destructive',
+            title: 'Update Failed',
+            description: 'Could not save your phone number.',
+        });
+    }
+  }, 1000), [user, toast]);
+
+  const handlePhoneNumberChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const newPhoneNumber = e.target.value;
+    setPhoneNumber(newPhoneNumber);
+    if (newPhoneNumber.length <= 11) {
+        savePhoneNumber(newPhoneNumber);
+    }
+  };
+
+
   if (!isMounted || !user) {
     return (
         <div className="container mx-auto px-4 py-8">
@@ -170,30 +214,36 @@ export default function AccountPage() {
             <CardContent className="space-y-4">
                 <div className="space-y-2">
                     <Label htmlFor="displayName">Display Name</Label>
-                    <div className="relative">
-                        <UserIcon className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-                        <Input 
-                            id="displayName" 
-                            value={displayName} 
-                            onChange={(e) => setDisplayName(e.target.value)}
-                            placeholder="Your Name"
-                            disabled={isSaving}
-                            className="pl-9"
-                        />
+                     <div className="flex gap-2">
+                        <div className="relative w-full">
+                            <UserIcon className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+                            <Input 
+                                id="displayName" 
+                                value={displayName} 
+                                onChange={(e) => setDisplayName(e.target.value)}
+                                placeholder="Your Name"
+                                disabled={isSaving}
+                                className="pl-9"
+                            />
+                        </div>
+                         <Button onClick={handleSaveProfile} disabled={isSaving}>
+                           <Save className="mr-2 h-4 w-4" /> {isSaving ? 'Saving...' : 'Save Name'}
+                        </Button>
                     </div>
                 </div>
                  <div className="space-y-2">
-                    <Label htmlFor="phoneNumber">Phone Number</Label>
+                    <Label htmlFor="phoneNumber">Phone Number (auto-saves)</Label>
                      <div className="relative">
                         <Phone className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
                         <Input 
                             id="phoneNumber" 
                             type="tel" 
                             value={phoneNumber}
-                            onChange={(e) => setPhoneNumber(e.target.value)}
+                            onChange={handlePhoneNumberChange}
                             placeholder="e.g. 0300-1234567"
                             disabled={isSaving}
                             className="pl-9"
+                            maxLength={11}
                         />
                     </div>
                 </div>
@@ -210,11 +260,6 @@ export default function AccountPage() {
                         />
                     </div>
                      <p className="text-xs text-muted-foreground">Email address cannot be changed.</p>
-                </div>
-                 <div className="pt-2">
-                     <Button onClick={handleSaveProfile} disabled={isSaving}>
-                       <Save className="mr-2 h-4 w-4" /> {isSaving ? 'Saving...' : 'Save Profile'}
-                    </Button>
                 </div>
                 <Separator />
                 <div className="space-y-2 pt-2">
