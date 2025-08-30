@@ -78,7 +78,9 @@ export default function Home() {
                             onChange={(e) => setSearchQuery(e.target.value)}
                             autoComplete="off"
                             required
+                            maxLength={500}
                         />
+                        <p className="text-xs text-muted-foreground text-right">{searchQuery.length} / 500</p>
                     </div>
                     
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-left">
