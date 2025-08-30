@@ -9,12 +9,12 @@ import { useRouter } from "next/navigation";
 import { useToast } from "@/hooks/use-toast";
 
 const GoogleIcon = () => (
-    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-        <path d="M22 12c0-5.52-4.48-10-10-10S2 6.48 2 12c0 4.84 3.44 8.87 8 9.8V15H8v-3h2V9.5C10 7.57 11.57 6 13.5 6H16v3h-1.5c-1 0-1.5.5-1.5 1.5V12h3l-.5 3h-2.5v6.95A10.02 10.02 0 0 0 22 12z" fill="#4285F4" stroke="none"/>
-        <path d="M21.99 12c0-.67-.06-1.32-.17-1.95H12v3.7h5.5a4.83 4.83 0 0 1-2.09 3.15v2.4h3.1c1.81-1.67 2.89-4.14 2.89-6.95z" fill="#4285F4" stroke="none"/>
-        <path d="M12 22c2.7 0 4.96-1.09 6.62-2.95l-3.1-2.4c-.89.6-2.03.95-3.52.95-2.67 0-4.95-1.8-5.76-4.25H2.9v2.58A10 10 0 0 0 12 22z" fill="#34A853" stroke="none"/>
-        <path d="M6.24 14.25c-.2-.6-.31-1.25-.31-1.93s.11-1.33.31-1.93V7.81H2.9A10.03 10.03 0 0 0 2 12c0 1.8.48 3.49 1.3 4.97l2.94-2.72z" fill="#FBBC05" stroke="none"/>
-        <path d="M12 5.25c1.46 0 2.76.5 3.78 1.48l2.58-2.58C16.96 2.14 14.7 1 12 1 7.05 1 3.2 3.82 2.9 7.81l3.34 2.58C7.05 7.05 9.33 5.25 12 5.25z" fill="#EA4335" stroke="none"/>
+    <svg version="1.1" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="20" height="20" className="mr-2">
+        <path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-.97 2.53-1.94 3.31v2.76h3.54c2.08-1.92 3.28-4.74 3.28-8.08z" fill="#4285F4"></path>
+        <path d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.54-2.76c-.98.66-2.23 1.06-3.74 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" fill="#34A853"></path>
+        <path d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z" fill="#FBBC05"></path>
+        <path d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z" fill="#EA4335"></path>
+        <path d="M1 1h22v22H1z" fill="none"></path>
     </svg>
 )
 
@@ -89,5 +89,3 @@ export default function GoogleSignInButton() {
     </Button>
   );
 }
-
-    
