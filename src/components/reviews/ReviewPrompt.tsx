@@ -24,7 +24,6 @@ import { Star, MessageSquareWarning } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { db } from '@/lib/firebase';
 import { ref, push, set, update } from 'firebase/database';
-import { processComplaint } from '@/ai/flows/process-complaint';
 import type { User } from 'firebase/auth';
 
 type Shop = {
@@ -76,15 +75,6 @@ export default function ReviewPrompt({
       if (complaintType && complaintDetails) {
         reviewData.complaintType = complaintType;
         reviewData.complaintDetails = complaintDetails;
-
-        const complaintResult = await processComplaint({
-          shopName: shop.name,
-          complaintDetails,
-          complaintType,
-        });
-        reviewData.aiSummary = complaintResult.summary;
-        reviewData.aiCategory = complaintResult.category;
-        reviewData.aiUrgency = complaintResult.urgency;
       }
 
       await set(newReviewRef, reviewData);

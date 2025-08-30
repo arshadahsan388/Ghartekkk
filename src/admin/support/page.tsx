@@ -6,7 +6,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Card, CardContent, CardHeader, CardTitle, CardFooter } from '@/components/ui/card';
 import { Avatar, AvatarFallback } from '@/components/ui/avatar';
-import { Send, User, Image as ImageIcon, Paperclip, X } from 'lucide-react';
+import { Send, User, Image as ImageIcon, Paperclip, X, File as FileIcon } from 'lucide-react';
 import { auth, db } from '@/lib/firebase';
 import { ref, onValue, push, set, serverTimestamp, update } from 'firebase/database';
 import { cn } from '@/lib/utils';
@@ -14,8 +14,6 @@ import AdminHeader from '@/components/admin/layout/AdminHeader';
 import { Badge } from '@/components/ui/badge';
 import type { User as FirebaseUser } from 'firebase/auth';
 import Image from 'next/image';
-import { Label } from '@/components/ui/label';
-import { Switch } from '@/components/ui/switch';
 import { useToast } from '@/hooks/use-toast';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 
@@ -38,6 +36,12 @@ type ChatMetadata = {
     lastMessageType: 'text' | 'image';
 }
 
+type FileToSend = {
+    name: string;
+    type: string;
+    dataUrl: string;
+}
+
 export default function AdminSupportPage() {
   const [chats, setChats] = useState<ChatMetadata[]>([]);
   const [selectedChat, setSelectedChat] = useState<ChatMetadata | null>(null);
@@ -46,9 +50,8 @@ export default function AdminSupportPage() {
   const messagesEndRef = useRef<HTMLDivElement | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [adminUser, setAdminUser] = useState<FirebaseUser | null>(null);
-  const [isAiSupportActive, setIsAiSupportActive] = useState(false);
   const { toast } = useToast();
-  const [imageToSend, setImageToSend] = useState<string | null>(null);
+  const [fileToSend, setFileToSend] = useState<FileToSend | null>(null);
   const [isSending, setIsSending] = useState(false);
   const [viewedImageUrl, setViewedImageUrl] = useState<string | null>(null);
   const [isImageViewerOpen, setIsImageViewerOpen] = useState(false);
@@ -58,14 +61,8 @@ export default function AdminSupportPage() {
       setAdminUser(user);
     });
 
-    const aiSupportRef = ref(db, 'settings/aiSupportActive');
-    const unsubscribeAi = onValue(aiSupportRef, (snapshot) => {
-        setIsAiSupportActive(snapshot.val() ?? false);
-    });
-
     return () => {
         unsubscribeAuth();
-        unsubscribeAi();
     };
   }, [])
 
@@ -114,7 +111,7 @@ export default function AdminSupportPage() {
 
   const handleSendMessage = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!adminUser || !selectedChat || (newMessage.trim() === '' && !imageToSend)) return;
+    if (!adminUser || !selectedChat || (newMessage.trim() === '' && !fileToSend)) return;
 
     setIsSending(true);
 
@@ -134,16 +131,23 @@ export default function AdminSupportPage() {
         unreadByUser: true,
     };
     
-    if(imageToSend) {
-        await set(newMsgRef, { ...messageData, imageUrl: imageToSend, type: 'image' });
-        await update(metadataRef, { ...metadataUpdate, lastMessage: 'Image', lastMessageType: 'image' });
+    if(fileToSend) {
+        if (fileToSend.type.startsWith('image/')) {
+            await set(newMsgRef, { ...messageData, imageUrl: fileToSend.dataUrl, type: 'image' });
+            await update(metadataRef, { ...metadataUpdate, lastMessage: 'Image', lastMessageType: 'image' });
+        } else {
+            // For documents, we send the name as text.
+            const docMessage = `Sent a file: ${fileToSend.name}`;
+            await set(newMsgRef, { ...messageData, text: docMessage, type: 'text' });
+            await update(metadataRef, { ...metadataUpdate, lastMessage: docMessage, lastMessageType: 'text' });
+        }
     } else {
         await set(newMsgRef, { ...messageData, text: newMessage, type: 'text' });
         await update(metadataRef, { ...metadataUpdate, lastMessage: newMessage, lastMessageType: 'text' });
     }
 
     setNewMessage('');
-    setImageToSend(null);
+    setFileToSend(null);
     if(fileInputRef.current) fileInputRef.current.value = '';
     setIsSending(false);
   };
@@ -155,13 +159,17 @@ export default function AdminSupportPage() {
         toast({
             variant: 'destructive',
             title: 'File too large',
-            description: 'Please select an image smaller than 2MB.',
+            description: 'Please select an image or document smaller than 2MB.',
         });
         return;
       }
       const reader = new FileReader();
       reader.onload = (e) => {
-        setImageToSend(e.target?.result as string);
+         setFileToSend({
+            name: file.name,
+            type: file.type,
+            dataUrl: e.target?.result as string,
+        });
       };
       reader.readAsDataURL(file);
     }
@@ -177,24 +185,6 @@ export default function AdminSupportPage() {
     const metadataRef = ref(db, `chats/${chat.id}/metadata`);
     update(metadataRef, { unreadByAdmin: false });
   };
-  
-  const handleAiToggle = async (checked: boolean) => {
-      const aiSupportRef = ref(db, 'settings/aiSupportActive');
-      try {
-          await set(aiSupportRef, checked);
-          setIsAiSupportActive(checked);
-          toast({
-              title: `AI Support ${checked ? 'Enabled' : 'Disabled'}`,
-              description: `The AI assistant will now ${checked ? 'automatically reply to customers' : 'be inactive'}.`
-          });
-      } catch (error) {
-          console.error("Failed to toggle AI support:", error);
-           toast({
-              variant: 'destructive',
-              title: 'Update Failed',
-          });
-      }
-  }
 
   const renderLastMessage = (chat: ChatMetadata) => {
     if (chat.lastMessageType === 'image') {
@@ -213,16 +203,17 @@ export default function AdminSupportPage() {
     setIsImageViewerOpen(true);
   }
 
+  const clearAttachment = () => {
+    setFileToSend(null);
+    if(fileInputRef.current) fileInputRef.current.value = '';
+  }
+
 
   return (
     <>
     <main className="grid flex-1 items-start gap-4 p-4 sm:px-6 sm:py-0 md:gap-8 h-[calc(100vh-80px)]">
         <div className="flex items-center justify-between">
             <AdminHeader title="Support Chat" description="Respond to live customer queries." />
-            <div className="flex items-center space-x-2">
-              <Switch id="ai-support" checked={isAiSupportActive} onCheckedChange={handleAiToggle} />
-              <Label htmlFor="ai-support">Enable AI Assistant</Label>
-            </div>
         </div>
         <div className="grid md:grid-cols-[300px_1fr] gap-8 h-full">
             <Card className="flex flex-col">
@@ -290,7 +281,7 @@ export default function AdminSupportPage() {
                                             <Image src={message.imageUrl} alt="User upload" width={200} height={200} className="rounded-md cursor-pointer" />
                                         </button>
                                     ) : (
-                                        <p className="text-sm">{message.text}</p>
+                                        <p className="text-sm break-words">{message.text}</p>
                                     )}
                                     </div>
                                     {message.sender === 'admin' && (
@@ -303,17 +294,21 @@ export default function AdminSupportPage() {
                                 <div ref={messagesEndRef} />
                         </CardContent>
                          <CardFooter className="p-4 border-t flex flex-col items-start gap-2">
-                             {imageToSend && (
-                                <div className="relative">
-                                    <Image src={imageToSend} alt="Preview" width={80} height={80} className="rounded-md" />
+                             {fileToSend && (
+                                <div className="relative p-2 border rounded-md bg-muted">
+                                    {fileToSend.type.startsWith('image/') ? (
+                                        <Image src={fileToSend.dataUrl} alt="Preview" width={80} height={80} className="rounded-md" />
+                                    ) : (
+                                        <div className="flex items-center gap-2">
+                                            <FileIcon className="w-6 h-6" />
+                                            <span className="text-sm text-muted-foreground">{fileToSend.name}</span>
+                                        </div>
+                                    )}
                                     <Button
                                         variant="destructive"
                                         size="icon"
                                         className="absolute -top-2 -right-2 h-6 w-6 rounded-full"
-                                        onClick={() => {
-                                            setImageToSend(null)
-                                            if(fileInputRef.current) fileInputRef.current.value = '';
-                                        }}
+                                        onClick={clearAttachment}
                                     >
                                         <X className="h-4 w-4" />
                                     </Button>
@@ -324,7 +319,6 @@ export default function AdminSupportPage() {
                                     type="file"
                                     ref={fileInputRef}
                                     onChange={handleFileChange}
-                                    accept="image/*"
                                     className="hidden"
                                 />
                                 <Button
@@ -342,7 +336,7 @@ export default function AdminSupportPage() {
                                     placeholder="Type your message..."
                                     value={newMessage}
                                     onChange={(e) => setNewMessage(e.target.value)}
-                                    disabled={!!imageToSend || isSending}
+                                    disabled={!!fileToSend || isSending}
                                 />
                                 <Button type="submit" disabled={isSending}>
                                     <Send className="h-4 w-4" />
@@ -373,6 +367,3 @@ export default function AdminSupportPage() {
     </>
   );
 }
-
-
-    

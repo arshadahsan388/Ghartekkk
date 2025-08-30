@@ -14,7 +14,6 @@ import { ref, onValue, push, set, serverTimestamp, update } from 'firebase/datab
 import { Skeleton } from '@/components/ui/skeleton';
 import { useToast } from '@/hooks/use-toast';
 import Image from 'next/image';
-import { supportChat } from '@/ai/flows/support-chat-flow';
 
 type Message = {
   id: string;
@@ -37,7 +36,6 @@ export default function SupportPage() {
   const fileInputRef = useRef<HTMLInputElement | null>(null);
   const [imagePreview, setImagePreview] = useState<string | null>(null);
   const [isSending, setIsSending] = useState(false);
-  const [isAfterHours, setIsAfterHours] = useState(false);
 
   useEffect(() => {
     const unsubscribeAuth = onAuthStateChanged(auth, (currentUser) => {
@@ -48,12 +46,6 @@ export default function SupportPage() {
         setIsLoading(false);
       }
     });
-    
-    // Determine if it's after hours
-    const now = new Date();
-    // PKT is UTC+5, so we adjust the client's UTC time.
-    const pktHour = (now.getUTCHours() + 5) % 24;
-    setIsAfterHours(pktHour < 9 || pktHour >= 21); // 9 AM to 9 PM PKT
 
     return () => unsubscribeAuth();
   }, [router]);
@@ -69,10 +61,7 @@ export default function SupportPage() {
             .sort((a, b) => a.timestamp - b.timestamp);
           setMessages(messageList);
         } else {
-            // No messages yet, send initial AI greeting if after hours
-             if (isAfterHours) {
-                sendInitialAiGreeting();
-            }
+            setMessages([]);
         }
       });
 
@@ -82,40 +71,7 @@ export default function SupportPage() {
 
       return () => unsubscribeMessages();
     }
-  }, [user, isAfterHours]);
-
-  const sendInitialAiGreeting = async () => {
-    if (!user) return;
-     const conversationHistory = messages.map(m => ({
-        sender: m.sender,
-        message: m.text || (m.type === 'image' ? 'Image' : '')
-    }));
-
-     if(conversationHistory.length > 0) return; // Don't send if history exists
-
-    const aiResponse = await supportChat({
-        message: "User just opened the chat.",
-        history: conversationHistory
-    });
-
-    const chatRef = ref(db, `chats/${user.uid}/messages`);
-    const aiMsgRef = push(chatRef);
-    await set(aiMsgRef, {
-        text: aiResponse.response,
-        type: 'text',
-        sender: 'admin',
-        timestamp: serverTimestamp(),
-        userName: 'AI Support',
-    });
-     const metadataRef = ref(db, `chats/${user.uid}/metadata`);
-     await update(metadataRef, {
-        lastMessage: aiResponse.response,
-        lastMessageType: 'text',
-        timestamp: serverTimestamp(),
-        unreadByAdmin: true,
-        unreadByUser: true,
-    });
-  }
+  }, [user]);
 
   useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
