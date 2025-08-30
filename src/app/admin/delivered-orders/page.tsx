@@ -19,11 +19,23 @@ import {
   } from '@/components/ui/table';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
-import { MoreHorizontal, Loader2, FileText, User, MapPin, DollarSign, StickyNote, Rabbit, Turtle, Eye, Phone } from 'lucide-react';
+import { MoreHorizontal, Loader2, FileText, User, MapPin, DollarSign, StickyNote, Rabbit, Turtle, Eye, Phone, Trash2 } from 'lucide-react';
 import { useEffect, useState } from 'react';
 import { db } from '@/lib/firebase';
-import { ref, onValue } from 'firebase/database';
+import { ref, onValue, update, remove } from 'firebase/database';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter } from '@/components/ui/dialog';
+import {
+    AlertDialog,
+    AlertDialogAction,
+    AlertDialogCancel,
+    AlertDialogContent,
+    AlertDialogDescription,
+    AlertDialogFooter,
+    AlertDialogHeader,
+    AlertDialogTitle,
+    AlertDialogTrigger,
+  } from "@/components/ui/alert-dialog"
+import { useToast } from '@/hooks/use-toast';
 
 type Order = {
     id: string;
@@ -43,10 +55,13 @@ type Order = {
 };
 
 export default function DeliveredOrdersPage() {
+    const { toast } = useToast();
     const [orders, setOrders] = useState<Order[]>([]);
     const [isLoading, setIsLoading] = useState(true);
     const [selectedOrder, setSelectedOrder] = useState<Order | null>(null);
     const [isDetailsOpen, setIsDetailsOpen] = useState(false);
+    const [isConfirmOpen, setIsConfirmOpen] = useState(false);
+    const [isDeleting, setIsDeleting] = useState(false);
 
     useEffect(() => {
         const ordersRef = ref(db, 'orders');
@@ -74,6 +89,40 @@ export default function DeliveredOrdersPage() {
         setSelectedOrder(order);
         setIsDetailsOpen(true);
     }
+    
+    const handleDeleteAll = async () => {
+        setIsDeleting(true);
+        try {
+            const updates: { [key: string]: null } = {};
+            orders.forEach(order => {
+                updates[`/orders/${order.id}`] = null;
+            });
+
+            if (Object.keys(updates).length > 0) {
+                 await update(ref(db), updates);
+                 toast({
+                    title: 'Orders Deleted',
+                    description: 'All delivered orders have been removed.',
+                });
+            } else {
+                 toast({
+                    title: 'No Orders to Delete',
+                    description: 'There are no delivered orders to remove.',
+                });
+            }
+        } catch (error) {
+            console.error("Failed to delete orders:", error);
+            toast({
+                variant: 'destructive',
+                title: 'Deletion Failed',
+                description: 'Could not remove delivered orders. Please try again.',
+            });
+        } finally {
+            setIsDeleting(false);
+            setIsConfirmOpen(false);
+        }
+    }
+
 
     const getStatusBadge = (status: string) => {
         switch (status?.toLowerCase()) {
@@ -87,7 +136,32 @@ export default function DeliveredOrdersPage() {
 
   return (
     <main className="grid flex-1 items-start gap-4 p-4 sm:px-6 sm:py-0 md:gap-8">
-        <AdminHeader title="Delivered Orders" description="View all successfully delivered orders." />
+        <div className="flex items-center justify-between">
+            <AdminHeader title="Delivered Orders" description="View all successfully delivered orders." />
+            <AlertDialog open={isConfirmOpen} onOpenChange={setIsConfirmOpen}>
+                <AlertDialogTrigger asChild>
+                    <Button variant="destructive" size="sm" disabled={orders.length === 0 || isLoading}>
+                        <Trash2 className="w-4 h-4 mr-2" />
+                        Delete All
+                    </Button>
+                </AlertDialogTrigger>
+                <AlertDialogContent>
+                    <AlertDialogHeader>
+                    <AlertDialogTitle>Are you absolutely sure?</AlertDialogTitle>
+                    <AlertDialogDescription>
+                        This action cannot be undone. This will permanently delete all {orders.length} delivered orders from the database.
+                    </AlertDialogDescription>
+                    </AlertDialogHeader>
+                    <AlertDialogFooter>
+                    <AlertDialogCancel disabled={isDeleting}>Cancel</AlertDialogCancel>
+                    <AlertDialogAction onClick={handleDeleteAll} disabled={isDeleting}>
+                        {isDeleting && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+                        Yes, delete all
+                    </AlertDialogAction>
+                    </AlertDialogFooter>
+                </AlertDialogContent>
+            </AlertDialog>
+        </div>
         <Card>
             <CardHeader>
                 <CardTitle>Order History</CardTitle>
@@ -137,7 +211,7 @@ export default function DeliveredOrdersPage() {
                                     )}
                                 </TableCell>
                                 <TableCell className="text-right">
-                                    <Button size="sm" variant="outline" onClick={() => handleRowClick(order)}>
+                                    <Button size="sm" variant="outline" onClick={(e) => { e.stopPropagation(); handleRowClick(order)}}>
                                         <Eye className="mr-2 h-4 w-4"/>
                                         View Details
                                     </Button>
