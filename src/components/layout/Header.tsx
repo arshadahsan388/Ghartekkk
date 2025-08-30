@@ -13,30 +13,51 @@ import { ThemeSwitcher } from '../theme/ThemeSwitcher';
 import { onAuthStateChanged, type User as FirebaseUser } from 'firebase/auth';
 import { auth } from '@/lib/firebase';
 import { cn } from '@/lib/utils';
+import { Skeleton } from '../ui/skeleton';
 
 export default function Header() {
   const [user, setUser] = useState<FirebaseUser | null>(null);
-  const [loading, setLoading] = useState(true); // Add loading state
+  const [loading, setLoading] = useState(true);
+  const [isMounted, setIsMounted] = useState(false);
   const router = useRouter();
   const pathname = usePathname();
   const { toast } = useToast();
 
   useEffect(() => {
+    setIsMounted(true);
     const unsubscribe = onAuthStateChanged(auth, async (currentUser) => {
       setUser(currentUser);
-      setLoading(false); // Set loading to false once auth state is known
+      setLoading(false);
     });
 
-    // Cleanup subscription on unmount
     return () => unsubscribe();
   }, []);
 
   const isNotAdminPage = !pathname.startsWith('/admin');
   const showBackButton = pathname !== '/';
 
-
   if (!isNotAdminPage) {
-    return null; // Don't render the main header on admin pages
+    return null; 
+  }
+  
+  // To prevent hydration mismatch, we'll render a placeholder on the server and the actual content on the client.
+  if (!isMounted) {
+      return (
+        <header className="sticky top-0 z-50 w-full border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
+            <div className="container flex h-16 items-center">
+                 <div className="flex items-center md:hidden">
+                    <Skeleton className="h-8 w-8 mr-2" />
+                    <Skeleton className="h-8 w-24" />
+                </div>
+                <Skeleton className="mr-6 hidden md:flex h-8 w-28" />
+                <div className="flex-1"></div>
+                 <div className="flex items-center justify-end space-x-2">
+                    <Skeleton className="h-8 w-8" />
+                    <Skeleton className="h-9 w-20" />
+                </div>
+            </div>
+        </header>
+      )
   }
 
   return (
@@ -51,13 +72,13 @@ export default function Header() {
             )}
             <Link href="/" className="flex items-center space-x-2">
                 <Logo className="h-8 w-8" />
-                <span className="font-bold text-xl font-headline sr-only sm:not-sr-only">GharTek</span>
+                <span className="font-bold text-xl font-headline sr-only sm:not-sr-only">Pak Delivers</span>
             </Link>
         </div>
 
         <Link href="/" className="mr-6 hidden md:flex items-center space-x-2">
           <Logo className="h-8 w-8" />
-          <span className="font-bold text-xl font-headline">GharTek</span>
+          <span className="font-bold text-xl font-headline">Pak Delivers</span>
         </Link>
         
         <nav className="hidden md:flex items-center space-x-6 text-sm font-medium flex-1">
@@ -86,7 +107,12 @@ export default function Header() {
 
         <div className="flex items-center justify-end space-x-2 flex-1">
            <ThemeSwitcher />
-          {!loading && !user && (
+          {loading ? (
+             <div className="flex items-center space-x-1">
+                <Skeleton className="h-9 w-10 sm:w-24" />
+                <Skeleton className="h-9 w-10 sm:w-24" />
+             </div>
+          ) : !user ? (
              <div className="flex items-center space-x-1">
               <Button asChild variant="ghost" size="sm" className="px-2 sm:px-4">
                 <Link href="/login">
@@ -101,7 +127,7 @@ export default function Header() {
                 </Link>
               </Button>
             </div>
-          )}
+          ) : null}
         </div>
       </div>
     </header>

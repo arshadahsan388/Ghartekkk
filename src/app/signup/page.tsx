@@ -19,7 +19,7 @@ export default function SignupPage() {
                 Create an Account
               </CardTitle>
               <CardDescription>
-                Join GharTek to order your favorite food
+                Join Pak Delivers to order your favorite food
               </CardDescription>
             </CardHeader>
             <CardContent>

@@ -19,7 +19,7 @@ export default function LoginPage() {
                 Welcome Back
               </CardTitle>
               <CardDescription>
-                Sign in to continue to GharTek
+                Sign in to continue to Pak Delivers
               </CardDescription>
             </CardHeader>
             <CardContent>
