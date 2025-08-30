@@ -85,13 +85,13 @@ export default function Header() {
         <div className="flex items-center justify-end space-x-2 flex-1">
            <ThemeSwitcher />
           {!user && (
-             <div className="space-x-2">
-              <Button asChild variant="ghost">
+             <div className="flex items-center space-x-1">
+              <Button asChild variant="ghost" size="sm">
                 <Link href="/login">
                   <LogIn className="mr-2 h-4 w-4" /> Login
                 </Link>
               </Button>
-              <Button asChild>
+              <Button asChild size="sm">
                 <Link href="/signup">
                   <UserPlus className="mr-2 h-4 w-4" /> Sign Up
                 </Link>
