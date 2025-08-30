@@ -230,7 +230,9 @@ export default function CustomOrderPage() {
                   onChange={(e) => setDescription(e.target.value)}
                   required
                   rows={4}
+                  maxLength={500}
                 />
+                <p className="text-xs text-muted-foreground text-right">{description.length} / 500</p>
               </div>
               <div className="space-y-2">
                 <Label htmlFor="shopName">Specific Shop Name (Optional)</Label>
