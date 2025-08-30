@@ -72,7 +72,7 @@ export default function Header() {
             )}
             <Link href="/" className="flex items-center space-x-2">
                 <Logo className="h-8 w-8" />
-                <span className="font-bold text-xl font-headline sr-only sm:not-sr-only">Pak Delivers</span>
+                <span className="font-bold text-xl font-headline">Pak Delivers</span>
             </Link>
         </div>
 
