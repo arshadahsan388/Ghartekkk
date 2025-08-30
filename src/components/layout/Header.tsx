@@ -16,6 +16,7 @@ import { cn } from '@/lib/utils';
 
 export default function Header() {
   const [user, setUser] = useState<FirebaseUser | null>(null);
+  const [loading, setLoading] = useState(true); // Add loading state
   const router = useRouter();
   const pathname = usePathname();
   const { toast } = useToast();
@@ -23,6 +24,7 @@ export default function Header() {
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, async (currentUser) => {
       setUser(currentUser);
+      setLoading(false); // Set loading to false once auth state is known
     });
 
     // Cleanup subscription on unmount
@@ -84,7 +86,7 @@ export default function Header() {
 
         <div className="flex items-center justify-end space-x-2 flex-1">
            <ThemeSwitcher />
-          {!user && (
+          {!loading && !user && (
              <div className="flex items-center space-x-1">
               <Button asChild variant="ghost" size="sm">
                 <Link href="/login">
