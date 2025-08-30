@@ -120,7 +120,7 @@ export default function Footer() {
         <div className="container mx-auto py-8">
             <div className="grid grid-cols-2 md:grid-cols-4 gap-8">
                 <div>
-                    <h3 className="font-bold text-lg mb-2">Pak Delivers</h3>
+                    <h3 className="font-bold text-lg mb-2">GharTek</h3>
                     <p className="text-muted-foreground text-sm">Your favorite food and groceries, delivered fast.</p>
                 </div>
                  <div>
@@ -148,7 +148,7 @@ export default function Footer() {
                 </div>
             </div>
              <div className="mt-8 pt-4 border-t text-center text-sm text-muted-foreground">
-                <p>&copy; {new Date().getFullYear()} Pak Delivers. All rights reserved.</p>
+                <p>&copy; {new Date().getFullYear()} GharTek. All rights reserved.</p>
             </div>
         </div>
       </footer>

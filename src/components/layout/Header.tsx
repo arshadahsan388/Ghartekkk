@@ -72,13 +72,13 @@ export default function Header() {
             )}
             <Link href="/" className="flex items-center space-x-2">
                 <Logo className="h-8 w-8" />
-                <span className="font-bold text-xl font-headline">Pak Delivers</span>
+                <span className="font-bold text-xl font-headline">GharTek</span>
             </Link>
         </div>
 
         <Link href="/" className="mr-6 hidden md:flex items-center space-x-2">
           <Logo className="h-8 w-8" />
-          <span className="font-bold text-xl font-headline">Pak Delivers</span>
+          <span className="font-bold text-xl font-headline">GharTek</span>
         </Link>
         
         <nav className="hidden md:flex items-center space-x-6 text-sm font-medium flex-1">

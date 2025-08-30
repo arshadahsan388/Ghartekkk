@@ -13,7 +13,7 @@ const ptSans = PT_Sans({
 });
 
 export const metadata: Metadata = {
-  title: 'Pak Delivers',
+  title: 'GharTek',
   description: 'Your favorite food and groceries, delivered.',
 };
 
