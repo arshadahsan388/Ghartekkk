@@ -43,18 +43,18 @@ export default function Header() {
     <header className="sticky top-0 z-50 w-full border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
       <div className="container flex h-16 items-center">
         <div className="flex items-center md:hidden">
-          {showBackButton ? (
-             <Button variant="ghost" size="icon" className="mr-2" onClick={() => router.back()}>
-                <ArrowLeft className="h-6 w-6"/>
-                <span className="sr-only">Back</span>
-             </Button>
-          ) : (
-             <Link href="/" className="flex items-center space-x-2">
+            {showBackButton && (
+                <Button variant="ghost" size="icon" className="mr-2" onClick={() => router.back()}>
+                    <ArrowLeft className="h-6 w-6"/>
+                    <span className="sr-only">Back</span>
+                </Button>
+            )}
+            <Link href="/" className="flex items-center space-x-2">
                 <Logo className="h-8 w-8" />
-                <span className="font-bold text-xl font-headline">GharTek</span>
+                <span className="font-bold text-xl font-headline sr-only sm:not-sr-only">GharTek</span>
             </Link>
-          )}
         </div>
+
         <Link href="/" className="mr-6 hidden md:flex items-center space-x-2">
           <Logo className="h-8 w-8" />
           <span className="font-bold text-xl font-headline">GharTek</span>
@@ -88,14 +88,16 @@ export default function Header() {
            <ThemeSwitcher />
           {!loading && !user && (
              <div className="flex items-center space-x-1">
-              <Button asChild variant="ghost" size="sm">
+              <Button asChild variant="ghost" size="sm" className="px-2 sm:px-4">
                 <Link href="/login">
-                  <LogIn className="mr-2 h-4 w-4" /> Login
+                  <LogIn className="h-4 w-4 sm:mr-2" />
+                  <span className="hidden sm:inline">Login</span>
                 </Link>
               </Button>
-              <Button asChild size="sm">
+              <Button asChild size="sm" className="px-2 sm:px-4">
                 <Link href="/signup">
-                  <UserPlus className="mr-2 h-4 w-4" /> Sign Up
+                  <UserPlus className="h-4 w-4 sm:mr-2" />
+                  <span className="hidden sm:inline">Sign Up</span>
                 </Link>
               </Button>
             </div>
