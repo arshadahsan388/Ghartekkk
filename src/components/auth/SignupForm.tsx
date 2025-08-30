@@ -30,7 +30,9 @@ const formSchema = z.object({
     .string()
     .min(2, { message: 'Full name must be at least 2 characters.' }),
   email: z.string().email({ message: 'Please enter a valid email.' }),
-  phoneNumber: z.string().min(11, { message: 'Please enter a valid phone number.'}),
+  phoneNumber: z
+    .string()
+    .regex(/^03\d{9}$/, { message: 'Please enter a valid 11-digit Pakistani mobile number starting with 03.' }),
   password: z
     .string()
     .min(8, { message: 'Password must be at least 8 characters.' }),
@@ -136,7 +138,7 @@ export default function SignupForm() {
                         <Phone className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
                         <Input
                             type="tel"
-                            placeholder="0300-1234567"
+                            placeholder="03001234567"
                             className="pl-9"
                             {...field}
                         />
