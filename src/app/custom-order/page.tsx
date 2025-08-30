@@ -18,7 +18,7 @@ import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import { Send, ShoppingCart, Store, Phone } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { Skeleton } from '@/components/ui/skeleton';
-import { useSearchParams, useRouter } from 'next/navigation';
+import { useRouter } from 'next/navigation';
 import { db, auth } from '@/lib/firebase';
 import { ref, push, get, update, set } from "firebase/database";
 import { onAuthStateChanged, type User } from 'firebase/auth';
@@ -30,7 +30,8 @@ const FAST_DELIVERY_FEE = 70;
 
 export default function CustomOrderPage() {
   const { toast } = useToast();
-  const searchParams = useSearchParams();
+  // useSearchParams causes prerender issues; parse search params on client instead
+  const searchParams = undefined as unknown as URLSearchParams;
   const router = useRouter();
   const [description, setDescription] = useState('');
   const [shopName, setShopName] = useState('');
@@ -71,29 +72,24 @@ export default function CustomOrderPage() {
   }, [router]);
   
   useEffect(() => {
-    const descriptionFromParams = searchParams.get('description');
-    const shopNameFromParams = searchParams.get('shopName');
-    const budgetFromParams = searchParams.get('budget');
-    const addressFromParams = searchParams.get('address');
-    
-    if (descriptionFromParams) {
-        setDescription(descriptionFromParams);
-    }
-    if (shopNameFromParams) {
-      setShopName(shopNameFromParams);
-    }
-    if (budgetFromParams) {
-        setBudget(budgetFromParams);
-    }
-     if (addressFromParams) {
+    // parse params on the client to avoid Next prerender problems
+    const sp = new URLSearchParams(window.location.search);
+    const descriptionFromParams = sp.get('description');
+    const shopNameFromParams = sp.get('shopName');
+    const budgetFromParams = sp.get('budget');
+    const addressFromParams = sp.get('address');
+
+    if (descriptionFromParams) setDescription(descriptionFromParams);
+    if (shopNameFromParams) setShopName(shopNameFromParams);
+    if (budgetFromParams) setBudget(budgetFromParams);
+
+    if (addressFromParams) {
       setAddress(addressFromParams);
     } else {
       const savedAddress = localStorage.getItem('deliveryAddress');
-      if (savedAddress) {
-        setAddress(savedAddress);
-      }
+      if (savedAddress) setAddress(savedAddress);
     }
-  }, [searchParams]);
+  }, []);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
