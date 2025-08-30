@@ -1,0 +1,18 @@
+{
+  "rules": {
+    ".read": "now < 1799999999999",
+    ".write": "now < 1799999999999",
+    "users": {
+      ".indexOn": ["phoneNumber", "role"]
+    },
+    "orders": {
+        ".indexOn": ["userId", "userIdShopId", "isRead"]
+    },
+    "reviews": {
+        ".indexOn": ["isRead"]
+    },
+    "chats": {
+        ".indexOn": ["metadata/unreadByAdmin"]
+    }
+  }
+}
