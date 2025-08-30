@@ -23,12 +23,14 @@ import { useToast } from '@/hooks/use-toast';
 import { Separator } from '../ui/separator';
 import GoogleSignInButton from './GoogleSignInButton';
 import { auth, db } from '@/lib/firebase';
+import { Phone } from 'lucide-react';
 
 const formSchema = z.object({
   fullName: z
     .string()
     .min(2, { message: 'Full name must be at least 2 characters.' }),
   email: z.string().email({ message: 'Please enter a valid email.' }),
+  phoneNumber: z.string().min(11, { message: 'Please enter a valid phone number.'}),
   password: z
     .string()
     .min(8, { message: 'Password must be at least 8 characters.' }),
@@ -42,6 +44,7 @@ export default function SignupForm() {
     defaultValues: {
       fullName: '',
       email: '',
+      phoneNumber: '',
       password: '',
     },
   });
@@ -62,6 +65,7 @@ export default function SignupForm() {
         id: user.uid,
         name: values.fullName,
         email: values.email,
+        phoneNumber: values.phoneNumber,
         orders: 0,
         isBanned: false,
         role: 'customer', // Default role for new signups
@@ -121,6 +125,27 @@ export default function SignupForm() {
               </FormItem>
             )}
           />
+           <FormField
+            control={form.control}
+            name="phoneNumber"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Phone Number</FormLabel>
+                <FormControl>
+                   <div className="relative">
+                        <Phone className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+                        <Input
+                            type="tel"
+                            placeholder="0300-1234567"
+                            className="pl-9"
+                            {...field}
+                        />
+                    </div>
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
           <FormField
             control={form.control}
             name="password"
@@ -157,5 +182,3 @@ export default function SignupForm() {
     </div>
   );
 }
-
-    

@@ -33,6 +33,7 @@ type User = {
     id: string;
     name: string;
     email: string;
+    phoneNumber?: string;
     role: 'admin' | 'customer';
     orders: number;
     isBanned: boolean;
@@ -139,6 +140,7 @@ export default function UsersPage() {
                         <TableRow>
                         <TableHead>Name</TableHead>
                         <TableHead>Email</TableHead>
+                        <TableHead>Phone</TableHead>
                         <TableHead>Role</TableHead>
                         <TableHead>Total Orders</TableHead>
                         <TableHead>Status</TableHead>
@@ -148,7 +150,7 @@ export default function UsersPage() {
                     <TableBody>
                         {isLoading ? (
                            <TableRow>
-                             <TableCell colSpan={6} className="text-center">
+                             <TableCell colSpan={7} className="text-center">
                                <Loader2 className="animate-spin mx-auto" />
                              </TableCell>
                            </TableRow>
@@ -156,6 +158,7 @@ export default function UsersPage() {
                            <TableRow key={user.id}>
                             <TableCell>{user.name}</TableCell>
                             <TableCell>{user.email}</TableCell>
+                            <TableCell>{user.phoneNumber || 'N/A'}</TableCell>
                             <TableCell><Badge variant={user.role === 'admin' ? 'default' : 'secondary'}>{user.role}</Badge></TableCell>
                             <TableCell>{user.orders || 0}</TableCell>
                              <TableCell>
