@@ -6,7 +6,7 @@ import { useForm } from 'react-hook-form';
 import { z } from 'zod';
 import Link from 'next/link';
 import { signInWithEmailAndPassword } from 'firebase/auth';
-import { ref, get, child } from 'firebase/database';
+import { ref, get, query, orderByChild, equalTo } from 'firebase/database';
 
 import { Button } from '@/components/ui/button';
 import {
@@ -25,7 +25,7 @@ import { useRouter } from 'next/navigation';
 import { auth, db } from '@/lib/firebase';
 
 const formSchema = z.object({
-  email: z.string().email({ message: 'Please enter a valid email.' }),
+  emailOrPhone: z.string().min(1, { message: 'Please enter a valid email or phone number.' }),
   password: z.string().min(1, { message: 'Password is required.' }),
 });
 
@@ -35,19 +35,51 @@ export default function LoginForm() {
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     defaultValues: {
-      email: '',
+      emailOrPhone: '',
       password: '',
     },
   });
 
   async function onSubmit(values: z.infer<typeof formSchema>) {
+    let emailToLogin = values.emailOrPhone;
+
+    // Check if input is a phone number
+    if (!values.emailOrPhone.includes('@')) {
+        try {
+            const usersRef = ref(db, 'users');
+            const phoneQuery = query(usersRef, orderByChild('phoneNumber'), equalTo(values.emailOrPhone));
+            const snapshot = await get(phoneQuery);
+
+            if (snapshot.exists()) {
+                const userData = Object.values(snapshot.val())[0] as any;
+                emailToLogin = userData.email;
+            } else {
+                 toast({
+                    variant: 'destructive',
+                    title: 'Login Failed',
+                    description: 'No account found with this phone number.',
+                });
+                return;
+            }
+        } catch (error) {
+             console.error("Phone number lookup error:", error);
+             toast({
+                variant: 'destructive',
+                title: 'Login Failed',
+                description: 'An error occurred while looking up your account.',
+            });
+            return;
+        }
+    }
+
+
     try {
-      const userCredential = await signInWithEmailAndPassword(auth, values.email, values.password);
+      const userCredential = await signInWithEmailAndPassword(auth, emailToLogin, values.password);
       const user = userCredential.user;
 
       // Check user role and ban status
-      const userRef = ref(db);
-      const snapshot = await get(child(userRef, `users/${user.uid}`));
+      const userRef = ref(db, `users/${user.uid}`);
+      const snapshot = await get(userRef);
       if (snapshot.exists()) {
         const userData = snapshot.val();
         if (userData.isBanned) {
@@ -87,12 +119,12 @@ export default function LoginForm() {
        if (error.code === 'auth/invalid-credential' || error.code === 'auth/wrong-password' || error.code === 'auth/user-not-found') {
             form.setError('password', {
                 type: 'manual',
-                message: 'Incorrect email or password. Please try again.',
+                message: 'Incorrect credentials. Please try again.',
             });
             toast({
                 variant: 'destructive',
                 title: 'Login Failed',
-                description: 'The email or password you entered is incorrect.',
+                description: 'The credentials you entered are incorrect.',
             });
        } else {
             toast({
@@ -110,12 +142,12 @@ export default function LoginForm() {
         <form onSubmit={form.handleSubmit(onSubmit)} className="grid gap-4">
           <FormField
             control={form.control}
-            name="email"
+            name="emailOrPhone"
             render={({ field }) => (
               <FormItem>
-                <FormLabel>Email</FormLabel>
+                <FormLabel>Email or Phone Number</FormLabel>
                 <FormControl>
-                  <Input placeholder="name@example.com" {...field} />
+                  <Input placeholder="name@example.com or 03..." {...field} />
                 </FormControl>
                 <FormMessage />
               </FormItem>
